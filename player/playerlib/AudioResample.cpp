@@ -115,7 +115,7 @@ namespace player {
 			return false;
 		}
 
-		int size = av_samples_get_buffer_size(&(out->mLinesize), out->mChannel,
+        av_samples_get_buffer_size(&(out->mLinesize), out->mChannel,
 			ret, (AVSampleFormat)out->mFormat, 0);				
 		return true;	
 	}

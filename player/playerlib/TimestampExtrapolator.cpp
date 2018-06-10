@@ -6,7 +6,7 @@
 *
 *  TimestampExtrapolator
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/26
-*  Ê±¼ä´ÁÍÆËã
+*  æ—¶é—´æˆ³æ¨ç®—
 */
 #include "TimestampExtrapolator.hpp"
 
@@ -22,7 +22,7 @@ namespace player {
 	TimestampExtrapolator::~TimestampExtrapolator() {
 	}
 	//
-	// ÖØÖÃ
+	// é‡ç½®
 	//
 	void TimestampExtrapolator::reset() {
 		mOriginLocalTimeUs = 0;
@@ -31,20 +31,24 @@ namespace player {
 		mLastTimestampLocalTimeUs = 0;
 	}
 	//
-	//  ÖØÖÃÒ»ÏÂÊ±ÖÓ£¬µ±Ç°Ê±¼ä´Á¶ÔÓ¦µ±Ç°µÄÊ±¼äµã
+	//  é‡ç½®ä¸€ä¸‹æ—¶é’Ÿï¼Œå½“å‰æ—¶é—´æˆ³å¯¹åº”å½“å‰çš„æ—¶é—´ç‚¹
 	//
-	void TimestampExtrapolator::update(int64_t timestamp, FFL::TimeBase units) {		
-		mOriginTimestampUs = timestampToUs(timestamp, units);
+	void TimestampExtrapolator::update(int64_t timestamp, FFL::TimeBase units) {
+   		mOriginTimestampUs = timestampToUs(timestamp, units);
+        if(mOriginTimestampUs<0){
+            int i=0;
+            i++;
+        }
 		mOriginLocalTimeUs = mClock->nowUs();
 	}
 	//
-	//  »ñÈ¡µ±Ç°µÄÊ±¼ä
+	//  è·å–å½“å‰çš„æ—¶é—´
 	//
 	int64_t TimestampExtrapolator::getNowUs() {
 		return mClock->nowUs();
 	}
 	//
-	// »ñÈ¡Õâ¸öÊ±¼ä´Áµ½ÏÖÔÚµÄÏà¶ÔÊ±¼ä
+	// è·å–è¿™ä¸ªæ—¶é—´æˆ³åˆ°ç°åœ¨çš„ç›¸å¯¹æ—¶é—´
 	//
 	int64_t TimestampExtrapolator::getDelayUsRelativeNow(int64_t timestamp, FFL::TimeBase units) {
 		int64_t d1 = 0;
@@ -54,13 +58,16 @@ namespace player {
 			int64_t t2 = timestampToUs(timestamp, units);
 			int64_t t1 = now= mClock->nowUs();
 			//
-			//  ·µ»ØÏà¶ÔµÄ²îÖµ
+			//  è¿”å›ç›¸å¯¹çš„å·®å€¼
 			//	
 			d1 = t1 - mOriginLocalTimeUs;
 			d2 = t2 - mOriginTimestampUs;
 			if (d2 < 0 || d1 < 0) {
-				d2 += 0;
-				d1 += 0;
+                FFL_LOG_WARNING("Extrapolator: d2<0 || d1<0  d2=%" lld64 " d1=%" lld64,
+                                 d2,d1);
+				d2 = 0;
+				d1 = 0;
+                
 			}
 		}
 
@@ -71,31 +78,42 @@ namespace player {
 			d2-d1);
 
 		int64_t delay = d2 - d1;
-		int64_t timestampLocalTimeUs= now + delay;
-		if (abs(timestampLocalTimeUs - mLastTimestampLocalTimeUs) > 2 * 1000 * 1000) {
-			//
-			//   2èåÊı¾İÏà²î2sÒÔÉÏÁË£¬Õâ¸öÓĞµãÒì³£ÁË
-			//
-			delay=d1 = d2 = 0;
-			reset();
-			update(timestamp, units);
-			FFL_LOG_CRIT("reset TimestampExtrapolator");
-		}
+        {
+            int64_t timestampLocalTimeUs= now + delay;
+            //
+            //  æ”¯æŒçš„æœ€å¤§åå·® , 2s
+            //
+            int64_t maxDeviation=2 * 1000 * 1000;
+            int64_t diff=(timestampLocalTimeUs>mLastTimestampLocalTimeUs)?
+                         (timestampLocalTimeUs-mLastTimestampLocalTimeUs):
+                         (mLastTimestampLocalTimeUs-timestampLocalTimeUs);
+            if (diff > maxDeviation) {
+                //
+                //   2æ¡¢æ•°æ®ç›¸å·®2sä»¥ä¸Šäº†ï¼Œè¿™ä¸ªæœ‰ç‚¹å¼‚å¸¸äº† ,todoéœ€è¦é€šçŸ¥ä¸¢å¸§
+                //
+                delay=d1 = d2 = 0;
+                reset();
+                update(timestamp, units);
+                FFL_LOG_CRIT("reset TimestampExtrapolator");
+            }
+        }
 
 		if (mLastTimestampLocalTimeUs != 0 && mLastTimestamp != 0) {
 			//
-			// ¸úÊ±¼ä´Á¼ÆËãµÄÑÓ³Ù±È½ÏÒ»ÏÂ£¬¿´ÓĞ¶àÉÙµÄÆ«²î
+			// è·Ÿæ—¶é—´æˆ³è®¡ç®—çš„å»¶è¿Ÿæ¯”è¾ƒä¸€ä¸‹ï¼Œçœ‹æœ‰å¤šå°‘çš„åå·®
+            // å»¶è¿Ÿæ˜¯å¦å¤§äº15æ¯«ç§’äº†
 			//
+            int64_t maxDeviation= 1000 * 15;
 			int64_t diff = getDelayUsTimestamp(timestamp, units);
 			diff -= (now - mLastTimestampLocalTimeUs);
-			if (abs(diff - delay) < 1000 * 15) {				
+			if (abs(diff - delay) < maxDeviation) {
 				delay = diff;
 			}else {
 				//
-				//  Õâ¸öĞèÒªÔõÃ´´¦Àí£¬ÒôÊÓÆµÏà¶ÔÖ÷Ê±ÖÓµÄÊ±¼ä±È½Ï³¤ÁË
+				//  è¿™ä¸ªéœ€è¦æ€ä¹ˆå¤„ç†ï¼ŒéŸ³è§†é¢‘ç›¸å¯¹ä¸»æ—¶é’Ÿçš„æ—¶é—´æ¯”è¾ƒé•¿äº†
 				//
 				FFL_LOG_CRIT("TimestampExtrapolator diff> 15ms =%" lld64 , diff - delay);
-				//delay = diff;
+				
 			}
 		}
 		
@@ -110,13 +128,13 @@ namespace player {
 		}
 
 		//
-		//  Ê±¼ä´ÁÒ»¸ö¿Ì¶È¶ÔÓ¦¶àÉÙºÁÃë
+		//  æ—¶é—´æˆ³ä¸€ä¸ªåˆ»åº¦å¯¹åº”å¤šå°‘æ¯«ç§’
 		//
 		double dus = ((double)(1000 * 1000 * units.mNum)) / units.mDen;
 		return (int64_t)(timestamp* dus);
 	}
 	//
-	//  ¸ù¾İ×îºóÒ»´ÎµÄÊ±¼ä´Á¼ÆËãÏà¶ÔÑÓ³ÙÖµ
+	//  æ ¹æ®æœ€åä¸€æ¬¡çš„æ—¶é—´æˆ³è®¡ç®—ç›¸å¯¹å»¶è¿Ÿå€¼
 	//
 	int64_t TimestampExtrapolator::getDelayUsTimestamp(int64_t timestamp, FFL::TimeBase units) {
 		if (mLastTimestamp == 0 || mLastTimestampLocalTimeUs == 0) {

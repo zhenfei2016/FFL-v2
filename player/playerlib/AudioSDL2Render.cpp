@@ -46,12 +46,12 @@ namespace player {
 		//
 		virtual  uint32_t calcSize(std::list< FFL::sp<FFL::PipelineMessage> >& msgList) {
 
-			uint32_t duration = 0;
+			
 			if (msgList.size() <= 1) {			
 				return 0;
 			}
 
-			std::list< FFL::sp<FFL::PipelineMessage> >::iterator it=msgList.begin() ; 
+            
 			int64_t firstPts = 0;
 			{
 				FFL::sp<FFL::PipelineMessage> msg1 = msgList.back();
@@ -113,8 +113,8 @@ namespace player {
 	//	
 	void AudioSDL2Render::onShowSamples(FFLSample* samples)
 	{
-		int64_t t1 = FFL_getNowUs();		
-		FFLSample targetSample = {};
+				
+		FFLSample targetSample;
 		targetSample.mChannel = 2;
 		targetSample.mChannelLayout = AV_CH_LAYOUT_STEREO;
 		targetSample.mFormat = AV_SAMPLE_FMT_S16;
@@ -146,15 +146,20 @@ namespace player {
 		{   //
 			// 当前渲染到那地方了
 			//
-			FFL::TimeBase units = {};
+			FFL::TimeBase units ;
 			getOwner()->getStream(samples->mStreamId)->getTimebase(units);
 			delay = audioDevice->getCacheDelay(units) ;
-			pts = samples->mOrginalPts - delay;
-			gOrginalPts = samples->mOrginalPts;			
+            
+            if(samples->mOrginalPts>0)
+			   pts = samples->mOrginalPts - delay;
+            else{
+               pts=-1;
+            }
+			gOrginalPts = samples->mOrginalPts;
 			mStatistic->renderAudioFrame(pts, FFL_getNowUs());
 		}
 
-		if (gFirst ) {
+		if (gFirst && pts>0) {
 			//
 			// 更新主时钟
 			//

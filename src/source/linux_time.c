@@ -1,11 +1,8 @@
 #include <sys/time.h>
 
-/*
- * gStarted：是否初始化了 
- * gStartUs：初始化的时候的初始值
- */
 static int gStarted=0;
 static struct timeval gStartUs;
+static time_t gStartTime;
 
 
 static void internalTimeInit()
@@ -14,10 +11,11 @@ static void internalTimeInit()
 	{
 		gettimeofday(&gStartUs, NULL);
 		gStarted = 1;
+        time(&gStartTime);
 	}
 }
 
-static int64_t internalGetUs()
+int64_t internalGetUs()
 {
 	struct timeval now;
 	internalTimeInit();
@@ -28,14 +26,14 @@ static int64_t internalGetUs()
 	return nowUs;
 }
 
-inline void internalGetTimeString(char* s) {
-	int64_t current = (int64_t)internalGetUs();
+void internalGetTimeString(char* s) {
+	int64_t current = internalGetUs();
 
 	time_t ts = gStartTime + (current / 1000000);
-	int tus = current % 1000000;
-
 	struct tm* t = 0;
 	t = localtime(&ts);
+    int tus = current % 1000000;
+    
 	sprintf(s,
 		"%4d%02d%02d%02d%02d%02d:%03d:%03d",
 		t->tm_year + 1900,

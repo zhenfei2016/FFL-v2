@@ -143,14 +143,12 @@ namespace player {
 
 		if (ret)
 		{			
-			int64_t duration=mAVFormatContext->duration;
-			int64_t startTime=mAVFormatContext->start_time;
-
-			avformat_find_stream_info(mAVFormatContext, NULL);
-
-			av_rescale(mAVFormatContext->duration, 1000, AV_TIME_BASE);
-			int64_t duration1 = mAVFormatContext->streams[0]->duration;
-			int64_t startTime1 = mAVFormatContext->streams[0]->start_time;
+			//int64_t duration=mAVFormatContext->duration;
+			//int64_t startTime=mAVFormatContext->start_time;
+			//avformat_find_stream_info(mAVFormatContext, NULL);
+			//av_rescale(mAVFormatContext->duration, 1000, AV_TIME_BASE);
+			//int64_t duration1 = mAVFormatContext->streams[0]->duration;
+			//int64_t startTime1 = mAVFormatContext->streams[0]->start_time;
 
 			openStream(mAVFormatContext->streams, mAVFormatContext->nb_streams);
 		}
@@ -183,22 +181,22 @@ namespace player {
         mSeekPos=pos;
 	}
     
-    int g_TestSeek=0;
+    
 	bool NodeFFMpegInputFile::onSeek() {
 		//av_seek_frame(mAVFormatContext,)
 
         //int stream_index, int64_t min_ts, int64_t ts, int64_t max_ts, int flags);
         
-        int streamIndex=-1;
+        //int streamIndex=-1;
        
-        g_TestSeek=0;
-        int64_t SEEK_JITTER=1000;
+        
+//        int64_t SEEK_JITTER=1000;
 		AVRational tb;
 		tb.den = mCurrentTb.mDen;
 		tb.num = mCurrentTb.mNum;
 		int64_t ts=FFMPegUsToTimestamp( mSeekPos, tb);
-        int64_t minTs=ts - SEEK_JITTER;
-        int64_t maxTs=ts +SEEK_JITTER ;
+//        int64_t minTs=ts - SEEK_JITTER;
+//        int64_t maxTs=ts +SEEK_JITTER ;
        // int err=avformat_seek_file(mAVFormatContext,streamIndex,minTs,ts,maxTs,0);
 		//if (err < 0) {
 		//	FFL_LOG_WARNING("Failed to seek %" lld64,ts);
@@ -209,8 +207,8 @@ namespace player {
 			FFL::sp<FFMpegStream> stream = mStreamVector[defaultStreamIndex];
 			if(!stream.isEmpty())
 			{
-				auto time_base = mAVFormatContext->streams[defaultStreamIndex]->time_base;
-				auto seekTime = mAVFormatContext->streams[defaultStreamIndex]->start_time +
+
+				int64_t seekTime = mAVFormatContext->streams[defaultStreamIndex]->start_time +
 					ts;
 				int ret;
 				if (seekTime > mCurrentPts)
@@ -347,9 +345,7 @@ namespace player {
 		{
 			msg->consume(this);
         }else{
-            if(g_TestSeek++>=200){
-               // seek(10);
-            }            
+            
         }
 	}
 
@@ -465,7 +461,7 @@ namespace player {
 		FFL::sp<FFL::Pipeline> pipeline = getPipeline();
 		AVStream* stream = 0;
 		int64_t startTime = -1;
-		bool haveAudio = false;
+		//bool haveAudio = false;
 
 		//AVCodecContext* codec = NULL;
 		//av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_AUDIO, 1, 1, &codec, 0);

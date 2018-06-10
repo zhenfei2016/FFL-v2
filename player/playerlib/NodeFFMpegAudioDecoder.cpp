@@ -32,7 +32,7 @@ namespace player {
 	
 	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame)
 	{
-		double speed = 1.0f;
+		
 		message::FFMpegAudioFrame* texture = 0;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &texture, MSG_FFMPEG_AUDIO_FRAME);
 		texture->fillAvframe(frame);

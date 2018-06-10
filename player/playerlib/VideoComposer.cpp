@@ -7,7 +7,7 @@
  *  VideoComposer.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/05/19 
  *  
- *  ÊÓÆµºÏ³É
+ *  è§†é¢‘åˆæˆ
  *
 */
 #include "VideoComposer.hpp"
@@ -25,7 +25,7 @@ namespace player {
 	VideoComposer::~VideoComposer(){
 	}
 	//
-	//  ³É¹¦´´½¨ÁËnode
+	//  æˆåŠŸåˆ›å»ºäº†node
 	//
 	void VideoComposer::onCreate() {
 		Composer::onCreate();
@@ -34,7 +34,7 @@ namespace player {
 
 
 	//
-	//   Íâ²¿setDataInputÊ±ºòµ÷ÓÃ´Ëº¯Êı£¬´´½¨¶ÔÓ¦conn
+	//   å¤–éƒ¨setDataInputæ—¶å€™è°ƒç”¨æ­¤å‡½æ•°ï¼Œåˆ›å»ºå¯¹åº”conn
 	//
 	FFL::sp<FFL::PipelineConnector > VideoComposer::onCreateConnector(
 		const OutputInterface& output,
@@ -44,15 +44,15 @@ namespace player {
 	}
 	//
 	//
-	// ´¦Àí½ÓÊÕµ½µÄÏûÏ¢£¬Èç¹û·µ»Øfalse±íÊ¾Õâ¸öÏûÏ¢Ã»ÓĞ´¦Àí£¬
-	// ·µ»Øtrue±íÊ¾Õâ¸öÏûÏ¢´¦ÀíÁË£¬ÏûÏ¢´¦Àí½áÊøºó±ØĞëmsg->consume();
+	// å¤„ç†æ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼Œå¦‚æœè¿”å›falseè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯æ²¡æœ‰å¤„ç†ï¼Œ
+	// è¿”å›trueè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯å¤„ç†äº†ï¼Œæ¶ˆæ¯å¤„ç†ç»“æŸåå¿…é¡»msg->consume();
 	//
-	bool VideoComposer::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata){	
+	bool VideoComposer::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata){
 		if (msg.isEmpty()) {			
 			return true;
 		}
 
-		int64_t delay = 0;
+		
 		switch (msg->getType())
 		{
 		case MSG_FFMPEG_VIDEO_FRAME:
@@ -77,7 +77,7 @@ namespace player {
 	bool gFirst = true;
 		 
 	//
-	//  ÊÕµ½´ıÏÔÊ¾µÄÎÆÀí°ü
+	//  æ”¶åˆ°å¾…æ˜¾ç¤ºçš„çº¹ç†åŒ…
 	//	
 	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,FFLTexture* texture) {
 		int64_t delay = 0;
@@ -103,12 +103,12 @@ namespace player {
 		FFL_LOG_CRIT("VideoComposer pts=%" lld64 " delay=%" lld64 ,	texture->mOrginalPts, delay);
 
 		//
-		// ·¢ËÍµ½Õâ¸öÊä³ö½Ó¿ÚÉÏ
+		// å‘é€åˆ°è¿™ä¸ªè¾“å‡ºæ¥å£ä¸Š
 		//		
 		postMessageDelayToRender(msg, delay);
 	}	
 	//
-	//  ½ÓÊÕµ½eofÏûÏ¢
+	//  æ¥æ”¶åˆ°eofæ¶ˆæ¯
 	//
 	void VideoComposer::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 		postMessageDelayToRender(eof,1000);

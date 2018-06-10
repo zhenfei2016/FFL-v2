@@ -29,7 +29,7 @@ namespace player {
 
 	void NodeFFMpegVideoDecoder::handleDecodedFrame(AVFrame* frame)
 	{
-		double speed = 1.0f;
+
 		message::FFMpegVideoFrame* texture = 0;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &texture, MSG_FFMPEG_VIDEO_FRAME);
 		texture->fillAvframe(frame);

@@ -7,7 +7,7 @@
 *  MainPlayer.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/12
 *
-*  ²¥·ÅÆ÷Âß¼­
+*  æ’­æ”¾å™¨é€»è¾‘
 *
 */
 
@@ -27,14 +27,14 @@ bool keyPressed(void* userdata, int key) {
 	case 's':
 	case 'S':
 		//
-		//  ¿ªÊ¼²¥·Å
+		//  å¼€å§‹æ’­æ”¾
 		//
 		player->play(player->mUrl.c_str());
 		break;
 	case 'q':
 	case 'Q':
         //
-		// Í£Ö¹²¥·Å
+		// åœæ­¢æ’­æ”¾
 		//
 		player->stop();
 		return false;
@@ -42,7 +42,7 @@ bool keyPressed(void* userdata, int key) {
 	case '>':
 	{   
 	    //
-		//  ¼ÓËÙ
+		//  åŠ é€Ÿ
 		//
 		uint32_t speed = player->mClock->speed();
 		speed = FFL_MIN(speed + 5, 300);
@@ -54,7 +54,7 @@ bool keyPressed(void* userdata, int key) {
 	case '<':
 	{		
 		//
-		//  ¼õËÙ
+		//  å‡é€Ÿ
 		//
 		uint32_t speed = player->mClock->speed();
 		speed =FFL_MAX(speed- 5,10);
@@ -64,18 +64,20 @@ bool keyPressed(void* userdata, int key) {
 		break;
 	case '1':
 		//
-		//  Ç°ÌøÒ»µã
+		//  å‰è·³ä¸€ç‚¹
 		//
 	{
-		player->setPositionUs(12);
+        int64_t cur=player->getPositionUs();
+        player->setPositionUs(cur+ 5*1000*1000);
 	}
 		break;
 	case '2':
 		//
-		//  ºóÌøÒ»µã
+		//  åŽè·³ä¸€ç‚¹
 		//
 	{
-		player->setPositionUs(12);
+        int64_t cur=player->getPositionUs();
+        player->setPositionUs(cur- 5*1000*1000);
 	}
 	break;
 	default:

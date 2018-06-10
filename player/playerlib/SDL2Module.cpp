@@ -12,7 +12,7 @@
 */
 #include "SDL2Module.hpp"
 #include <SDL.h>
-#include <SDL_test.h>
+
 #include "SDL2Module.hpp"
 #include "MessageSDL2Texture.hpp"
 #include "FFL_AudioDevice.hpp"
@@ -185,7 +185,8 @@ namespace player {
 
 	int8_t* g_TempBuffer = NULL;
 	int32_t g_TempBufferLen = 0;
-	SDL2AudioDevice::SDL2AudioDevice() :mIsOpened(false), mByteStream(NULL){
+	SDL2AudioDevice::SDL2AudioDevice() :
+         mByteStream(NULL),mIsOpened(false){
 		mBytesPerSec = 1;
 	}
 	SDL2AudioDevice::~SDL2AudioDevice() {
