@@ -1,0 +1,48 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  AudioComposer.cpp
+*  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*
+*  声音的合成类
+*
+*/
+#pragma once
+#include "Composer.hpp"
+#include "TimestampExtrapolator.hpp"
+#include "MessageFFMpegFrame.hpp"
+
+namespace player {
+	class AudioComposer : public Composer {
+	public:
+		AudioComposer();
+		~AudioComposer();
+
+	protected:
+		//
+		//   外部setDataInput时候调用此函数，创建对应conn
+		//
+		FFL::sp<FFL::PipelineConnector > onCreateConnector(
+			const OutputInterface& output,
+			const InputInterface& input, void* userdata);
+
+		//
+		// 处理接收到的消息，如果返回false表示这个消息没有处理，
+		// 返回true表示这个消息处理了，消息处理结束后必须msg->consume();
+		//
+		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);
+
+		void handleSamples(const FFL::sp<FFL::PipelineMessage>& msg,FFLSample* sample);
+		//
+		//  接收到eof消息
+		//
+		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
+	protected:
+		FFL::TimeBase mTimerUnits;
+	public:
+		TimestampExtrapolator* mTimestampExtrapolator;
+	};
+}
