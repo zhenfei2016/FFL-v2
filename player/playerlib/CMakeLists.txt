@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.4.1)
 PROJECT(playerLib)
 
 IF (WIN32)
-INCLUDE_DIRECTORIES(../../src/include/ ../third/FFmpeg3.3.5/output_win_dll/include/ ../third/SDL2/SDL2/)
+INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_win_dll/include/ ../third/SDL2/SDL2/)
 LINK_DIRECTORIES( ../third/FFmpeg3.3.5/output_win_dll/bin/ ../third/SDL2)
 
 ELSEIF (APPLE)
-INCLUDE_DIRECTORIES(../../src/include/ ../src/include/ /Users/zhufeifei/opensource/ffmpeg/output-so/include/
+INCLUDE_DIRECTORIES(../../ffl/include/ ../ffl/include/ /Users/zhufeifei/opensource/ffmpeg/output-so/include/
 /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include)
 LINK_DIRECTORIES( /Users/zhufeifei/opensource/ffmpeg/output-so/lib/
  /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)

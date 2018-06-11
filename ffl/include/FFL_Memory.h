@@ -18,16 +18,13 @@
 
 
 #include "FFL_Utility.h"
+#include "FFL_Config.h"
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-#ifndef ENABLE_MEMORY_DEBUG
-//#define ENABLE_MEMORY_DEBUG 1
-#endif
-
-#if ENABLE_MEMORY_DEBUG
+#if CHECK_FOR_MEMORY_LEAKS
 
 	void* FFL_malloc(size_t size);
 	void  FFL_free(void *mem);
@@ -67,27 +64,27 @@ extern "C" {
 	 *   打印一下当前还没有释放的内存
 	 * */
 	void  FFL_malloc_memory_dump();
-#define FFL_zerop(x) memset((x), 0, sizeof(*(x)))
-#define FFL_zero_array(x,c) memset((x), 0, (sizeof(*(x))*(c)))
+	#define FFL_zerop(x) memset((x), 0, sizeof(*(x)))
+	#define FFL_zero_array(x,c) memset((x), 0, (sizeof(*(x))*(c)))
 
 	int FFL_outofmemory();
 
 
-#define CHECKED_MALLOC( var, size )\
-do {\
-    var = FFL_malloc( size );\
-    if( !var ){\
-        FFL_LOG_ERROR("alloc memory is null. %s %d ",__FILE__,__LINE__); \
-        goto fail;}\
-} while( 0 )
+	#define CHECKED_MALLOC( var, size )\
+	do {\
+		var = FFL_malloc( size );\
+		if( !var ){\
+			FFL_LOG_ERROR("alloc memory is null. %s %d ",__FILE__,__LINE__); \
+			goto fail;}\
+	} while( 0 )
 
-#define CHECKED_MALLOCZERO( var, size )\
-do {\
-   var = FFL_mallocz( size );\
-    if( !var ){\
-        FFL_LOG_ERROR("alloc memory is null. %s %d ",__FILE__,__LINE__); \
-        goto fail;}\
-} while( 0 )
+	#define CHECKED_MALLOCZERO( var, size )\
+	do {\
+	   var = FFL_mallocz( size );\
+		if( !var ){\
+			FFL_LOG_ERROR("alloc memory is null. %s %d ",__FILE__,__LINE__); \
+			goto fail;}\
+	} while( 0 )
 
 
 	extern DECLSPEC char* FFL_CALL FFL_strdup(const char *s);

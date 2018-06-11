@@ -47,7 +47,7 @@ namespace player {
 		FFLPlayer* mPlayer;
 	};
 
-	FFLPlayer::FFLPlayer()
+	FFLPlayer::FFLPlayer() :mTimestampExtrapolator(NULL)
 	{
 		av_register_all();
 		mAudioDevice = new FFLAudioDevice();
@@ -60,6 +60,7 @@ namespace player {
 	}
 	FFLPlayer::~FFLPlayer()
 	{
+		FFL_SafeFree(mTimestampExtrapolator);
 		FFL_SafeFree(mEventFilter);
 	}
 	//
@@ -82,10 +83,11 @@ namespace player {
 		mAudioComposer->setOutputRender(mAudioRender);
 
 		
-		TimestampExtrapolator* extrapolator = new TimestampExtrapolator(mClock);
-		mVideoComposer->mTimestampExtrapolator = extrapolator;
-		mAudioComposer->mTimestampExtrapolator = extrapolator;
-		mAudioRender->mTimestampExtrapolator = extrapolator;
+		FFL_SafeFree(mTimestampExtrapolator);
+		mTimestampExtrapolator = new TimestampExtrapolator(mClock);
+		mVideoComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+		mAudioComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+		mAudioRender->mTimestampExtrapolator = mTimestampExtrapolator;
 	}
 
 	void FFLPlayer::createAndsetSDL2Render(FFLPlayer* player ) {

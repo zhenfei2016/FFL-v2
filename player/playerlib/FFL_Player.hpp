@@ -30,6 +30,8 @@ namespace player {
 	class VideoRender;
 	class AudioRender;
 
+	class TimestampExtrapolator;
+
 	class SDL2Module;
 
 	class FFLPlayer : public IStreamManager
@@ -111,6 +113,7 @@ namespace player {
 		FFL::sp<FFLWindow> mWindow;
 	public:
 		FFL::sp<FFL::Clock> mClock;
+		TimestampExtrapolator* mTimestampExtrapolator;
 	public:
 		PlayerStatistic mStats;
 	public:

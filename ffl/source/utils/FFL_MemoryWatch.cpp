@@ -17,28 +17,30 @@
 
 static bool gStartWatch = true;
 
+#if  CHECK_FOR_MEMORY_LEAKS
 //
-////
-////替代编译器全局默认的operator函数
-////
-//void * operator new(size_t size) {	
-//	void * ptr = 0;
-//	if(gStartWatch)
-//	   ptr = FFL_malloc(size);
-//	else
-//	   ptr = malloc(size);
-//	return ptr;
-//}
-////
-////替换全局的operator delete 函数
-////
-//void operator delete (void * ptr) {	
-//	if (gStartWatch)
-//		FFL_free(ptr);
-//	else
-//		free(ptr);
-//	ptr = nullptr;
-//}
+//替代编译器全局默认的operator函数
+//
+void * operator new(size_t size) {	
+	void * ptr = 0;
+	if(gStartWatch)
+	   ptr = FFL_malloc(size);
+	else
+	   ptr = malloc(size);
+	return ptr;
+}
+//
+//替换全局的operator delete 函数
+//
+void operator delete (void * ptr) {	
+	if (gStartWatch)
+		FFL_free(ptr);
+	else
+		free(ptr);
+	ptr = nullptr;
+}
+
+#endif
 
 namespace FFL{	
 	void startMemoryWatch() {

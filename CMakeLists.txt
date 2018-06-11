@@ -5,7 +5,7 @@ if (MSVC)
 add_definitions("/wd4819")
 endif(MSVC)
 
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(ffl)
 ADD_SUBDIRECTORY(player)
 
 

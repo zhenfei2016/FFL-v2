@@ -14,6 +14,11 @@
 #define _FFL_CONFIG_H_
 
 /*
+ *  是否检测内存泄露
+ */
+#define  CHECK_FOR_MEMORY_LEAKS 0
+
+/*
  *  为了省个事所以加了一个宏定义的判断
  *  正确的做法应该是编译前由配置文件生成的依赖那个config
  */

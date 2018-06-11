@@ -137,10 +137,6 @@ static FFL_Thread * FFL_CreateThreadWithStackSize(int ( FFL_CALL * fn) (void *),
         FFL_free(thread);
         thread = NULL;
     }
-
-	if (1) {
-		FFL_sleep(2000);
-	}
 	
 	FFL_DestroySemaphore(args->wait);
     FFL_free(args);    

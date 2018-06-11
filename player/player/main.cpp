@@ -33,7 +33,7 @@ int main() {
     FFL_LogSetLevel(FFL_LOG_LEVEL_CRIT);	
 	//FFL_LogSetCallback(myLog);
 
-    //FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
+    FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
     FFL_LOG_INFO("start player");
 	playerMain();
 	FFL_LOG_INFO("quit player");

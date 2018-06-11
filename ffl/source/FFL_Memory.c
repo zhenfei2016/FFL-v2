@@ -13,7 +13,7 @@
 #include "FFL_Memory.h"
 #include "FFL.h"
 
-#if  ENABLE_MEMORY_DEBUG
+#if  CHECK_FOR_MEMORY_LEAKS
 
 #include "thread/FFL_Mutex.h"
 typedef  struct MemBlock{
@@ -53,7 +53,7 @@ void internal_alloc_memblock(void* ptr,int size)
 
     FFL_LockMutex(lock);
     block=malloc(sizeof(MemBlock));
-    block->createtime=FFL_getticks();
+    block->createtime=FFL_getNowMs();
     block->id=g_memblock_id++;
     block->ptr=ptr;
     block->size=size;
@@ -62,7 +62,7 @@ void internal_alloc_memblock(void* ptr,int size)
     g_memblock_header=block;
     FFL_UnlockMutex(lock);
 
-	int id[] = { 58,191,218,342,370 };
+	int id[] = { 65,66,249 };
 
 	for (int i = 0; i < sizeof(id) / sizeof(id[0]); i++) {
 		if (block->id == id[i]) {
@@ -138,7 +138,7 @@ void *FFL_malloc(size_t size)
     subfix[3]= 0x4e;
 
 	internal_alloc_memblock(mem,size);
-    FFL_LOG_INFO("FFL_malloc mem =%p size=%d  t= %u",mem,size,FFL_getticks());
+    FFL_LOG_INFO("FFL_malloc mem =%p size=%d  t= %u",mem,size,FFL_getNowMs());
 	return mem;
 }
 
