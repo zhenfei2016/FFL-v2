@@ -81,7 +81,7 @@ namespace FFL {
 		//
 		//  y=ax + b + offset
 		//
-        int64_t mA;
+        int32_t mA;
         int64_t mB;
         //
         // 系统时间偏移值

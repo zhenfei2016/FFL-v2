@@ -25,7 +25,10 @@ namespace message {
 		FFMpegPacket();
 		~FFMpegPacket();		
 
-        
+		//
+		//  已经处理完成了，可以回收了		
+		//
+		virtual void consume();
 	public:
 		AVPacket* mPacket;
 

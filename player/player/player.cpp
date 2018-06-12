@@ -95,7 +95,7 @@ int playerMain() {
 	url = "d://movic//sintel.ts";       
 	//url = "d://movic//Nocturne.m4a";
 	//url = "d://movic//test.avi";
-	//url = "d://movic//zhuoyaoji.mp4";
+	url = "d://movic//zhuoyaoji.mp4";
 	
 	
 #else

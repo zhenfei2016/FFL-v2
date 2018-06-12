@@ -28,11 +28,11 @@ namespace FFL
 
 		inline void incStrong(const void* id) const 
 		{
-			FFL_atomicInc(&mCount, 1);
+			FFL_atomicInc(&mCount);
 		}
 		inline void decStrong(const void* id) const
 		{
-			if (FFL_atomicDec(&mCount, 1) == 1) {
+			if (FFL_atomicDec(&mCount) == 1) {
 				delete static_cast<const T*>(this);
 			}
 		}	

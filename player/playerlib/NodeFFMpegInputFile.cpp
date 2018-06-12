@@ -319,12 +319,9 @@ namespace player {
 
 		}
 
-
-
 		int streamIndex = packet->mPacket->stream_index;
 		FFL::sp<FFMpegStream> stream = mStreamVector[streamIndex];				
-
-		
+			
 		if (stream.isEmpty()) {
 			msg->consume(this);
 			return;
@@ -374,7 +371,7 @@ namespace player {
         }
         
 	}
-#if 0	
+#if 1	
 	void NodeFFMpegInputFile::openStream(AVStream** streams, uint32_t count)
 	{
 		FFL::sp<FFL::Pipeline> pipeline = getPipeline();
@@ -382,17 +379,16 @@ namespace player {
 		int64_t startTime = -1;
 		bool haveAudio = false;
 
-		//av_find_best_stream(ic, AVMEDIA_TYPE_SUBTITLE,
-		//	st_index[AVMEDIA_TYPE_SUBTITLE],
-		//	(st_index[AVMEDIA_TYPE_AUDIO] >= 0 ?
-		//		st_index[AVMEDIA_TYPE_AUDIO] :
-		//		st_index[AVMEDIA_TYPE_VIDEO]),
-		//	NULL, 0);
+		int streamIndexVec[3] = {-1};
+		streamIndexVec[0] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+		streamIndexVec[1] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
+		//streamIndexVec[2] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_SUBTITLE,-1, -1, NULL, 0);
+				
+		for ( int i=0;i< FFL_ARRAY_ELEMS(streamIndexVec); i++){
+			uint32_t index = streamIndexVec[i];
+			if(index==-1) continue;
 
-		for (uint32_t index = 0; index < FFL_MIN(count,4); index++)
-		{
 			stream = streams[index];
-
 			//
 			//  获取第一帧的时间
 			//
@@ -424,19 +420,9 @@ namespace player {
 				event->mInt64Param1 = stream->codecpar->sample_aspect_ratio.num;
 				event->mInt64Param2 = stream->codecpar->sample_aspect_ratio.den;
 				event::postPlayerEvent(this, event);				
-			}
-
-			else if (codec->codec_type == AVMEDIA_TYPE_AUDIO )
+			}else if (codec->codec_type == AVMEDIA_TYPE_AUDIO )
 			{
-				//if (!haveAudio) {
-			    //	mStreamVector[index] = NULL;
-				//	avcodec_free_context(&codec);
-				//	haveAudio = true;
-				//	continue;
-				//}
-				//else {					
-					streamInfo->setStreamType(STREAM_TYPE_AUDIO);
-				//}
+				streamInfo->setStreamType(STREAM_TYPE_AUDIO);
 			}
 			//
 			//  

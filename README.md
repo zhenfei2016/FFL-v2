@@ -13,7 +13,7 @@ Pipeline：c++  流水线框架
 
 
 工程介绍：
-ffl: FFL基础库
+src: FFL基础库
 
 player: 播放器，使用FFL基础库
 player\third :     播放器用到的第三方库

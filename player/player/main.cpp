@@ -15,25 +15,28 @@
 
 #if WIN32
 #include <windows.h>
-void myLog(int level, const char *format, va_list v) 
+int printLog(int level,const char* tag, const char *format, va_list v) 
 {
-	char str[1024] = "";
-	vsnprintf(str, 1024 - 1, format, v);
+	if (tag && strcmp(tag, "audio") == 0) {
+		char str[1024] = "";
+		vsnprintf(str, 1024 - 1, format, v);
 
-
-	::OutputDebugStringA(str);
-	::OutputDebugStringA("\r\n");
+		::OutputDebugStringA(str);
+		::OutputDebugStringA("\r\n");
+		return 1;
+	}
+	return 1;
 }
 #endif
 extern int playerMain();
 int main() {
 
 	FFL::startMemoryWatch();
-	
-    FFL_LogSetLevel(FFL_LOG_LEVEL_CRIT);	
-	//FFL_LogSetCallback(myLog);
 
-    FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
+	FFL_LogHook(printLog);
+    //FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
+	FFL_LogSetLevel(FFL_LOG_LEVEL_WARNING);
+
     FFL_LOG_INFO("start player");
 	playerMain();
 	FFL_LOG_INFO("quit player");

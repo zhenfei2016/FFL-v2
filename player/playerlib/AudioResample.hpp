@@ -10,38 +10,22 @@
 *  声音的重采样
 *
 */
+#ifndef _AUDIO_RESAMPLE_HPP_
+#define _AUDIO_RESAMPLE_HPP_
 
-
-#pragma once
 #include "FFL_Sample.hpp"
 #include "FFMpeg.hpp"
 
 namespace player {
 	class AudioResample  {
-	public:
-		AudioResample();
-		~AudioResample();
-
-		//
-		//  speed  :当前音频的播放速度100正常速度
-		//
-		bool resample(const FFLSample* in , FFLSample* out,uint32_t speed);
-	private:
-		void initSwr(const FFLSample* in, FFLSample* out,uint32_t speed);
-	protected:
-		//
-		//  ffmpeg中重采样的
-		//
-		SwrContext *mSwrCtx;
-
-		struct SwrParam
-		{		
-			SwrParam() {
-				mFormat=0;
-				mChannelNum=0;
+		struct ResampleFormat
+		{
+			ResampleFormat() {
+				mFormat = 0;
+				mChannelNum = 0;
 				mChannelLayout = 0;
-				mSampleNum=0;
-				mFreq=0;
+				mSampleNum = 0;
+				mFreq = 0;
 				mSpeed = 100;
 			}
 			uint32_t mFormat;
@@ -51,7 +35,25 @@ namespace player {
 			uint32_t mFreq;
 			uint32_t mSpeed;
 		};
-		SwrParam mSrc;
-		SwrParam mDst;
+	public:
+		AudioResample();
+		~AudioResample();
+	protected:
+		bool createSwr(const FFLSample* in, FFLSample* out, uint32_t speed);
+		void destroySwr();
+	public:
+		//
+		//  speed  :当前音频的播放速度100正常速度
+		//
+		bool resample(const FFLSample* in , FFLSample* out,uint32_t speed);
+	protected:
+		//
+		//  ffmpeg中重采样的
+		//
+		SwrContext *mSwrCtx;		
+		ResampleFormat mSrc;
+		ResampleFormat mDst;
 	};
 }
+
+#endif

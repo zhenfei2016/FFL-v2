@@ -42,25 +42,28 @@ typedef enum
 #define FFL_LOG_INFO                 FFL_log_info
 #define FFL_LOG_DEBUG                FFL_log_debug
 
-#define FFL_CRIT_TAG             FFL_log_cri_tag
-#define FFL_ERROR_TAG            FFL_log_error_tag
-#define FFL_WARNING_TAG          FFL_log_waring_tag
-#define FFL_INFO_TAG             FFL_log_info_tag
-#define FFL_DEBUG_TAG            FFL_log_debug_tag
+#define FFL_LOG_CRIT_TAG             FFL_log_cri_tag
+#define FFL_LOG_ERROR_TAG            FFL_log_error_tag
+#define FFL_LOG_WARNING_TAG          FFL_log_waring_tag
+#define FFL_LOG_INFO_TAG             FFL_log_info_tag
+#define FFL_LOG_DEBUG_TAG            FFL_log_debug_tag
 
 
 /*
-* 设置显示的日志等级
-*
+ * 设置显示的日志等级
+ *
 */
 void FFL_LogSetLevel(FFL_LogLevel level);
 FFL_LogLevel FFL_LogGetLevel();
 
 /*
-*设置输出日志hook函数
-*/
-typedef void(*FFL_LogHookFun)(int level, const char *format, va_list);
-void FFL_LogSetCallback(FFL_LogHookFun cb);
+ *  设置输出日志hook函数
+ *  根据返回值表示是否需要继续默认的日志输出
+ *  1 : 已经把日志处理了，不需要默认日志系统了
+ *  0 : 用默认日志处理函数    
+ */
+typedef int (*FFL_LogHookFun)(int level,const char* tag,const char *format, va_list);
+void FFL_LogHook(FFL_LogHookFun cb);
 
 /*
 *日志文件

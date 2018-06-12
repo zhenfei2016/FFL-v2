@@ -23,8 +23,8 @@ namespace player {
 			swr_free(&mSwrCtx);
 		}
 	}
-
-	void AudioResample::initSwr(const FFLSample* in, FFLSample* out,uint32_t spped) {
+	
+	bool AudioResample::createSwr(const FFLSample* in, FFLSample* out,uint32_t spped) {
 
 		if (mSwrCtx && (mSrc.mChannelLayout != in->mChannelLayout ||
 			mSrc.mFormat != in->mFormat ||
@@ -59,24 +59,21 @@ namespace player {
 
 			av_opt_set_int(mSwrCtx, "out_channel_layout", mDst.mChannelLayout, 0);
 			av_opt_set_int(mSwrCtx, "out_sample_rate", mDst.mFreq, 0);
-			av_opt_set_sample_fmt(mSwrCtx, "out_sample_fmt", (AVSampleFormat)mDst.mFormat, 0);
-			//AV_SAMPLE_FMT_DBL
+			av_opt_set_sample_fmt(mSwrCtx, "out_sample_fmt", (AVSampleFormat)mDst.mFormat, 0);		
 			if (swr_init(mSwrCtx) < 0) {
 				FFL_LOG_WARNING("AudioResample::initSwr init fail");
 				swr_free(&mSwrCtx);
 			}
-		}
-		//av_get_channel_layout_nb_channels
-		//	swr_set_compensation	
+		}	
+		return true;
+	}
+	void AudioResample::destroySwr() {
 	}
 
-	bool AudioResample::resample(const FFLSample* in, FFLSample* out,uint32_t speed) {
-		initSwr(in,out,speed);
-		if (!mSwrCtx) {
+	bool AudioResample::resample(const FFLSample* in, FFLSample* out,uint32_t speed) {		
+		if (!createSwr(in, out, speed)) {
 			return false;
 		}
-
-		//out->mSampleNum = (uint32_t)((double)in->mSampleNum * ((double)out->mFreq / in->mFreq) * (3.f/2.f)) ;
 
 		int64_t delay=swr_get_delay(mSwrCtx, in->mFreq);
 		out->mSampleNum =(uint32_t) av_rescale_rnd(
@@ -119,6 +116,4 @@ namespace player {
 			ret, (AVSampleFormat)out->mFormat, 0);				
 		return true;	
 	}
-
-	
 }

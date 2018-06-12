@@ -18,6 +18,7 @@
 #include "FFL_AudioDevice.hpp"
 #include "FFL_Player.hpp"
 #include "FFMpeg.hpp"
+#include "LogtagConstant.hpp"
 
 namespace player {
 	SDL2Module::SDL2Module() :mSDLRenderer(NULL) {				
@@ -29,8 +30,7 @@ namespace player {
 		FFL_SafeFree(mAudioDevice);
 	}
 	bool SDL2Module::create() {
-		mWindow = new SDL2VideoDevice();
-		//mSDLRenderer = SDL_CreateRenderer(mWindow->mWindow, 0, 0);
+		mWindow = new SDL2VideoDevice();		
 		return true;
 	}
 	void SDL2Module::destroy() {
@@ -148,10 +148,8 @@ namespace player {
 		if (!screen) {
 			printf("SDL: could not create window - exiting:%s\n", SDL_GetError());
 			return;
-		}	
-
+		}
 		mWindow = screen;
-		
 	}
 
 	//
@@ -184,7 +182,7 @@ namespace player {
 
 
 	int8_t* g_TempBuffer = NULL;
-	int32_t g_TempBufferLen = 0;
+	uint32_t g_TempBufferLen = 0;
 	SDL2AudioDevice::SDL2AudioDevice() :
          mByteStream(NULL),mIsOpened(false){
 		mBytesPerSec = 1;
@@ -287,8 +285,8 @@ namespace player {
 
 		FFL::CMutex::Autolock l(mLock);
 		if (mByteStream) {
-			while (mIsOpened && mByteStream->getCapacity() - mByteStream->getSize() < samples->mLinesize){
-				FFL_LOG_CRIT("autdio wait..");
+			while (mIsOpened && mByteStream->getCapacity() - mByteStream->getSize() < (uint32_t)samples->mLinesize){
+				FFL_LOG_DEBUG_TAG(TAG_AUDIO,"audio wait..");
 			    mCond.wait(mLock);
 			}
 
@@ -296,7 +294,7 @@ namespace player {
 				return false;
 			}
 
-			FFL_LOG_CRIT("autdio writeBytes..");
+			FFL_LOG_DEBUG_TAG(TAG_AUDIO,"audio writeBytes..");
 			mByteStream->writeBytes((const int8_t*)samples->mData[0], samples->mLinesize);
 		}
 		return true;
@@ -309,12 +307,10 @@ namespace player {
 		}
 	}
 	
-	void SDL2AudioDevice::write(Uint8 *stream, int len) {
-		//SDL 2.0  
+	void SDL2AudioDevice::write(uint8_t *stream, uint32_t len) {
 		SDL_memset(stream, 0, len);
-		
-		FFL_LOG_CRIT("autdio read..len=%d",len);
 
+		FFL_LOG_DEBUG_TAG(TAG_AUDIO,"audio read..len=%d",len);
 		FFL::CMutex::Autolock l(mLock);
 		if (mByteStream == NULL || mByteStream->getSize() == 0) {
 			mCond.signal();
@@ -329,7 +325,7 @@ namespace player {
 			copyLen = len;
 		}
 
-		FFL_LOG_CRIT("autdio read..copylen=%d", copyLen);
+		FFL_LOG_DEBUG_TAG(TAG_AUDIO, "audio read..copylen=%d", copyLen);
 		if (copyLen > 0) {
 			if (g_TempBufferLen < copyLen) {
 				FFL_SafeFreeA(g_TempBuffer);

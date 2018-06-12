@@ -152,7 +152,7 @@ int FFL_SemWaitTimeout(FFL_sem * sem, uint32_t timeout)
         }
     }
 #else
-    end = FFL_getticks() + timeout;
+    end = FFL_getNowMs() + timeout;
     while ((retval = FFL_SemTryWait(sem)) == FFL_MUTEX_TIMEDOUT) {
        // if (SDL_TICKS_PASSED(SDL_GetTicks(), end)) {
        //     break;

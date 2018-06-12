@@ -51,7 +51,6 @@ namespace player {
 		if (msg.isEmpty()) {			
 			return true;
 		}
-
 		
 		switch (msg->getType())
 		{
@@ -69,8 +68,7 @@ namespace player {
 			break;
 			msg->consume(this);
 		}
-		
-		
+
 		return true;
 	}	
 

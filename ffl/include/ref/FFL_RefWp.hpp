@@ -19,30 +19,26 @@
 // ---------------------------------------------------------------------------
 
 namespace FFL {
-
-// ---------------------------------------------------------------------------
-//比较操作符定义，参数分为强指针，原始指针，其他派生类强指针， 其他派生类原始指针
-//
-#define COMPARE_WEAK(_op_)                                      \
-inline bool operator _op_ (const sp<T>& o) const {              \
-    return m_ptr _op_ o.m_ptr;                                  \
-}                                                               \
-inline bool operator _op_ (const T* o) const {                  \
-    return m_ptr _op_ o;                                        \
-}                                                               \
-template<typename U>                                            \
-inline bool operator _op_ (const sp<U>& o) const {              \
-    return m_ptr _op_ o.m_ptr;                                  \
-}                                                               \
-template<typename U>                                            \
-inline bool operator _op_ (const U* o) const {                  \
-    return m_ptr _op_ o;                                        \
-}
-
+	// ---------------------------------------------------------------------------
+	//比较操作符定义，参数分为强指针，原始指针，其他派生类强指针， 其他派生类原始指针
+	//
+	#define COMPARE_WEAK(_op_)                                      \
+	inline bool operator _op_ (const sp<T>& o) const {              \
+		return m_ptr _op_ o.m_ptr;                                  \
+	}                                                               \
+	inline bool operator _op_ (const T* o) const {                  \
+		return m_ptr _op_ o;                                        \
+	}                                                               \
+	template<typename U>                                            \
+	inline bool operator _op_ (const sp<U>& o) const {              \
+		return m_ptr _op_ o.m_ptr;                                  \
+	}                                                               \
+	template<typename U>                                            \
+	inline bool operator _op_ (const U* o) const {                  \
+		return m_ptr _op_ o;                                        \
+	}
     
     class RefBase;
-	
-    class weakref_type;
     class weakref_type
     {
     public:
@@ -75,15 +71,11 @@ inline bool operator _op_ (const U* o) const {                  \
         void                trackMe(bool enable, bool retain);
     };
 
-    
-    
-
+ 
 template <typename T>
 class wp
 {
 public:
-    typedef weakref_type weakref_type;
-
     inline wp() : m_ptr(0) { }
 
     wp(T* other);

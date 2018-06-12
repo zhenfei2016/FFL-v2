@@ -83,6 +83,7 @@ namespace player {
 //		sample->mDuration = (int64_t)((double((double)sample->mSampleNum / sample->mFreq)) * 1000 * 1000);
 //
 //		FFL_LOG_INFO("AudioComposer duration %" lld64, sample->mDuration);
+
 		//
 		// 发送到这个输出接口上
 		//		

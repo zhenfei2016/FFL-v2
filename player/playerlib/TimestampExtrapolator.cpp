@@ -9,6 +9,7 @@
 *  时间戳推算
 */
 #include "TimestampExtrapolator.hpp"
+#include "LogtagConstant.hpp"
 
 namespace player {
 	TimestampExtrapolator::TimestampExtrapolator(FFL::sp<FFL::Clock> clock) :
@@ -63,7 +64,7 @@ namespace player {
 			d1 = t1 - mOriginLocalTimeUs;
 			d2 = t2 - mOriginTimestampUs;
 			if (d2 < 0 || d1 < 0) {
-                FFL_LOG_WARNING("Extrapolator: d2<0 || d1<0  d2=%" lld64 " d1=%" lld64,
+                FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,"Extrapolator: d2<0 || d1<0  d2=%" lld64 " d1=%" lld64,
                                  d2,d1);
 				d2 = 0;
 				d1 = 0;
@@ -94,7 +95,7 @@ namespace player {
                 delay=d1 = d2 = 0;
                 reset();
                 update(timestamp, units);
-                FFL_LOG_CRIT("reset TimestampExtrapolator");
+				FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "reset TimestampExtrapolator");
             }
         }
 
@@ -112,8 +113,7 @@ namespace player {
 				//
 				//  这个需要怎么处理，音视频相对主时钟的时间比较长了
 				//
-				FFL_LOG_CRIT("TimestampExtrapolator diff> 15ms =%" lld64 , diff - delay);
-				
+				FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "TimestampExtrapolator diff> 15ms =%" lld64 , diff - delay);				
 			}
 		}
 		

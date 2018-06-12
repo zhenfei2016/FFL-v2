@@ -96,11 +96,6 @@ namespace FFL {
 
 		refs->addStrongRef(id);
 		const int32_t c = FFL_atomicInc(&refs->mStrong);
-		if(c<=0)
-		{
-			int i=0;
-			i++;
-		}
 		ALOG_ASSERT(c > 0, "incStrong() called on %p after last strong ref", refs);
 #if PRINT_REFS
 		ALOGD("incStrong of %p from %p: cnt=%d\n", this, id, c);

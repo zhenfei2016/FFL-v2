@@ -96,25 +96,23 @@ namespace player {
 			return false;
 		}
 
-		while (err >= 0)
-		{
+		while (err >= 0){
 			AVFrame* frame = av_frame_alloc();
 			err = avcodec_receive_frame(mCodecCtx, frame);
-			if (err == AVERROR(EAGAIN) || err == AVERROR_EOF)
+			if (err == AVERROR(EAGAIN) || err == AVERROR_EOF) {
 				return false;
-			else if (err < 0)
-			{
+			}else if (err < 0){
 				FFL_LOG_WARNING("Error during decoding\n");
 				return false;
 			}
 
-			//*getpicture = 1;
-			/* the picture is allocated by the decoder. no need to
-			free it */
+			//
+			//  成功解码出一帧数据
+			//
 			FFL_LOG_INFO("frame=%d pts=%" lld64 " width=%d,height=%d keyframe=%d",
 				mCodecCtx->frame_number, frame->pts,
 				frame->width, frame->height, frame->key_frame);
-			handleDecodedFrame(frame);
+			handleDecodedFrame(frame);			
 		}
 
 		return true;

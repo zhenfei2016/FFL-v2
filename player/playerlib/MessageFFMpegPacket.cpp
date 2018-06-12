@@ -18,10 +18,13 @@ namespace message {
         setType(MSG_FFMPEG_AVPACKET);
         mPacket=av_packet_alloc();
     }
-	FFMpegPacket::~FFMpegPacket()
-	{
+	FFMpegPacket::~FFMpegPacket(){
         av_packet_free(&mPacket);
-    }
-    
-
+    }    
+	//
+	//  已经处理完成了，可以回收了		
+	//
+	void FFMpegPacket::consume() {
+		av_packet_unref(mPacket);
+	}
 }

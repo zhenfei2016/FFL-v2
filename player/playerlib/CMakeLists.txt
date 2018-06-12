@@ -2,15 +2,17 @@ cmake_minimum_required(VERSION 3.4.1)
 
 PROJECT(playerLib)
 
+INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_android_static/include/ )
+LINK_DIRECTORIES(../third/FFmpeg3.3.5/output_android_static/)
 IF (WIN32)
 INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_win_dll/include/ ../third/SDL2/SDL2/)
 LINK_DIRECTORIES( ../third/FFmpeg3.3.5/output_win_dll/bin/ ../third/SDL2)
-
 ELSEIF (APPLE)
-INCLUDE_DIRECTORIES(../../ffl/include/ ../ffl/include/ /Users/zhufeifei/opensource/ffmpeg/output-so/include/
-/Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include)
-LINK_DIRECTORIES( /Users/zhufeifei/opensource/ffmpeg/output-so/lib/
- /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)
+INCLUDE_DIRECTORIES(../../ffl/include/ ../ffl/include/ /Users/zhufeifei/opensource/ffmpeg/output-so/include/ /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include)
+LINK_DIRECTORIES( /Users/zhufeifei/opensource/ffmpeg/output-so/lib/ /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux" )
+INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_android_static/include/ )
+LINK_DIRECTORIES(../third/FFmpeg3.3.5/output_android_static/)
 ENDIF ()
 
 
@@ -52,6 +54,8 @@ SET(LOCAL_SRC_FILES
    MessageFFMpegFrame.hpp;MessageFFMpegFrame.cpp
    MessageSDL2Texture.hpp;MessageSDL2Texture.cpp
    TimestampExtrapolator.hpp;TimestampExtrapolator.cpp   
+   LogtagConstant.hpp
+   VideoScale.hpp;VideoScale.cpp
    )
 
 

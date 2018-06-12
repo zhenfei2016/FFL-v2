@@ -1,5 +1,8 @@
+#if ANDROID
+#include <time.h>
+#else
 #include <sys/time.h>
-
+#endif
 static int gStarted=0;
 static struct timeval gStartUs;
 static time_t gStartTime;

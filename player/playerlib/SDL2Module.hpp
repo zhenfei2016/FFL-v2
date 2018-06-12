@@ -123,7 +123,7 @@ namespace player {
 		int64_t getCacheBytes();
 	protected:		
 		static void  fillAudio(void *userdata, Uint8 *stream, int len);
-		void write(Uint8 *stream, int len);		
+		void write(uint8_t *stream, uint32_t len);
 	private:
 		FFL::CMutex mLock;
 		FFL::CCondition mCond;
