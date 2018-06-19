@@ -15,13 +15,13 @@
 #include "NodeFFMpegDecoder.hpp"
 
 namespace player {
-	class FFMpegStream;
+	class AudioStream;
 	class NodeFFMpegAudioDecoder : public NodeFFMpegDecoder {
 	public:
-		NodeFFMpegAudioDecoder(FFMpegStream* stream);
+		NodeFFMpegAudioDecoder(AudioStream* stream, AVCodecContext* ctx);
 		~NodeFFMpegAudioDecoder();
 	protected:
-		void correctTimestamp(message::FFMpegAudioFrame* texture);
+		void correctTimestamp(message::FFMpegAudioFrame* audioFrame, AVFrame* frame);
 	private:
 		//
 		//  解码出来的图片 ,frame通过av_frame_alloc申请出来的
@@ -35,6 +35,14 @@ namespace player {
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
 	public:	
+		//
+		// 音频流
+		//
+		AudioStream* mAudioStream;
+		//
+		//  音频格式
+		//
+		AudioFormat mFormat;
 		//
 		// 缓存的数据包
 		//

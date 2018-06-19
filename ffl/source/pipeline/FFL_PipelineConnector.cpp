@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineConnector.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/10
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  node异步连接器基类
 *
@@ -108,6 +109,12 @@ namespace FFL {
 			FFL_LOG_WARNING("SyncPipelineConnector input is null");
 			return FFL_ERROR_FAIL;
 		}
+	}
+	//
+	//  清空转发的消息
+	//
+	void SyncPipelineConnector::clearMessage() {
+
 	}
 
 }

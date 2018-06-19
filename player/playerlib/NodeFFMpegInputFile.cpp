@@ -18,10 +18,12 @@
 
 #include "NodeBase.hpp"
 #include "MessageFFMpegPacket.hpp"
-#include "FFL_PlayerEvent.hpp"
-#include "FFL_Player.hpp"
+#include "PlayerEvent.hpp"
+#include "Player.hpp"
+#include "PlayerConstant.hpp"
 #include "FFMpegStream.hpp"
 #include "NodeFFMpegVideoDecoder.hpp"
+#include "TimestampUtils.hpp"
 
 namespace player {
 	NodeFFMpegInputFile::NodeFFMpegInputFile(IStreamManager* streamMgr) :		
@@ -33,7 +35,9 @@ namespace player {
 	{
 		setName("ffmpeg-input");
 		mStreamManager = streamMgr;
+		mSeekUs = 0; mSerialNumber = 1;
 		mLoopPlay = 0;
+		mIsBuffering = false;
 		mMessageCache = new FFL::PipelineMessageCache(MSG_FFMPEG_AVPACKET);		
 	}
 	NodeFFMpegInputFile::~NodeFFMpegInputFile()
@@ -129,7 +133,7 @@ namespace player {
 			mAVFormatContext = NULL;
 		}
 		//AVERROR
-
+		
 		int err = avformat_open_input(&mAVFormatContext, mUrl.c_str(), 0, 0);
 		if (0 == err) {
 			ret = true;
@@ -144,12 +148,12 @@ namespace player {
 		if (ret)
 		{			
 			//int64_t duration=mAVFormatContext->duration;
-			//int64_t startTime=mAVFormatContext->start_time;
-			//avformat_find_stream_info(mAVFormatContext, NULL);
+			//int64_t startTime=mAVFormatContext->start_time;			
 			//av_rescale(mAVFormatContext->duration, 1000, AV_TIME_BASE);
 			//int64_t duration1 = mAVFormatContext->streams[0]->duration;
 			//int64_t startTime1 = mAVFormatContext->streams[0]->start_time;
 
+			avformat_find_stream_info(mAVFormatContext, NULL);
 			openStream(mAVFormatContext->streams, mAVFormatContext->nb_streams);
 		}
 		return ret;
@@ -171,73 +175,52 @@ namespace player {
 		mEventPausePending = true;
 	}
 
-	void NodeFFMpegInputFile::seek(int64_t pos) {
+	void NodeFFMpegInputFile::seek(int64_t us) {
 
         FFL::CMutex::Autolock l(&mRequestMutex);
         if (mEventSeekPending) {
             return;
         }
         mEventSeekPending = true;
-        mSeekPos=pos;
+		mSeekUs =us;
 	}
     
     
 	bool NodeFFMpegInputFile::onSeek() {
-		//av_seek_frame(mAVFormatContext,)
-
-        //int stream_index, int64_t min_ts, int64_t ts, int64_t max_ts, int flags);
-        
-        //int streamIndex=-1;
-       
-        
-//        int64_t SEEK_JITTER=1000;
-		AVRational tb;
-		tb.den = mCurrentTb.mDen;
-		tb.num = mCurrentTb.mNum;
-		int64_t ts=FFMPegUsToTimestamp( mSeekPos, tb);
-//        int64_t minTs=ts - SEEK_JITTER;
-//        int64_t maxTs=ts +SEEK_JITTER ;
-       // int err=avformat_seek_file(mAVFormatContext,streamIndex,minTs,ts,maxTs,0);
-		//if (err < 0) {
-		//	FFL_LOG_WARNING("Failed to seek %" lld64,ts);
-		//}
-
-		{
-			int defaultStreamIndex = av_find_default_stream_index(mAVFormatContext);
-			FFL::sp<FFMpegStream> stream = mStreamVector[defaultStreamIndex];
-			if(!stream.isEmpty())
-			{
-
-				int64_t seekTime = mAVFormatContext->streams[defaultStreamIndex]->start_time +
-					ts;
-				int ret;
-				if (seekTime > mCurrentPts)
-				{
-					ret = av_seek_frame(mAVFormatContext, defaultStreamIndex, seekTime, AVSEEK_FLAG_ANY);
-				}
-				else
-				{
-					ret = av_seek_frame(mAVFormatContext, defaultStreamIndex, seekTime, AVSEEK_FLAG_ANY | AVSEEK_FLAG_BACKWARD);
-				}
-			}
+		int64_t ts= FFMPegUsToSeekfileTimestamp(mSeekUs);
+        int err=avformat_seek_file(mAVFormatContext,-1, INT64_MIN,ts, INT64_MAX,0);
+		if (err < 0) {
+			FFL_LOG_WARNING("Failed to seek %" lld64,ts);
 		}
-        {
-            FFL::CMutex::Autolock l(mRequestMutex);
-            mEventSeekPending = false;
-        }
-        
+		mSerialNumber++;
+
         //
         //  节点丢弃当前没有处理的msg
         //
-        FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_DISCARD_CACHE);
+        FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_DISCARD_MSG);		
+		msgDiscardCache->setParams(mSerialNumber, 0);
+
         for (int i = 0; i < SUPORT_STREAM_NUM; i++) {
-            if (mStreamVector[i].isEmpty()) {
+            if (!mStreamVector[i].isValid()) {
                 continue;
             }
-            if (FFL_OK != postMessage(mStreamVector[i]->mDataSource.mId, msgDiscardCache)) {
-            }
+
+			FFL::sp<FFL::PipelineOutput > output = getOutput(mStreamVector[i].mOutputInterface.mId);
+			if (!output.isEmpty()) {
+				output->clearMessage();
+			}
+
+            if (FFL_OK != postMessageDelay(mStreamVector[i].mOutputInterface.mId, msgDiscardCache,-1)) {
+            }			
         }
         
+		{
+			FFL::CMutex::Autolock l(mRequestMutex);
+			mEventSeekPending = false;
+			mIsBuffering = true;
+			
+		}
+
         event::postPlayerEvent(this,event::EVENT_SEEK_END);
         event::postPlayerEvent(this,event::EVENT_BUFFERING_START);
 		return true;
@@ -273,14 +256,9 @@ namespace player {
 		if (!mAVFormatContext) {
 			return -1;
 		}
-
-		AVRational tb;
-		tb.den = mCurrentTb.mDen;
-		tb.num = mCurrentTb.mNum;
-		return FFMPegTimestampToUs(mCurrentPts,tb);
+		return timestampToUs(mCurrentPts, mCurrentTb);
 	}
-	bool NodeFFMpegInputFile::onClose()
-	{
+	bool NodeFFMpegInputFile::onClose(){
 		bool ret = false;
 		if (mAVFormatContext) {
 			avformat_close_input(&mAVFormatContext);
@@ -295,8 +273,7 @@ namespace player {
 		return ret;
 	}
 
-	void NodeFFMpegInputFile::onReadFrame()
-	{
+	void NodeFFMpegInputFile::onReadFrame(){
 		if (mEOFFlag) {
 			FFL_sleep(10);
 			FFL_LOG_WARNING(" NodeFFMpegInputFile::onReadFrame eof");
@@ -320,13 +297,34 @@ namespace player {
 		}
 
 		int streamIndex = packet->mPacket->stream_index;
-		FFL::sp<FFMpegStream> stream = mStreamVector[streamIndex];				
-			
-		if (stream.isEmpty()) {
+		StreamEntry& stream = mStreamVector[streamIndex];
+		if (!stream.isValid()) {
 			msg->consume(this);
 			return;
 		} 
 		
+		packet->mSerialNumber = mSerialNumber;
+		packet->mPacketType = stream.mStream->getStreamType();
+		switch (packet->mPacketType)
+		{
+		case STREAM_TYPE_VIDEO:
+			if (packet->mPacket->flags &AV_PKT_FLAG_KEY) {
+				packet->mIFrame = 1;
+			} else {
+				packet->mIFrame = 0;
+			}			
+			break;
+		case STREAM_TYPE_AUDIO:		
+			packet->mIFrame = 0;
+			break;
+		default:
+			packet->mIFrame = 0;
+			break;
+		}
+	
+		if (mIsBuffering) {
+			//packet->mPacket->flags
+		}
 
 		//
 		// 这个值是不准确的，先这样啊
@@ -336,13 +334,16 @@ namespace player {
 			pts = packet->mPacket->dts;
 		}
 		mCurrentPts = pts;
-		stream->getTimebase(mCurrentTb);
-
-		if (FFL_OK != postMessage(stream->mDataSource.mId, msg))
+		stream.mStream->getTimebase(mCurrentTb);
+		if (FFL_OK != postMessage(stream.mOutputInterface.mId, msg))
 		{
 			msg->consume(this);
         }else{
-            
+			FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "read %s pts=%" lld64 " streamIndex=%d timebase=%d:%d",
+				(stream.mStream->getStreamType() == STREAM_TYPE_VIDEO ? "video " : "audio"),
+				pts,
+				stream.mStream->getIndex(),
+				mCurrentTb.mNum, mCurrentTb.mDen);
         }
 	}
 
@@ -351,14 +352,12 @@ namespace player {
 		//  关闭当前的输入接口
 		//		
 		mEOFFlag = 1;
-
-
 		FFL::sp<FFL::PipelineMessage> msgEof = new FFL::PipelineMessage(MSG_CONTROL_READER_EOF);
 		for (int i = 0; i < SUPORT_STREAM_NUM; i++) {
-			if (mStreamVector[i].isEmpty()) {
+			if (!mStreamVector[i].isValid()) {
 			    continue;
 			}
-			if (FFL_OK != postMessage(mStreamVector[i]->mDataSource.mId, msgEof)) {
+			if (FFL_OK != postMessage(mStreamVector[i].mOutputInterface.mId, msgEof)) {
 			}
 		}	
 
@@ -368,77 +367,73 @@ namespace player {
         FFL::sp<FFL::PipelineInput> input=getInput(mInput.mId);
         if(!input.isEmpty()){
             input->requestShutdown();
-        }
-        
+        }        
 	}
 #if 1	
-	void NodeFFMpegInputFile::openStream(AVStream** streams, uint32_t count)
-	{
+	void NodeFFMpegInputFile::openStream(AVStream** streams, uint32_t count){
 		FFL::sp<FFL::Pipeline> pipeline = getPipeline();
 		AVStream* stream = 0;
-		int64_t startTime = -1;
-		bool haveAudio = false;
 
 		int streamIndexVec[3] = {-1};
 		streamIndexVec[0] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
 		streamIndexVec[1] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
+		streamIndexVec[2] = -1;
 		//streamIndexVec[2] = av_find_best_stream(mAVFormatContext, AVMEDIA_TYPE_SUBTITLE,-1, -1, NULL, 0);
 				
 		for ( int i=0;i< FFL_ARRAY_ELEMS(streamIndexVec); i++){
 			uint32_t index = streamIndexVec[i];
 			if(index==-1) continue;
-
 			stream = streams[index];
-			//
-			//  获取第一帧的时间
-			//
-			if (stream->start_time != AV_NOPTS_VALUE) {
-				startTime = FFL_MIN(startTime, stream->start_time);
-			}
-
-			AVCodecContext* codec = openCodec(stream);
-			if (!codec) {
-				continue;
-			}
-
-			FFL::sp<FFMpegStream> streamInfo = new FFMpegStream();
+			
+			FFL::sp<Stream> streamInfo ;
+			switch (avcodec_get_type(stream->codecpar->codec_id)) {
+			case AVMEDIA_TYPE_VIDEO:
+				{
+					streamInfo = new FFMpegVideoStream(stream);				
+					FFL::sp<event::PlayerEvent> event = new event::PlayerEvent(event::EVENT_VIDEO_SIZE_CAHNGED);
+					event->mInt32Parma1 = stream->codecpar->width;
+					event->mInt32Parma2 = stream->codecpar->height;
+					event->mInt64Param1 = stream->codecpar->sample_aspect_ratio.num;
+					event->mInt64Param2 = stream->codecpar->sample_aspect_ratio.den;
+					event::postPlayerEvent(this, event);
+				}
+				break;
+			case AVMEDIA_TYPE_AUDIO:
+				{
+					streamInfo = new FFMpegAudioStream(stream);
+				}
+				break;
+			default:
+				break;
+			}				
 			if (streamInfo.isEmpty()) {
 				FFL_LOG_WARNING("stream %d not support ", stream->index);
 				continue;
 			}
-			
-			streamInfo->setStreamIndex(stream->index);
-			streamInfo->mFFMpegStream = stream;
-			streamInfo->mFFMpegCodecCtx = codec;
-			if (codec->codec_type == AVMEDIA_TYPE_VIDEO)
-			{
-				streamInfo->setStreamType(STREAM_TYPE_VIDEO);
 
-				FFL::sp<event::PlayerEvent> event = new event::PlayerEvent(event::EVENT_VIDEO_SIZE_CAHNGED);
-				event->mInt32Parma1 = stream->codecpar->width;
-				event->mInt32Parma2 = stream->codecpar->height;
-				event->mInt64Param1 = stream->codecpar->sample_aspect_ratio.num;
-				event->mInt64Param2 = stream->codecpar->sample_aspect_ratio.den;
-				event::postPlayerEvent(this, event);				
-			}else if (codec->codec_type == AVMEDIA_TYPE_AUDIO )
-			{
-				streamInfo->setStreamType(STREAM_TYPE_AUDIO);
-			}
-			//
-			//  
-			//
-			OutputInterface output = createOutputInterface();
-			streamInfo->mDataSource = output;
 			FFL::sp<Decoder> decoder = streamInfo->createDecoder();
-			if (!decoder.isEmpty()) {
-				mStreamVector[index] = streamInfo;
-				mStreamManager->addStream(streamInfo);
-				decoder->create(getOwner());
-				streamInfo->build();
+			if (decoder.isEmpty()) {
+				mStreamVector[index].mStream = NULL;
+				FFL_LOG_WARNING("Failed to createDecoder (index=%d). ", stream->index);
+				continue;
 			}
-			else {
-				mStreamVector[index] = NULL;
-			}
+			
+			StreamEntry& entry = mStreamVector[index];
+			entry.mStream = streamInfo;
+			entry.mOutputInterface= createOutputInterface();			
+			entry.mStream->mSource = entry.mOutputInterface;
+			FFL::formatString(entry.mStream->mSource.mName,
+				"decoder-%d-%d", 
+				streamInfo->getIndex(),
+				streamInfo->getStreamType());
+			
+			//
+			// 启动这个流的处理
+			//
+			InputInterface input;			
+			decoder->create(getOwner());
+			decoder->connectSource(entry.mOutputInterface, entry.mStream->mSource.mName.c_str(), input, 0);
+			mStreamManager->addStream(streamInfo);			
 		}
 	}
 #else
@@ -524,44 +519,6 @@ namespace player {
 		}
 	}
 #endif
-
-	AVCodecContext* NodeFFMpegInputFile::openCodec(AVStream* stream)
-	{
-		AVCodec* codec = NULL;
-		AVCodecContext* codecCtx = NULL;
-		//AVCodec* codec = avcodec_find_decoder(stream->codec->codec_id);
-		codec = avcodec_find_decoder(stream->codecpar->codec_id);
-		if (!codec)
-		{
-			FFL_LOG_WARNING("failed to find codec\n");
-			return NULL;
-		}
-
-		codecCtx = avcodec_alloc_context3(codec);
-		if (!codecCtx)
-		{
-			FFL_LOG_WARNING("Failed to allocate the codec context\n");
-			goto fail;
-		}
-
-		if (avcodec_parameters_to_context(codecCtx, stream->codecpar) < 0) {
-			FFL_LOG_WARNING("Failed to copy codec parameters to decoder context\n");
-			goto fail;
-		}
-
-		if (avcodec_open2(codecCtx, codec, NULL) < 0)
-		{
-			FFL_LOG_WARNING("Failed to open codec\n");
-			goto fail;
-		}
-
-		return codecCtx;
-	fail:
-
-		if (codecCtx)
-			avcodec_free_context(&codecCtx);
-		return  NULL;
-	}
-
+	
 }
 

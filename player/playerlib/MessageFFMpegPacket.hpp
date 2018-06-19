@@ -26,19 +26,36 @@ namespace message {
 		~FFMpegPacket();		
 
 		//
+		//  是否i桢
+		//
+		virtual bool isIFrame() const;
+		//
+		//  是否视频，音频桢
+		//
+		virtual bool isVideo() const;
+		virtual bool isAudio() const;
+		//
 		//  已经处理完成了，可以回收了		
 		//
 		virtual void consume();
 	public:
 		AVPacket* mPacket;
-
+		//
+		// 流索引
+		//
 		uint32_t mStreamIndex;
 		//
-		// 这一帧微妙
+		// 音频，视频
 		//
-		uint64_t mDurationUs;
-
-		uint64_t mPtsUs;
+		uint32_t mPacketType;
+		//
+		//  是否i桢
+		//
+		int32_t mIFrame;
+		//
+		// 
+		//
+		int32_t mSerialNumber;
 	};
 
 }

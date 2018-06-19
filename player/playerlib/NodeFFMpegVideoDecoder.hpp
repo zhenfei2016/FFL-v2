@@ -15,10 +15,10 @@
 #include "NodeFFMpegDecoder.hpp"
 
 namespace player {
-	class FFMpegStream;
+	class VideoStream;
 	class NodeFFMpegVideoDecoder : public NodeFFMpegDecoder {
 	public:
-		NodeFFMpegVideoDecoder(FFMpegStream* stream);
+		NodeFFMpegVideoDecoder(VideoStream* stream, AVCodecContext* ctx);
 		~NodeFFMpegVideoDecoder();
 
 		void correctTimestamp(message::FFMpegVideoFrame* texture);
@@ -35,7 +35,7 @@ namespace player {
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
 	public:
-
+		VideoStream* mVideoStream;
 		//
 		// 缓存的数据包
 		//

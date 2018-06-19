@@ -77,6 +77,10 @@ namespace FFL{
 		//
 		status_t postSelfMessage(const sp<PipelineMessage>& msg,int64_t delayUs);
 		//
+		//  清空等待处理的消息
+		//
+		void clearMessage();
+		//
         // 分派系统消息，马上执行的， post的消息最终也会走这地方的
         //
         void dispathSysMessage(const sp<PipelineMessage>& msg);

@@ -13,16 +13,22 @@
 #pragma once
 #include <pipeline/FFL_Pipeline.hpp>
 #include <utils/FFL_Utils.hpp>
-#include "FFL_PlayerEvent.hpp"
-#include "FFL_Window.hpp"
-#include "FFL_AudioDevice.hpp"
+#include "PlayerEvent.hpp"
+#include "RenderWindow.hpp"
+#include "AudioDevice.hpp"
+#include "VideoDevice.hpp"
 #include "StreamManager.hpp"
 #include "Statistic.hpp"
+#include "AVDeviceCreator.hpp"
+#include "ClockUpdater.hpp"
 
 
 namespace player {
 	class NodeBase;
 	class NodeReader;
+
+	class VideoStream;
+	class AudioStream;
 
 	class VideoComposer;
 	class AudioComposer;
@@ -34,18 +40,12 @@ namespace player {
 
 	class SDL2Module;
 
-	class FFLPlayer : public IStreamManager
+	class FFLPlayer : public IStreamManager ,public ClockUpdater
 	{
 		friend class NodeBase;
 	public:
 		FFLPlayer();
 		~FFLPlayer();
-
-		//
-		//  设置绘制目标
-		//
-		void setRender(FFL::sp<VideoRender> video, FFL::sp<AudioRender> audio);
-		static void createAndsetSDL2Render(FFLPlayer* player);
 
 		//
 		//  开始播放，停止
@@ -73,17 +73,23 @@ namespace player {
 		status_t init();
 
 		void onEvent(const FFL::sp<event::PlayerEvent> event);
-	private:
-		FFL::sp<FFL::Pipeline> mPipeline;
 
+		void updateClcok(int64_t tm, int32_t streamId, void* uesrdata);
 	public:
 		//  IStreamManager
 		virtual bool addStream(FFL::sp<Stream> stream);
 		virtual FFL::sp<Stream> removeStream(uint32_t index);
 		virtual FFL::sp<Stream> getStream(uint32_t index);
+	protected:
+		void onAddVideoStream(FFL::sp<VideoStream> stream);
+		void onAddAudioStream(FFL::sp<AudioStream> stream);
+		void onAddOtherStream(FFL::sp<Stream> stream);
+
+		void createVideoDisplay();
 	private:	
 		FFL::CMutex mStreamLock;
 		FFL::Vector< FFL::sp<Stream> >  mStreamVec;
+		FFL::TimeBase mAudioTb;
 
 	protected:
 		FFL::CMutex mNodeLock;
@@ -91,12 +97,9 @@ namespace player {
 		void registerNode(FFL::sp<NodeBase> node);
 		void unRegisterNode(FFL::sp<NodeBase> node);
 	private:
-		FFL::sp<NodeReader> mFileReader;
-		
-		
+		FFL::sp<FFL::Pipeline> mPipeline;
+		FFL::sp<NodeReader> mFileReader;		
 	public:
-		FFL::sp<FFLAudioDevice> mAudioDevice;
-
 		//
 		//  接收系统中发布的事件
 		//
@@ -104,24 +107,20 @@ namespace player {
 		friend class FFLPlayerEventFilter;
 		FFLPlayerEventFilter* mEventFilter;
 
+		AVDeviceCreator* mDeviceCreator;
+		FFL::sp<AudioDevice> mAudioDevice;
+		FFL::sp<VideoDevice> mVideoDevice;		
+
 		VideoComposer* mVideoComposer;
 		AudioComposer* mAudioComposer;
 
-		FFL::sp<VideoRender> mVideoRender;
-		FFL::sp<AudioRender> mAudioRender;
-
-		FFL::sp<FFLWindow> mWindow;
-	public:
+		FFL::sp<RenderWindow> mWindow;
+	private:
 		FFL::sp<FFL::Clock> mClock;
 		TimestampExtrapolator* mTimestampExtrapolator;
 	public:
 		PlayerStatistic mStats;
 	public:
 		FFL::String mUrl;
-
 	};
-	//
-	//  创建视频渲染窗体
-	//
-	FFL::sp<FFLWindow> createRenderWindow();
 }

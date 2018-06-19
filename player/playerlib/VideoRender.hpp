@@ -13,26 +13,24 @@
 
 #pragma once
 #include "Render.hpp"
-#include "FFL_Window.hpp"
-#include "FFL_Texture.hpp"
+#include "RenderWindow.hpp"
+#include "VideoTexture.hpp"
 #include "Statistic.hpp"
+
 
 namespace player {
 
-	class SDL2Module;
+	class VideoDevice;
 	class VideoRender : public Render {
 	public:
-		VideoRender();
+		VideoRender(FFL::sp<VideoDevice> device);
 		~VideoRender();
 
 		//
 		//  成功创建了node
 		//
 		virtual void onCreate();
-
-		void setRenderWindow(FFLWindow* window );
-		//void setSize(int32_t widht, int32_t height);
-
+		
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
 		//
@@ -49,8 +47,11 @@ namespace player {
 		//
 		//  开始显示
 		//
-		virtual void onShowTexture(FFLTexture* texture);
+		virtual void onShowTexture(VideoTexture* texture);
 	protected:
 		IStatisticVideoRender* mStatistic;
+		FFL::sp<VideoDevice> mDevice;
+
+		int64_t mFrameIndex;
 	};
 }

@@ -13,17 +13,17 @@
 
 #pragma once
 #include "Render.hpp"
-#include "FFL_Window.hpp"
-#include "FFL_Texture.hpp"
-#include "FFL_Sample.hpp"
+#include "RenderWindow.hpp"
+#include "VideoTexture.hpp"
+#include "AudioSample.hpp"
 #include "Statistic.hpp"
 #include "TimestampExtrapolator.hpp"
 namespace player {
 	class AudioResample;
-	class SDL2Module;
+	class AudioDevice;
 	class AudioRender : public Render {
 	public:
-		AudioRender();
+		AudioRender(FFL::sp<AudioDevice> device);
 		~AudioRender();	
 
 		void onCreate();
@@ -40,12 +40,15 @@ namespace player {
 		//
 		//  开始显示
 		//
-		virtual void onShowSamples(FFLSample* samples);
+		virtual void onShowSamples(AudioSample* samples);
 
 	protected:
 		IStatisticAudioRender* mStatistic;
 	public:
 		TimestampExtrapolator* mTimestampExtrapolator;
 
+		FFL::sp<AudioDevice> mDevice;
+
+		int64_t mFrameIndex;
 	};
 }

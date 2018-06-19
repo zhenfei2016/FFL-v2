@@ -12,16 +12,32 @@
 */
 
 #include "AudioComposer.hpp"
-#include "FFL_Player.hpp"
+#include "Player.hpp"
 #include "MessageFFMpegFrame.hpp"
+#include "AudioResample.hpp"
 #include "FFMpeg.hpp"
 
 namespace player {
-	AudioComposer::AudioComposer():mTimestampExtrapolator(NULL){
+	AudioComposer::AudioComposer():
+		mTimestampExtrapolator(NULL),
+		mDstFormat(NULL) {
 		setName("AudioComposer");
+		mResample = new AudioResample();
 	}
 
 	AudioComposer::~AudioComposer() {
+		FFL_SafeFree(mResample);
+		FFL_SafeFree(mDstFormat);
+	}
+	//
+	//  设置输出的格式
+	//
+	void AudioComposer::setOutputFormat(AudioFormat* fmt) {
+		FFL_SafeFree(mDstFormat);
+		if (fmt) {
+			mDstFormat = new AudioFormat();
+			*mDstFormat = *fmt;
+		}		
 	}
 
 	//
@@ -41,7 +57,6 @@ namespace player {
 		if (msg.isEmpty()) {
 			return true;
 		}
-
 		
 		switch (msg->getType())
 		{
@@ -63,31 +78,32 @@ namespace player {
 		return true;
 	}
 	
-	void AudioComposer::handleSamples(const FFL::sp<FFL::PipelineMessage>& msg, FFLSample* sample) {
-		int64_t delay = 0;
-//		if (mTimestampExtrapolator == NULL) {
-//			FFL::sp<FFL::Clock> clock = new FFL::Clock();			
-//			mTimestampExtrapolator = new TimestampExtrapolator(clock);
-//
-//			FFL::sp<Stream> stream = getOwner()->getStream(sample->mStreamId);
-//			stream->getTimebase(mTimerUnits);
-//			delay = mTimestampExtrapolator->reset(sample->mPts, mTimerUnits);
-//		} else {
-//			delay = mTimestampExtrapolator->getRelativeTime(sample->mPts, mTimerUnits);
-//			if (delay == 0) {
-//				delay += 0;
-//			}
-//		}
-//
-//		delay = 0;
-//		sample->mDuration = (int64_t)((double((double)sample->mSampleNum / sample->mFreq)) * 1000 * 1000);
-//
-//		FFL_LOG_INFO("AudioComposer duration %" lld64, sample->mDuration);
+	void AudioComposer::handleSamples(const FFL::sp<FFL::PipelineMessage>& msg, AudioSample* sample) {
+		if (!mDstFormat) {
+			FFL_LOG_WARNING("Faild to AudioComposer::handleSamples (dstFormat is null)");
+			msg->consume(this);
+			return;
+		}
 
+		AudioFormat fmt;
+		sample->getAudioFormat(fmt);
+		if (!mDstFormat->equal(fmt)) {
+			//
+			//  重采样
+			//
+			AudioSample targetSample;
+			targetSample.setAudioFormat(*mDstFormat);			
+			mResample->resample(sample, &targetSample, getOwner()->getSpeed());
+			sample->moveData(targetSample);
+		}else {
+			//
+			//  不需要重采样
+			//		
+		}
 		//
 		// 发送到这个输出接口上
 		//		
-		if (FFL_OK != postMessageDelayToRender(msg, delay)) {
+		if (FFL_OK != postMessageDelayToRender(msg, 0)) {
 			msg->consume(this);
 		}			
 	}

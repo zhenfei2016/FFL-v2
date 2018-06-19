@@ -6,7 +6,7 @@
  *
  *  FFL_MessageQueue.cpp 
  *  Created by zhufeifei(34008081@qq.com) on 2017/11/26 
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
  *  消息队列
  *
 */
@@ -53,11 +53,13 @@ namespace FFL {
         //最终最靠前的，执行的越早
         //
         int index = 0;
-        List<MessageEntry>::iterator it = mMsgQueue.begin();
-        for (;it != mMsgQueue.end() && ((*it).mCreatetimeUs +(*it).mDelayTimeUs) <= whenUs;it++) {
-            index++;
-        }
-        
+		List<MessageEntry>::iterator it = mMsgQueue.begin();
+		if (delayUs >= 0) {
+			for (; it != mMsgQueue.end() && ((*it).mCreatetimeUs + (*it).mDelayTimeUs) <= whenUs; it++) {
+				index++;
+			}
+		}
+
         MessageEntry event;        
         event.mMessage = msg;        
         event.mCreatetimeUs=createTime;
@@ -181,36 +183,42 @@ namespace FFL {
 	//
 	//  获取当前使用的messagelist,不弹出队列
 	//
-	void MessageQueue::peekAll(List< sp<Message> >& list) {
+	void MessageQueue::peekAll(List< sp<Message> >* list) {
 		CMutex::Autolock l(mLock);			
-		List<MessageEntry>::iterator it = mMsgQueue.begin();
-		for (; it != mMsgQueue.end(); it++) {
-			list.push_back(it->mMessage);
+		if (list) {
+			List<MessageEntry>::iterator it = mMsgQueue.begin();
+			for (; it != mMsgQueue.end(); it++) {
+				list->push_back(it->mMessage);
+			}
 		}
 	}
 	//
 	//  获取当前使用的messagelist，弹出队列
 	//
-	void MessageQueue::getAll(List< sp<Message> >& list) {
+	void MessageQueue::getAll(List< sp<Message> >* list) {
 		CMutex::Autolock l(mLock);
-		List<MessageEntry>::iterator it = mMsgQueue.begin();
-		for (; it != mMsgQueue.end(); it++) {
-			list.push_back(it->mMessage);
+		if (list) {
+			List<MessageEntry>::iterator it = mMsgQueue.begin();
+			for (; it != mMsgQueue.end(); it++) {
+				list->push_back(it->mMessage);
+			}
 		}
 		mMsgQueue.clear();
 	}
 	//
 	//  获取当前handleId使用的messagelist，弹出队列
 	//
-	void MessageQueue::getAll(List< sp<Message> >& list, Looper::handler_id handleId) {
+	void MessageQueue::getAll(List< sp<Message> >* list, Looper::handler_id handleId) {
 		CMutex::Autolock l(mLock);
 		List<MessageEntry>::iterator it = mMsgQueue.begin();
 		for (; it != mMsgQueue.end(); ) {
 			MessageEntry& entry = *it;
 			if (entry.mMessage->target() == handleId) {
-				list.push_back(it->mMessage);
-				it=mMsgQueue.erase(it);
-			}else {
+				if(list)
+		   		  list->push_back(it->mMessage);
+				it = mMsgQueue.erase(it);
+			}
+			else {
 				it++;
 			}
 		}
@@ -218,20 +226,15 @@ namespace FFL {
 	//
 	//  取消一条消息
 	//
-	bool MessageQueue::cancel(const sp<Message> msg) {
-		if (msg.isEmpty()) {
-			return false;
-		}
-
+	bool MessageQueue::cancel(uint32_t msgId) {
 		CMutex::Autolock l(mLock);
 		List<MessageEntry>::iterator it = mMsgQueue.begin();
 		for (; it != mMsgQueue.end(); it++) {
-			if (it->mMessage->uniqueId() == msg->uniqueId()) {
+			if (it->mMessage->uniqueId() == msgId) {
 				mMsgQueue.erase(it);
 				return true;
 			}
-		}
-		
+		}		
 		return false;
 	}
 

@@ -13,15 +13,17 @@
 #include "VideoRender.hpp"
 #include "MessageFFMpegFrame.hpp"
 #include "SDL2Module.hpp"
-#include "FFL_Player.hpp"
+#include "VideoDevice.hpp"
+#include "Player.hpp"
+#include "PlayerConstant.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
-	VideoRender::VideoRender():mStatistic(NULL){
-		
+	VideoRender::VideoRender(FFL::sp<VideoDevice> device):mStatistic(NULL){
+		mDevice = device;
+		mFrameIndex = -1;
 	}
-	VideoRender::~VideoRender() {
-		
+	VideoRender::~VideoRender() {		
 	}
 	//
 	//  成功创建了node
@@ -30,10 +32,6 @@ namespace player {
 		Render::onCreate();
 		mStatistic = &(getOwner()->mStats);
 	}
-	
-	void VideoRender::setRenderWindow(FFLWindow* window) {
-	}
-
 
 	//
 	//   外部setDataInput时候调用此函数，创建对应conn
@@ -41,7 +39,7 @@ namespace player {
 	FFL::sp<FFL::PipelineConnector > VideoRender::onCreateConnector(
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
-		FFL::PipelineAsyncConnectorFixSize* conn = new FFL::PipelineAsyncConnectorFixSize(5);
+		FFL::PipelineAsyncConnectorFixSize* conn = new FFL::PipelineAsyncConnectorFixSize(3);
 		//conn->getLooper()->setDebug(true);
 		return conn;
 	}
@@ -63,6 +61,13 @@ namespace player {
 		}
 			break;
 		case MSG_CONTROL_READER_EOF:
+			event::postPlayerEvent(this, event::EVENT_VIDEO_RENDER_LAST_FRAME);
+			break;
+		case MSG_CONTROL_AV_SYNC:
+			//
+			//  进行丢帧
+			//
+			msg->consume(this);
 			break;
 		}
 		
@@ -72,8 +77,22 @@ namespace player {
 	//
 	//  收到待显示的纹理包
 	//	
-	void VideoRender::onShowTexture(FFLTexture* texture)
+	void VideoRender::onShowTexture(VideoTexture* texture)
 	{
-		
+		mStatistic->renderVideoFrame(texture->mPts, FFL_getNowUs());
+		int64_t t1 = FFL_getNowUs();
+		mDevice->showTexture(texture);
+		int64_t t2 = FFL_getNowUs();
+
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,"VideoRender pts=%" lld64 " now=%" lld64 " render=%" lld64 " delay=%" lld64,
+			texture->mPts,
+			t2, texture->mRenderus, t2 - texture->mRenderus);
+		mStatistic->renderVideoDelayUs(t2 - t1);
+
+		if (mFrameIndex == -1) {
+			mFrameIndex = 0;
+			event::postPlayerEvent(this, event::EVENT_VIDEO_RENDER_FIRST_FRAME);
+		}
+		mFrameIndex++;
 	}
 }

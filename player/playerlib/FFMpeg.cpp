@@ -13,33 +13,13 @@
 #include "FFMpeg.hpp"
 #include <FFL.h>
 
-//
-//  时间错转化为毫秒
-//
-int64_t FFMPegTimestampToUs(int64_t tm, AVRational& tb) {	
-	if (tb.den == 0 || tm==0) {
-		return tm;
-	}
 
-	//
-	//  时间戳一个刻度对应多少毫秒
-	//
-	double dus = ((double)(1000 * 1000 * tb.num)) / tb.den;
-	return (int64_t)(tm* dus);
-}
 
 
 //
-//  时间错转化为毫秒
+//  毫秒转化为ffmpeg的seekfile单位下的位置
 //
-int64_t FFMPegUsToTimestamp(int64_t tm, AVRational& tb) {
-	//
-	//  时间戳一个刻度对应多少毫秒
-	//
-	double dus = ((double)(1000 * 1000 * tb.num)) / tb.den;
-	if (dus < 0) {
-		FFL_LOG_WARNING("FFMPegUSToTimestamp fail");
-		return tm;
-	}
-	return (int64_t)((double)tm/dus);
+int64_t FFMPegUsToSeekfileTimestamp(int64_t us){
+	return us;
+	//return av_rescale(us, AV_TIME_BASE, 1000000)
 }

@@ -31,27 +31,6 @@ namespace player {
 		virtual void onDestroy();
 	public:
 		//
-		//  设置控制消息的输入端口
-		//
-		bool setControlInput(const OutputInterface& output);
-		//
-		// 收到控制消息
-		//
-		void receivedControl(const FFL::sp<FFL::PipelineMessage>& msg);
-		//
-		//  设置数据消息的输入端口
-		//
-		bool setDataInput(const OutputInterface& output);
-		//
-		//  获取数据输出接口
-		//
-		OutputInterface getDataOutput();
-		//
-		// 收到消息
-		//
-		void receiveData(const FFL::sp<FFL::PipelineMessage>& msg);
-	public:
-		//
 		//  打开
 		//
 		void play(const char* url);

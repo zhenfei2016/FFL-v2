@@ -69,8 +69,6 @@ namespace FFL
 				return FFL_ERROR_FAIL;
 			}
 		}
-		
-		
 		//
 		//  获取出还没有启动的input
 		//

@@ -22,8 +22,7 @@
 #include "IReader.hpp"
 
 namespace player {
-	class FFLPlayer;
-	class FFMpegStream;
+	class FFLPlayer;	
 	class NodeFFMpegInputFile : public NodeBase, public IReader
 	{
 	public:
@@ -54,7 +53,7 @@ namespace player {
 		//
 		// 设置开始读位置
 		//
-		void seek(int64_t pos);
+		void seek(int64_t us);
 		//
 		// 关闭
 		//
@@ -86,6 +85,8 @@ namespace player {
 		volatile bool mEventClosePending;
 		volatile bool mEventPausePending;
 		volatile bool mEventSeekPending;
+		volatile bool mIsBuffering;
+
 
 		bool onOpen();
 		bool onSeek();
@@ -98,16 +99,20 @@ namespace player {
 		// 打开所有的流
 		//
 		void openStream(AVStream** streams, uint32_t count);
-		//
-		//  打开对应这个流的解码器
-		//
-		AVCodecContext* openCodec(AVStream* stream);
 	private:
         InputInterface mInput;
 		enum {
 			SUPORT_STREAM_NUM=4,
 		};
-        FFL::sp<FFMpegStream> mStreamVector[SUPORT_STREAM_NUM];
+		struct StreamEntry{
+			FFL::sp<Stream> mStream;
+			OutputInterface mOutputInterface;
+
+			bool isValid() {
+				return !mStream.isEmpty();
+			}
+		};
+		StreamEntry mStreamVector[SUPORT_STREAM_NUM];
 		IStreamManager* mStreamManager;
 		//
 		//  是否循环播放
@@ -124,8 +129,11 @@ namespace player {
 		//
 		FFL::sp<FFL::PipelineMessageCache> mMessageCache;
         
-        
-        int64_t mSeekPos;
+        //
+		// seek到那个地方，每一次seek都会改变mSerialNumber
+		//
+        int64_t mSeekUs;
+		int32_t mSerialNumber;
 
 		//
 		// 当前读取到哪一个pts

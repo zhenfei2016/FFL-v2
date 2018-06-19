@@ -13,7 +13,7 @@
 
 #include "NodeReader.hpp"
 #include "NodeFFMpegInputFile.hpp"
-#include "FFL_Player.hpp"
+#include "Player.hpp"
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 
 namespace player {
@@ -34,58 +34,6 @@ namespace player {
 
 	}
 
-	bool NodeReader::setControlInput(const OutputInterface& output) {
-		//
-		FFL::sp<FFL::PipelineInputHandler> handler =
-			new FFL::ClassMethodPipelineInputHandler<NodeReader>(this, &NodeReader::receivedControl);
-		if (!mControlInput.isValid()) {
-			mControlInput = createInputInterface(handler, "");
-		}
-		FFL::sp<FFL::SyncPipelineConnector > conn = new FFL::SyncPipelineConnector();
-		getPipeline()->connect(output.mNodeId, output.mId,
-			mControlInput.mNodeId, mControlInput.mNodeId, conn);
-		return true;
-	}
-	//
-	// 收到控制消息
-	//
-	void NodeReader::receivedControl(const FFL::sp<FFL::PipelineMessage>& msg) {
-		if (!msg.isEmpty()) {
-			msg->consume(this);
-		}
-	}
-	//
-	//  设置数据消息的输入端口
-	//
-	bool NodeReader::setDataInput(const OutputInterface& output) {
-		//
-		FFL::sp<FFL::PipelineInputHandler> handler =
-			new FFL::ClassMethodPipelineInputHandler<NodeReader>(this, &NodeReader::receiveData);
-		if (!mDataInput.isValid()) {
-			mDataInput = createInputInterface(handler, "");
-		}
-		FFL::sp<FFL::SyncPipelineConnector > conn = new FFL::SyncPipelineConnector();
-		getPipeline()->connect(output.mNodeId, output.mId,
-			mDataInput.mNodeId, mDataInput.mNodeId, conn);
-		return true;
-	}
-	//
-	//  获取数据输出接口
-	//
-	OutputInterface NodeReader::getDataOutput() {
-		if (mDataOutput.isValid()) {
-			return  mDataOutput;
-		}
-
-		mDataOutput = createOutputInterface();
-		return mDataOutput;
-	}
-	//
-	// 收到消息
-	//
-	void NodeReader::receiveData(const FFL::sp<FFL::PipelineMessage>& msg) {
-		postMessage(mDataOutput.mId, msg);
-	}
 	//
 	//  打开
 	//

@@ -100,18 +100,18 @@ namespace FFL
 	}
 
 	//
-	//移除这output出去的一条消息
+	//  清空等待处理的消息
 	//
-	status_t PipelineOutput::removeMessage(const sp<PipelineMessage> &msg) {
-		FFL_LOG_WARNING("PipelineOutput::removeMessage not imple");
-		return FFL_NOT_IMPLEMENT;
-	}
-	//
-	//移除这个output出去的所有消息
-	//
-	status_t PipelineOutput::removeAllMessage(const sp<PipelineMessage> &msg) {
-		FFL_LOG_WARNING("PipelineOutput::removeAllMessage not imple");
-		return FFL_NOT_IMPLEMENT;
+	void PipelineOutput::clearMessage() {
+		sp<PipelineConnector> conn;
+		{
+			CMutex::Autolock l(mLock);
+			sp<PipelineConnector> conn = mConnector;
+		}
+
+		if (!conn.isEmpty()) {
+			conn->clearMessage();
+		}
 	}
 }
 

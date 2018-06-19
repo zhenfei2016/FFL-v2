@@ -23,13 +23,9 @@ extern "C"
 }
 
 
-//
-//  时间错转化为毫秒
-//
-int64_t FFMPegTimestampToUs(int64_t tm, AVRational& tb);
 
 
 //
-//  时间错转化为毫秒
+//  毫秒转化为ffmpeg的seekfile单位下的位置
 //
-int64_t FFMPegUsToTimestamp(int64_t tm, AVRational& tb);
+int64_t FFMPegUsToSeekfileTimestamp(int64_t us);

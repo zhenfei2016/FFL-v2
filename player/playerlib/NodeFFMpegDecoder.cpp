@@ -14,18 +14,18 @@
 #include "MessageFFMpegPacket.hpp"
 #include "NodeFFMpegDecoder.hpp"
 #include "FFMpegStream.hpp"
-#include "FFL_Player.hpp"
-#include "FFL_Texture.hpp"
+#include "Player.hpp"
+#include "VideoTexture.hpp"
 
 namespace player {
-	NodeFFMpegDecoder::NodeFFMpegDecoder(FFMpegStream* stream) {
-		mStream = stream;
-		FFL_ASSERT(stream);
+	NodeFFMpegDecoder::NodeFFMpegDecoder( AVCodecContext* ctx) {
+		mCodecCtx = ctx;	
+		mSerialNumber = 0;
+		mWaitIFrame = false;
 	}
 	NodeFFMpegDecoder::~NodeFFMpegDecoder()
 	{
 	}
-
 	//
 	// 处理接收到的消息，
 	//
@@ -37,8 +37,14 @@ namespace player {
 			ret= decodeMessageFFMpegPacket((message::FFMpegPacket*) (msg->getPayload()));
             msg->consume(this);
 			break;
+		case MSG_CONTROL_DISCARD_MSG:			
+			mSerialNumber=(int32_t)msg->getParam1();
+			mWaitIFrame = true;
+			msg->consume(this);
+			break;
 		case MSG_CONTROL_READER_EOF:
-			decode(NULL);
+			decode(NULL,false);
+			mWaitIFrame = false;
 			handleEOF(msg);
 			ret = true;
 			break;
@@ -46,43 +52,30 @@ namespace player {
             msg->consume(this);
 			break;
 		}
-
-		
-		
-		
 		return ret;
 	}	
 	//
 	//  解码一消息
 	//
 	bool NodeFFMpegDecoder::decodeMessageFFMpegPacket(message::FFMpegPacket* msg) {
+		if (mSerialNumber == 0) {
+			//
+			// 第一次
+			//
+			mSerialNumber = msg->mSerialNumber;
+		}
 		//
 		//  解码数据
 		//
-		if (openDecoder(msg))
+		if (mCodecCtx)
 		{
-			return decode(msg->mPacket);
+			return decode(msg->mPacket,false);
+		}else {
+			FFL_LOG_WARNING("Failed to NodeFFMpegDecoder::decode streamIndex=%d" , msg->mPacket->stream_index);
 		}
 		return false;
-	}
-	//
-	//  打开解码器
-	//
-	bool NodeFFMpegDecoder::openDecoder(message::FFMpegPacket* msg)
-	{		
-		if (mStream) {
-			mCodecCtx = mStream->mFFMpegCodecCtx;
-		}
-		return mCodecCtx != NULL;
-	}
-	//
-	//  关闭解码器
-	//
-	void NodeFFMpegDecoder::closeDecoder() {
-
-	}
-	
-	bool NodeFFMpegDecoder::decode(AVPacket *pkt)
+	}	
+	bool NodeFFMpegDecoder::decode(AVPacket *pkt, bool discard)
 	{
 		if (mCodecCtx == NULL) {
 			return false;
@@ -106,13 +99,24 @@ namespace player {
 				return false;
 			}
 
+			if (mWaitIFrame) {				
+				if (frame->key_frame) {
+					discard = false;
+					mWaitIFrame = false;
+				}
+				else {
+					discard = true;
+				}
+			}
 			//
 			//  成功解码出一帧数据
 			//
-			FFL_LOG_INFO("frame=%d pts=%" lld64 " width=%d,height=%d keyframe=%d",
+			FFL_LOG_INFO("frame=%d pts=%" lld64 " width=%d,height=%d keyframe=%d discard=%d",
 				mCodecCtx->frame_number, frame->pts,
-				frame->width, frame->height, frame->key_frame);
-			handleDecodedFrame(frame);			
+				frame->width, frame->height, frame->key_frame,discard);
+			if (!discard) {
+				handleDecodedFrame(frame);
+			}
 		}
 
 		return true;

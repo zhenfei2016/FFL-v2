@@ -6,7 +6,7 @@
 *
 *  FFL_MessageQueue.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/26
-*
+*  https://github.com/zhenfei2016/FFL-v2.git
 *  保存消息的消息队列
 *
 */
@@ -30,10 +30,12 @@ namespace FFL {
         //
         //  插入一条消息msg不可以为空,返回插入的索引位置，最靠前的最先处理
         //  消息在 createTime+ delayUs 时刻执行
+		//  delayUs<0则会插入到最先执行的位置
         //
         int32_t post(const sp<Message> &msg,int64_t createTime,int64_t delayUs);
 		//
 		//  插入一条消息msg不可以为空,返回插入的索引位置，最靠前的最先处理
+		//  delayUs<0则会插入到最先执行的位置
 		//
 		int32_t post(const sp<Message> &msg, int64_t delayUs);
 		//
@@ -56,19 +58,20 @@ namespace FFL {
 		//
 		//  获取当前使用的messagelist,不弹出队列
 		//
-		void peekAll(List< sp<Message> >& list);
+		void peekAll(List< sp<Message> >* list);
 		//
 		//  获取当前使用的messagelist，弹出队列
 		//
-		void getAll(List< sp<Message> >& list);
+		void getAll(List< sp<Message> >* list);
 		//
 		//  获取当前handleId使用的messagelist，弹出队列
 		//
-		void getAll(List< sp<Message> >& list, Looper::handler_id handleId);
+		void getAll(List< sp<Message> >* list, Looper::handler_id handleId);
 		//
 		//  取消一条消息
+		//  msgId:消息的唯一ID
 		//
-		bool cancel(const sp<Message> msg);
+		bool cancel(uint32_t msgId);
 	private:
 		
 		//  IClockListener 

@@ -189,6 +189,20 @@ namespace FFL {
 
 		return FFL_ERROR_FAIL;
 	}
+	//
+	//  清空等待处理的消息
+	//
+	void PipelineInput::clearMessage() {
+		sp<PipelineConnector> conn;
+		{
+			CMutex::Autolock l(mLock);
+			sp<PipelineConnector> conn = mConnector;
+		}
+
+		if (!conn.isEmpty()) {
+			conn->clearMessage();
+		}
+	}
 
     //
     // 分派系统消息，马上执行的， post的消息最终也会走这地方的

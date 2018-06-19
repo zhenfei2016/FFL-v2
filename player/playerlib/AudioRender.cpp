@@ -14,16 +14,15 @@
 #include "AudioRender.hpp"
 #include "AudioResample.hpp"
 #include "MessageFFMpegFrame.hpp"
-#include "FFL_Player.hpp"
-#include "SDL2Module.hpp"
+#include "Player.hpp"
+#include "PlayerConstant.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
-	AudioRender::AudioRender():mStatistic(NULL){
-	
+	AudioRender::AudioRender(FFL::sp<AudioDevice> device):mStatistic(NULL){	
+		mDevice = device;
 	}
-	AudioRender::~AudioRender() {
-		
+	AudioRender::~AudioRender() {		
 	}
 	//
 	//  成功创建了node
@@ -37,7 +36,7 @@ namespace player {
 	//
 	FFL::sp<FFL::PipelineConnector > AudioRender::onCreateConnector(const OutputInterface& output,
 		const InputInterface& input,void* userdata) {
-		return new FFL::PipelineAsyncConnectorFixSize(5);
+		return new FFL::PipelineAsyncConnectorFixSize(2);
 	}
 
 	bool AudioRender::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)
@@ -52,6 +51,11 @@ namespace player {
                 msg->consume(this);
                 return true;
             }
+			case MSG_CONTROL_READER_EOF: 
+			{				
+				event::postPlayerEvent(this, event::EVENT_AUDIO_RENDER_LAST_FRAME);
+				break;
+			}
 			break;
 		}
 		
@@ -61,7 +65,29 @@ namespace player {
 	//
 	//  收到待显示的采样
 	//	
-	void AudioRender::onShowSamples(FFLSample* samples)
-	{	
+	void AudioRender::onShowSamples(AudioSample* samples){			
+		mDevice->writeFrame(samples);		
+
+		int64_t pts = 0;
+		// 当前渲染到那地方了
+		//
+		pts=mDevice->getRenderingPts();
+		mStatistic->renderAudioFrame(pts, FFL_getNowUs());
+
+		if (pts>0){
+			updateRenderTimestamp(pts,samples->mStreamId);
+		}
+			
+		mStatistic->renderAudioDelayUs(mDevice->getDeviceDelayUs());
+		if (mFrameIndex == -1) {
+			mFrameIndex = 0;
+			event::postPlayerEvent(this, event::EVENT_AUDIO_RENDER_FIRST_FRAME);
+		}
+
+		if (mFrameIndex >= 8) {
+			int i = 0;
+			i++;
+		}
+		mFrameIndex++;
 	}
 }

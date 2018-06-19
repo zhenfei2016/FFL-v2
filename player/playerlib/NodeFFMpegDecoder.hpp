@@ -24,12 +24,11 @@
 #include "MessageFFMpegPacket.hpp"
 
 namespace player {
-	class FFMpegStream;
+	class Stream;
 	class NodeFFMpegDecoder : public Decoder {
 	public:
-		NodeFFMpegDecoder(FFMpegStream* stream);
-		~NodeFFMpegDecoder();
-
+		NodeFFMpegDecoder(AVCodecContext* ctx);
+		~NodeFFMpegDecoder();		
 	protected:
 		//
 		// 处理接收到的消息，
@@ -41,17 +40,10 @@ namespace player {
 		//
 		bool decodeMessageFFMpegPacket(message::FFMpegPacket* msg);
 		//
-		//  打开解码器，如果对应的编码器已经打开了，则不管他
-		//
-		bool openDecoder(message::FFMpegPacket* msg);
-		//
-		//  关闭解码器
-		//
-		void closeDecoder();
-		//
 		//  解码一帧数据
+		//   discard:是否丢弃解码出来的数据
 		//
-		bool decode(AVPacket *pkt);
+		bool decode(AVPacket *pkt,bool discard);
 	private:
 		//
 		//  解码出来的图片 ,frame通过av_frame_alloc申请出来的
@@ -65,8 +57,10 @@ namespace player {
         
         virtual void handleDiscardCache(const FFL::sp<FFL::PipelineMessage>& eof);
 	public:
-		AVCodecContext* mCodecCtx;
-		FFMpegStream* mStream;
+		//
+		// 解码上下文
+		//
+		AVCodecContext* mCodecCtx;		
 		//
 		// 缓存的数据包
 		//
@@ -80,8 +74,11 @@ namespace player {
 		//
 		int mTimebaseDen;
 		int mTimebaseNum;
-
-
+		//
+		// 当前解码的序列号
+		//
+		int32_t mSerialNumber;
+		bool mWaitIFrame;
 	};
 
 }

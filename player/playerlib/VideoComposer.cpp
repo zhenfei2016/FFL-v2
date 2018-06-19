@@ -12,9 +12,10 @@
 */
 #include "VideoComposer.hpp"
 #include "MessageFFMpegFrame.hpp"
-#include "FFL_Texture.hpp"
-#include "FFL_Player.hpp"
+#include "VideoTexture.hpp"
+#include "Player.hpp"
 #include "Stream.hpp"
+#include "PlayerConstant.hpp"
 #include "TimestampExtrapolator.hpp"
 
 namespace player {
@@ -64,42 +65,61 @@ namespace player {
 			handleEOF(msg);
 			msg->consume(this);
 			break;
-		default:
-			break;
+		default:			
 			msg->consume(this);
+			break;
 		}
 
 		return true;
 	}	
+	//
+	//  计算多长时间后播放这一桢
+	//
+	int64_t VideoComposer::getDelay(VideoTexture* texture) {
+		FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
+		stream->getTimebase(mTimerUnits);
+		int64_t delay = mTimestampExtrapolator->getDelayUsRelativeNow(texture->mPts, mTimerUnits);
+		if (delay < 0) {
+			delay += 0;
+		}
 
-	bool gFirst = true;
-		 
+		texture->mRenderus = FFL_getNowUs() + delay;
+		delay -= mStatistic->getVideoRenderDelayUs();
+		delay = FFL_MAX(0, delay);
+
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "VideoComposer pts=%" lld64 " delay=%" lld64,
+			texture->mPts, delay);
+		return delay;
+	}
+	//
+	//  音视频同步,返回集体等待的时长，如果<0 则跳过这一帧
+	//
+	int64_t VideoComposer::avSync(int64_t delay) {
+		if (delay < -SYNC_DROP_FRAME_THRESHOLD_US || delay>SYNC_DROP_FRAME_THRESHOLD_US) {
+			//
+			//  丢帧
+			//
+			FFL::sp<FFL::PipelineMessage> msgAvSync = new FFL::PipelineMessage(MSG_CONTROL_AV_SYNC);			
+			postMessageDelayToRender(msgAvSync, 0);
+			return -1;
+		}else if (delay < -SYNC_CHANGE_SPEED_THRESHOLD_US || delay>SYNC_CHANGE_SPEED_THRESHOLD_US) {
+			//
+			//  调整播放速度
+			//
+
+		}
+		return delay;
+	}
 	//
 	//  收到待显示的纹理包
 	//	
-	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,FFLTexture* texture) {
-		int64_t delay = 0;
-		if (gFirst&&false) {
-			gFirst = false;
-			mStatistic->getVideoRenderDelayUs();			
-			FFL::sp<Stream> stream=getOwner()->getStream(texture->mStreamId);			
-			stream->getTimebase(mTimerUnits);
-			mTimestampExtrapolator->update(texture->mOrginalPts, mTimerUnits);
-		}else{
-			FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
-			stream->getTimebase(mTimerUnits);
-			delay = mTimestampExtrapolator->getDelayUsRelativeNow(texture->mOrginalPts, mTimerUnits);
-			if (delay == 0) {
-				delay += 0;
-			}
-		}
-		
-		texture->mRenderus = FFL_getNowUs() + delay;
-		delay -= mStatistic->getVideoRenderDelayUs();
-		delay = FFL_MAX(0, delay);		
-
-		FFL_LOG_CRIT("VideoComposer pts=%" lld64 " delay=%" lld64 ,	texture->mOrginalPts, delay);
-
+	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture) {
+		int64_t delay = getDelay(texture);
+		delay =avSync(delay);
+		if (delay < 0) {
+			msg->consume(this);
+			return;
+		}		
 		//
 		// 发送到这个输出接口上
 		//		
@@ -111,5 +131,4 @@ namespace player {
 	void VideoComposer::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 		postMessageDelayToRender(eof,1000);
 	}
-
 }

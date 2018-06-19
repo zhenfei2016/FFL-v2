@@ -15,7 +15,8 @@ ENDIF ()
 
 SET(LOCAL_SRC_FILES
    main.cpp
-   player.cpp)
+   player.cpp
+   testCmd.cpp)
 
    
 if (MSVC)

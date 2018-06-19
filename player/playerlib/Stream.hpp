@@ -19,74 +19,47 @@
 namespace player {
 
 	class Decoder;
-	class Composer;
 	enum StreamType{
-		STREAM_TYPE_VIDEO =1,
+		STREAM_TYPE_VIDEO = 1,
 		STREAM_TYPE_AUDIO = 2,
+		STREAM_TYPE_SUBTITLE=3,
+		STREAM_TYPE_OTHER = 4,
 	};
 
-
 	class Stream : public FFL::RefBase {
-	public:
-		Stream(uint32_t index);
+	public:		
 		Stream();
 		virtual ~Stream();
-
 	public:
 		//
 		// 获取流索引
 		//
-		uint32_t getIndex() const;
-		void setStreamIndex(uint32_t index);
-
-		uint32_t getStreamType() const;
-		void setStreamType(StreamType type);
-
-		virtual void getTimebase(FFL::TimeBase& units);
-		
+		virtual uint32_t getIndex() const=0;
 		//
-		//  获取音频采样率
+		// 获取流类型
 		//
-		virtual uint32_t getAudioSamples();
+		virtual uint32_t getStreamType() const=0;
 		//
-		//  设置解码后数据合成器
+		// 获取流开始的时间戳，以getTimebase为单位的
 		//
-		void setComposer(FFL::sp<Composer> composer);
-		FFL::sp<Composer> getComposer() const;
-
+		virtual int64_t getStartTime() const =0;
 		//
-		//  获取这个流的解码节点
+		//  获取时基单位
 		//
-		FFL::sp<Decoder> getDecoder() const;
-	public:
+		virtual void getTimebase(FFL::TimeBase& tm) const  =0;
 		//
 		//  创建这个流需要的解码器
 		//
-		virtual  FFL::sp<Decoder> createDecoder();
-
-		//
-		//  搭建解码流水线,并且启动
-		//
-		virtual status_t build();
+		virtual FFL::sp<Decoder> createDecoder()=0;		
 	protected:
-		uint32_t mStreamindex;
-
-		uint32_t mStreamType;
-
-		FFL::TimeBase mUnits;
 		//
 		//  流的时钟
 		//
 		FFL::sp<FFL::Clock> mClock;
-		//
-		// 这个流对应的解码器，解码后的合成器
-		//
-		FFL::sp<Decoder> mDecoder;
-		FFL::sp<Composer> mComposer;
 	public:
 		//
-		//  解码后的数据，数据源接口
+		//  这个流数据的输入源
 		//
-		OutputInterface mDataSource;
+		OutputInterface mSource;
 	};
 }

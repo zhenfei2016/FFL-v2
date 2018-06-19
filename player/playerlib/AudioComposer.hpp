@@ -14,6 +14,7 @@
 #include "Composer.hpp"
 #include "TimestampExtrapolator.hpp"
 #include "MessageFFMpegFrame.hpp"
+#include "AudioResample.hpp"
 
 namespace player {
 	class AudioComposer : public Composer {
@@ -21,6 +22,10 @@ namespace player {
 		AudioComposer();
 		~AudioComposer();
 
+		//
+		//  设置输出的格式
+		//
+		void setOutputFormat(AudioFormat* fmt);
 	protected:
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
@@ -35,7 +40,7 @@ namespace player {
 		//
 		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);
 
-		void handleSamples(const FFL::sp<FFL::PipelineMessage>& msg,FFLSample* sample);
+		void handleSamples(const FFL::sp<FFL::PipelineMessage>& msg,AudioSample* sample);
 		//
 		//  接收到eof消息
 		//
@@ -44,5 +49,13 @@ namespace player {
 		FFL::TimeBase mTimerUnits;
 	public:
 		TimestampExtrapolator* mTimestampExtrapolator;
+		//
+		//  音频重采样
+		//
+		AudioResample*  mResample;
+		//
+		//  合成的目标格式
+		//
+		AudioFormat* mDstFormat;
 	};
 }

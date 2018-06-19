@@ -111,7 +111,7 @@ namespace FFL {
 					//
 					sp<PipelineMessage> firstMsg=mMessageListCache.back();
 					mMessageListCache.pop_back();
-					if(getLooper()->removeMessage(firstMsg)!=FFL_OK){
+					if(!getLooper()->clearMessage(firstMsg)){
 						FFL_LOG_WARNING("remove first . not find msg");
 					}else {
 						firstMsg->consume(this);
@@ -124,7 +124,7 @@ namespace FFL {
 					//
 					sp<PipelineMessage> lastMsg = mMessageListCache.front();
 					mMessageListCache.pop_front();
-					if (getLooper()->removeMessage(lastMsg) != FFL_OK) {
+					if (!getLooper()->clearMessage(lastMsg) ) {
 						FFL_LOG_WARNING("remove last . not find msg");
 					}
 					else {

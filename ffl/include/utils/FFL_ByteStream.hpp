@@ -74,7 +74,7 @@ namespace FFL{
 		bool read3Bytes(int32_t& val);
 		bool read4Bytes(int32_t& val);
 		bool read8Bytes(int64_t& val);
-		bool readString(String& val, uint32_t len);
+		bool readString(std::string& val, uint32_t len);
 		bool readBytes(int8_t* data, uint32_t size);
 	protected:
 		void readBuffer(uint8_t* dst, uint32_t size, bool order);
@@ -96,7 +96,7 @@ namespace FFL{
 		bool write3Bytes(int32_t val);
 		bool write4Bytes(int32_t val);
 		bool write8Bytes(int64_t val);
-		bool writeString(const String& val, uint32_t len);
+		bool writeString(const std::string& val, uint32_t len);
 		bool writeBytes(const int8_t* data, uint32_t size);
 	private:
 		void writeBuffer(uint8_t* src, uint32_t size, bool order);
@@ -118,6 +118,10 @@ namespace FFL{
 		ByteStream();
 		~ByteStream();
 		//
+		//  重置读写指针
+		//
+		void reset();
+		//
 		//  ByteReader 读
 		//
 		bool read1Bytes(int8_t& val);
@@ -125,7 +129,7 @@ namespace FFL{
 		bool read3Bytes(int32_t& val);
 		bool read4Bytes(int32_t& val);
 		bool read8Bytes(int64_t& val);
-		bool readString(String& val, uint32_t len);
+		bool readString(std::string& val, uint32_t len);
 		bool readBytes(int8_t* val, uint32_t size);
 		//
 		//  ByteWriter 写
@@ -135,7 +139,7 @@ namespace FFL{
 		bool write3Bytes(int32_t val);
 		bool write4Bytes(int32_t val);
 		bool write8Bytes(int64_t val);
-		bool writeString(const String& val, uint32_t len);
+		bool writeString(const std::string& val, uint32_t len);
 		bool writeBytes(const int8_t* val, uint32_t size);
 	protected:
 		//

@@ -48,7 +48,9 @@ namespace FFL
         return mPipeLineNode->getInput(id);
 
     }
-
+	sp<PipelineOutput> PipelineNodeHandler::getOutput(PipelineOutputId id) {
+		return mPipeLineNode->getOutput(id);
+	}
 	//  发送事件消息
 	//
 	void PipelineNodeHandler::postEvent(const sp<PipelineEvent> &msg) {

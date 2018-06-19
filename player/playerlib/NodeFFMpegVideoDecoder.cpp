@@ -14,12 +14,13 @@
 #include "MessageFFMpegPacket.hpp"
 #include "NodeFFMpegVideoDecoder.hpp"
 #include "FFMpegStream.hpp"
-#include "FFL_Player.hpp"
-#include "FFL_Texture.hpp"
+#include "Player.hpp"
+#include "VideoTexture.hpp"
 
 namespace player {
-	NodeFFMpegVideoDecoder::NodeFFMpegVideoDecoder(FFMpegStream* stream) :
-		 NodeFFMpegDecoder(stream){
+	NodeFFMpegVideoDecoder::NodeFFMpegVideoDecoder(VideoStream* stream, AVCodecContext* ctx) :
+		 NodeFFMpegDecoder(ctx),
+		mVideoStream(stream){
 		setName("NodeFFMpegVideoDecoder");		
 		mMessageCache = new FFL::PipelineMessageCache(MSG_FFMPEG_VIDEO_FRAME);		
 	}
@@ -32,7 +33,7 @@ namespace player {
 		message::FFMpegVideoFrame* texture = 0;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &texture, MSG_FFMPEG_VIDEO_FRAME);
 		texture->fillAvframe(frame);
-		texture->mTexture.mStreamId = mStream->getIndex();
+		texture->mTexture.mStreamId = mVideoStream->getIndex();
 		correctTimestamp(texture);
 
 		if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
@@ -57,9 +58,8 @@ namespace player {
 		int64_t pts = frame->pts;
 		if (pts == AV_NOPTS_VALUE) {
 			pts = frame->pkt_dts;
-		}
-		
-		texture->mTexture.mOrginalPts = pts;
+		}		
+
 		frame->pts = pts;		
 	}
 }

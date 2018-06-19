@@ -11,16 +11,36 @@
  *
 */
 #include "MessageFFMpegPacket.hpp"
+#include "Stream.hpp"
 
 namespace message {
 	FFMpegPacket::FFMpegPacket()
 	{
         setType(MSG_FFMPEG_AVPACKET);
         mPacket=av_packet_alloc();
+		mSerialNumber = 0;
+		mIFrame = 0;
+		mPacketType = 0;
     }
 	FFMpegPacket::~FFMpegPacket(){
         av_packet_free(&mPacket);
-    }    
+    } 
+	//
+	//  是否i桢
+	//
+	bool FFMpegPacket::isIFrame() const {
+		return mIFrame!=0;
+	}
+	//
+	//  是否视频，音频桢
+	//
+	bool FFMpegPacket::isVideo() const {
+		return mPacketType == player:: STREAM_TYPE_VIDEO;
+		//mPacket->flags = ;
+	}
+	bool FFMpegPacket::isAudio() const {
+		return mPacketType == player::STREAM_TYPE_AUDIO;
+	}
 	//
 	//  已经处理完成了，可以回收了		
 	//

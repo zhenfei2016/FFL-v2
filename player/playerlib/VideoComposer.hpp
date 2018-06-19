@@ -13,7 +13,7 @@
 
 #pragma once
 #include "Composer.hpp"
-#include "FFL_Texture.hpp"
+#include "VideoTexture.hpp"
 #include "Stream.hpp"
 #include "Statistic.hpp"
 
@@ -42,9 +42,18 @@ namespace player {
 
 	private:
 		//
+		//  计算多长时间后播放这一桢
+		//
+		int64_t getDelay(VideoTexture* texture);
+		//
+		//  音视频同步,返回集体等待的时长，如果<0 则跳过这一帧
+		//
+		int64_t avSync(int64_t delay);
+
+		//
 		//  开始处理收到的纹理数据
 		//
-		void handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,FFLTexture* texture);
+		void handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture);
 		//
 		//  接收到eof消息
 		//

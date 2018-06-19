@@ -11,7 +11,7 @@
 *
 */
 
-#include "FFL_Player.hpp"
+#include "Player.hpp"
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
 
@@ -20,10 +20,17 @@
 #include "NodeReader.hpp"
 #include "AudioComposer.hpp"
 #include "VideoComposer.hpp"
-#include "VideoSDL2Render.hpp"
-#include "AudioSDL2Render.hpp"
+
+#include "VideoStream.hpp"
+#include "AudioStream.hpp"
+
+#include "VideoRender.hpp"
+#include "AudioRender.hpp"
+
 #include "SDL2Module.hpp"
-#include "FFL_PlayerEvent.hpp"
+#include "PlayerEvent.hpp"
+
+#include "Decoder.hpp"
 
 namespace player {
 	class FFLPlayer::FFLPlayerEventFilter : public FFL::PipelineEventFilter {
@@ -47,57 +54,24 @@ namespace player {
 		FFLPlayer* mPlayer;
 	};
 
-	FFLPlayer::FFLPlayer() :mTimestampExtrapolator(NULL)
-	{
-		av_register_all();
-		mAudioDevice = new FFLAudioDevice();
+	FFLPlayer::FFLPlayer() :mTimestampExtrapolator(NULL){
+		mVideoComposer = NULL;
+		mAudioComposer = NULL;
+		av_register_all();			
 		mEventFilter = new FFLPlayerEventFilter(this);
 		mPipeline = new FFL::Pipeline();
 		mPipeline->setEventFilter(mEventFilter);
 		mClock = new FFL::Clock();
-		mClock->setSpeed(100);
+		setSpeed(100);
+		mTimestampExtrapolator = new TimestampExtrapolator(mClock);
+
 		init();
 	}
 	FFLPlayer::~FFLPlayer()
 	{
+		FFL_SafeFree(mDeviceCreator);
 		FFL_SafeFree(mTimestampExtrapolator);
 		FFL_SafeFree(mEventFilter);
-	}
-	//
-	//  设置绘制目标
-	//
-	void FFLPlayer::setRender(FFL::sp<VideoRender> video, FFL::sp<AudioRender> audio) {
-		mVideoRender = video;
-		mAudioRender = audio;
-
-		//
-		//  渲染目标
-		//				
-		mVideoRender->create(this);
-		mVideoComposer->setOutputRender(mVideoRender);
-		
-		//
-		//
-		//		
-		mAudioRender->create(this);
-		mAudioComposer->setOutputRender(mAudioRender);
-
-		
-		FFL_SafeFree(mTimestampExtrapolator);
-		mTimestampExtrapolator = new TimestampExtrapolator(mClock);
-		mVideoComposer->mTimestampExtrapolator = mTimestampExtrapolator;
-		mAudioComposer->mTimestampExtrapolator = mTimestampExtrapolator;
-		mAudioRender->mTimestampExtrapolator = mTimestampExtrapolator;
-	}
-
-	void FFLPlayer::createAndsetSDL2Render(FFLPlayer* player ) {
-		FFL::sp<player::SDL2Module> SDL2 = new player::SDL2Module();
-		player::VideoSDL2Render* video  = new player::VideoSDL2Render(SDL2.get());
-		player::AudioSDL2Render* audio = new player::AudioSDL2Render(SDL2.get());
-		SDL2->create();
-
-		player->mWindow = SDL2->getVideoDevice();
-		player->setRender(video, audio);
 	}
 
 	status_t FFLPlayer::play(const char* url) {
@@ -112,12 +86,12 @@ namespace player {
 	{
 		if (!mPipeline.isEmpty())
 		{
-			if (!mAudioRender.isEmpty()) {
-				mAudioRender->stop();
+			if (!mAudioDevice.isEmpty()) {
+				mAudioDevice->close();
 			}
 
-			if (!mVideoRender.isEmpty()) {
-				mVideoRender->stop();
+			if (!mVideoDevice.isEmpty()) {
+				mVideoDevice->close();
 			}			
 
 			mPipeline->shutdownAndWait();
@@ -146,11 +120,8 @@ namespace player {
 	int64_t FFLPlayer::getDurationUs() {
 		return mFileReader->getDurationUs();
 	}
-
-
-	status_t FFLPlayer::init()
-	{
-		FFL::sp<FFL::Pipeline> pipeline = mPipeline;
+	status_t FFLPlayer::init(){		
+		mDeviceCreator = new SDL2Module();
 		//
 		//  打开文件，读写文件节点
 		//	
@@ -158,17 +129,16 @@ namespace player {
 		mFileReader->setName("reader");
 		mFileReader->create(this);
 
-		//
-		// 音视频合成
-		//
-		mAudioComposer = new AudioComposer();
-		mAudioComposer->create(this);
+		////
+		//// 音视频合成
+		////
+		//mAudioComposer = new AudioComposer();
+		//mAudioComposer->create(this);
 
-		mVideoComposer = new VideoComposer();
-		mVideoComposer->create(this);
+		//mVideoComposer = new VideoComposer();
+		//mVideoComposer->create(this);
 
-		
-
+		createVideoDisplay();
 		return FFL_OK;
 	}
 
@@ -181,7 +151,7 @@ namespace player {
 		{
 			int32_t width = event->mInt32Parma1;
 			int32_t height = event->mInt32Parma2;
-			mWindow->setWindowSize(width,height);
+			//mWindow->setWindowSize(width,height);
 		}
 		break;
 
@@ -220,33 +190,129 @@ namespace player {
 			}
 		}
 	}
+	void FFLPlayer::updateClcok(int64_t tm, int32_t streamId, void* uesrdata) {
+		//更新同步时钟
+		mTimestampExtrapolator->update(tm, mAudioTb);
+	}
+	void FFLPlayer::onAddVideoStream(FFL::sp<VideoStream> stream) {
+		if (mVideoDevice.isEmpty()) {
+			mVideoDevice = mDeviceCreator->createVideoDevice(this);
+			uint32_t width = 0;
+			uint32_t height = 0;
+			stream->getSize(width, height);			
+			mVideoDevice->open(NULL, width, height);
 
+			mTimestampExtrapolator->reset();
+		}	
+
+		if (!mVideoComposer) {
+			mVideoComposer = new VideoComposer();
+			mVideoComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+			mVideoComposer->create(this);
+		}
+	
+		FFL::sp<VideoRender> render = mVideoDevice->getRender(NULL);
+		if (!render->isCreated()) {
+			render->create(this);
+			mVideoComposer->setOutputRender(render);
+		}
+
+		FFL::sp<Decoder> decoder = stream->createDecoder();
+		if (!decoder->isCreated()) {
+			decoder->create(this);
+		}
+		decoder->setOutputComposer(mVideoComposer);
+		
+
+		//
+		// 启动decoder和compoer的处理
+		//
+		mPipeline->startup(decoder->getNodeId());
+		mPipeline->startup(mVideoComposer->getNodeId());
+		mPipeline->startup(render->getNodeId());
+	}
+	void FFLPlayer::onAddAudioStream(FFL::sp<AudioStream> stream) {
+		if (mAudioDevice.isEmpty()) {
+			mAudioDevice = mDeviceCreator->createAudioDevice(this);			
+
+			AudioFormat fmt;
+			stream->getFormat(fmt);
+			//x 
+			// 启动音频设备
+			//
+			AudioFormat obtainedFmt;
+			if (mAudioDevice->open(fmt, 1024, obtainedFmt)) {				
+			}
+		}
+
+		FFL::sp<AudioRender> render = mAudioDevice->getRender(NULL);
+		if (!render.isEmpty() && !render->isCreated()) {
+			render->mTimestampExtrapolator = mTimestampExtrapolator;
+			stream->getTimebase(mAudioTb);
+			render->setClockUpdater(this, 0);
+			render->create(this);
+		}
+
+		if (!mAudioComposer) {
+			mAudioComposer = new AudioComposer();
+			mAudioComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+			mAudioComposer->setOutputFormat(mAudioDevice->getOpenFormat());
+			mAudioComposer->create(this);
+			mAudioComposer->setOutputRender(render);
+		}		
+
+		FFL::sp<Decoder> decoder = stream->createDecoder();
+		if (!decoder->isCreated()) {
+			decoder->create(this);
+		}
+		decoder->setOutputComposer(mAudioComposer);
+
+		//
+		// 启动decoder和compoer的处理
+		//
+		mPipeline->startup(decoder->getNodeId());
+		mPipeline->startup(mAudioComposer->getNodeId());
+		mPipeline->startup(render->getNodeId());
+	}
+	void FFLPlayer::onAddOtherStream(FFL::sp<Stream> stream) {
+	}
+	void FFLPlayer::createVideoDisplay() {
+		if (mVideoDevice.isEmpty()) {
+			mVideoDevice = mDeviceCreator->createVideoDevice(this);
+			
+			uint32_t width = 400;
+			uint32_t height = 300;
+			mVideoDevice->open(NULL, width, height);	
+		}
+	}
 	//  IStreamManager
 	bool FFLPlayer::addStream(FFL::sp<Stream> stream) {
 		if (stream.isEmpty()) {
 			return false;
 		}
 
+		{
+			FFL::CMutex::Autolock l(mStreamLock);
+			mStreamVec.push_back(stream);
+		}
+
 		bool ret = false;
 		switch (stream->getStreamType())
 		{
 		case  STREAM_TYPE_VIDEO:
-		{
-			FFL::CMutex::Autolock l(mStreamLock);
-			stream->setComposer(mVideoComposer);			
-			mStreamVec.push_back(stream);
+		{ 
+			onAddVideoStream((VideoStream*)stream.get());			
 			ret = true;
 		}
 			break;
 		case  STREAM_TYPE_AUDIO:
-		{
-			FFL::CMutex::Autolock l(mStreamLock);
-			stream->setComposer(mAudioComposer);
-			mStreamVec.push_back(stream);
+		{			
+			onAddAudioStream((AudioStream*)stream.get());			
 			ret = true;
 		}
 			break;
 		default:
+			onAddOtherStream(stream);
 			ret = false;
 			break;
 		};
@@ -254,7 +320,7 @@ namespace player {
 		return ret;
 	}
 	FFL::sp<Stream> FFLPlayer::removeStream(uint32_t index) {	
-
+		FFL_LOG_WARNING("FFLPlayer::removeStream no impl.");
 		return NULL;
 	}
 	FFL::sp<Stream> FFLPlayer::getStream(uint32_t index) {
@@ -267,11 +333,9 @@ namespace player {
 
 		return NULL;
 	}
-
 	IStreamManager* FFLPlayer::getStreamMgr() {
 		return this;
 	}
-
 	//
 	//  设置，获取播放速度
 	//
@@ -280,18 +344,10 @@ namespace player {
 			speed = 300;
 		}else if (speed <= 10) {
 			speed = 10;
-		}
+		}		
 		mClock->setSpeed(speed);
 	}
-
 	uint32_t FFLPlayer::getSpeed() {
 		return mClock->speed();
-	}
-	//
-	//  创建视频渲染窗体
-	//
-	extern FFL::sp<FFLWindow> createSDL2RenderWindow();
-	FFL::sp<FFLWindow> createRenderWindow() {
-		return createSDL2RenderWindow();		
 	}
 }

@@ -13,37 +13,110 @@
 #include "FFMpegStream.hpp"
 #include "NodeFFMpegVideoDecoder.hpp"
 #include "NodeFFMpegAudioDecoder.hpp"
+#include "NodeFFMpegDecoder.hpp"
 
 namespace player {
-	FFMpegStream::FFMpegStream() {
+	static AVCodecContext* openCodec(AVStream* stream)
+	{
+		AVCodec* codec = NULL;
+		AVCodecContext* codecCtx = NULL;		
+		codec = avcodec_find_decoder(stream->codecpar->codec_id);
+		if (!codec)
+		{
+			FFL_LOG_WARNING("failed to find codec\n");
+			return NULL;
+		}
+
+
+		codecCtx = avcodec_alloc_context3(codec);
+		if (!codecCtx)
+		{
+			FFL_LOG_WARNING("Failed to allocate the codec context\n");
+			goto fail;
+		}
+
+		if (avcodec_parameters_to_context(codecCtx, stream->codecpar) < 0) {
+			FFL_LOG_WARNING("Failed to copy codec parameters to decoder context\n");
+			goto fail;
+		}
+
+		if (avcodec_open2(codecCtx, codec, NULL) < 0)
+		{
+			FFL_LOG_WARNING("Failed to open codec\n");
+			goto fail;
+		}
+
+		return codecCtx;
+	fail:
+
+		if (codecCtx)
+			avcodec_free_context(&codecCtx);
+		return  NULL;
+	}
+
+	FFMpegAudioStream::FFMpegAudioStream(AVStream* ffmpeg)
+	      :FFMpegStream(ffmpeg){
 
 	}
-	FFMpegStream::~FFMpegStream() {
+	FFMpegAudioStream::~FFMpegAudioStream() {
 
 	}
-
-	void FFMpegStream::getTimebase(FFL::TimeBase& units) {
-		units.mDen = mFFMpegStream->time_base.den;
-		units.mNum = mFFMpegStream->time_base.num;
-	}
+	// 获取这个流的格式
 	//
-	//  获取音频采样率
-	//
-	uint32_t FFMpegStream::getAudioSamples() {
-		return mFFMpegCodecCtx->sample_rate;
+	void FFMpegAudioStream::getFormat(AudioFormat& fmt) {
+		fmt.mFreq= mFFMpegCodecCtx->sample_rate;
+		fmt.mChannelNum=mFFMpegCodecCtx->channels;
+		fmt.mFormat = mFFMpegCodecCtx->sample_fmt;
 	}
 	//
 	//  创建这个流需要的解码器
 	//
-	FFL::sp<Decoder> FFMpegStream::createDecoder() {
-		if (getStreamType() == STREAM_TYPE_VIDEO) {
-			mDecoder=new NodeFFMpegVideoDecoder(this);
+	FFL::sp<Decoder> FFMpegAudioStream::createDecoder() {
+		if (!mDecoder.isEmpty()) {
+			return mDecoder;
 		}
-		else if (getStreamType() == STREAM_TYPE_AUDIO) {
-			mDecoder = new NodeFFMpegAudioDecoder(this);
+
+	    if (getStreamType() == STREAM_TYPE_AUDIO) {
+			mFFMpegCodecCtx = openCodec(mFFMpegStream);
+			if (mFFMpegCodecCtx == NULL) {
+				FFL_LOG_WARNING("Failed to FFMpegAudioStream::createDecoder id=%d", mFFMpegStream->codecpar->codec_id);
+				return NULL;
+			}
+			mDecoder = new NodeFFMpegAudioDecoder(this, mFFMpegCodecCtx);			
 		}
 		return mDecoder;
 	}
 	
+	FFMpegVideoStream::FFMpegVideoStream(AVStream* ffmpeg) :FFMpegStream(ffmpeg) {
+
+	}
+	FFMpegVideoStream::~FFMpegVideoStream() {
+
+	}
+	//
+	// 获取宽度，高度
+	//
+	void FFMpegVideoStream::getSize(uint32_t& width, uint32_t& height) {
+		width = mFFMpegStream->codecpar->width;
+		height = mFFMpegStream->codecpar->height;
+	}
+	//
+	//  创建这个流需要的解码器
+	//
+	FFL::sp<Decoder> FFMpegVideoStream::createDecoder() {
+		if (!mDecoder.isEmpty()) {
+			return mDecoder;
+		}
+
+		if (getStreamType() == STREAM_TYPE_VIDEO) {
+			mFFMpegCodecCtx=openCodec(mFFMpegStream);
+			if (mFFMpegCodecCtx == NULL) {
+				FFL_LOG_WARNING("Failed to FFMpegVideoStream::createDecoder id=%d", mFFMpegStream->codecpar->codec_id);
+				return NULL;
+			}
+			mDecoder = new NodeFFMpegVideoDecoder(this, mFFMpegCodecCtx);
+		}
+		return mDecoder;
+	}
 
 }

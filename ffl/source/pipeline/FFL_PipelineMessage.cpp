@@ -20,7 +20,10 @@ namespace FFL {
 		mPayload(NULL),
 		mConsumeListener(NULL)
 	{
-        mPayloadAutoDel=false;		
+		mMessageUniqueId = 0;
+        mPayloadAutoDel=false;	
+		mParam1 = 0;
+		mParam2 = 0;
 	}
 	//
 	//  消息类型
@@ -67,6 +70,7 @@ namespace FFL {
 	//
 	void PipelineMessage::consume(void*)
 	{
+		mMessageUniqueId = 0;
 		//FFL_LOG_INFO("PipelineMessage::consume %p",this);
 		if (mPayload) {
 			mPayload->consume();
@@ -97,7 +101,19 @@ namespace FFL {
 	{
 		return mPayload;
 	}
-    
+	//
+	// 设置这个消息带的参数，
+	//
+	void PipelineMessage::setParams(int64_t param1, int64_t param2) {
+		mParam1 = param1;
+		mParam2 = param2;
+	}
+	int64_t PipelineMessage::getParam1() const {
+		return mParam1;
+	}
+	int64_t PipelineMessage::getParam2() const {
+		return mParam2;
+	}
    
     //
     //  是否系统消息

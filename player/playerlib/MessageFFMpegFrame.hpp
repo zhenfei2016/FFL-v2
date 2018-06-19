@@ -14,8 +14,8 @@
 #pragma once
 #include "MessageBase.hpp"
 #include "FFMpeg.hpp"
-#include "FFL_Texture.hpp"
-#include "FFL_Sample.hpp"
+#include "VideoTexture.hpp"
+#include "AudioSample.hpp"
 
 namespace message {
 	//
@@ -37,7 +37,7 @@ namespace message {
 		//
 		void fillAvframe(AVFrame* frame);
 	public:
-		FFLTexture mTexture;
+		VideoTexture mTexture;
 		AVFrame* mFrame;
 	};
 
@@ -58,7 +58,7 @@ namespace message {
 		//
 		void fillAvframe(AVFrame* frame);
 	public:		
-		FFLSample  mSamples;
+		player::AudioSample  mSamples;
 		AVFrame* mFrame;
 	};
 }

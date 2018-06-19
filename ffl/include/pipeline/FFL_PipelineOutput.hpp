@@ -49,13 +49,9 @@ namespace FFL
 		//
 		status_t postMessage(const sp<PipelineMessage> &msg, uint64_t delayUs);
 		//
-		//移除这output出去的一条消息
+		//  清空等待处理的消息
 		//
-		status_t removeMessage(const sp<PipelineMessage> &msg);
-		//
-		//移除这个output出去的所有消息
-		//
-		status_t removeAllMessage(const sp<PipelineMessage> &msg);
+		void clearMessage();
 	protected:
 		PipelineOutputId mId;
 	private:

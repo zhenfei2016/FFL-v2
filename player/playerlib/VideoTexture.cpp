@@ -4,24 +4,24 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  FFL_Texture.cpp
-*  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  VideoTexture.cpp
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/13
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  宣言视频图片结构
-*
+*  待渲染图片的基本信息
 */
 
-#include "FFL_Texture.hpp"
+#include "VideoTexture.hpp"
 
 
-FFLTexture::FFLTexture() {
+VideoTexture::VideoTexture() {
 	//
 	//  显示的时间，持续的时长
 	//
 	mPts=-1;
 	mDuration=-1;
 
-	mOrginalPts = 0;
+
 
 	//
 	//图片的宽度，高度，格式
@@ -45,5 +45,5 @@ FFLTexture::FFLTexture() {
 	memset(mPixels, 0, sizeof(mPixels[0]) * 4);
 }
 
-FFLTexture::~FFLTexture() {
+VideoTexture::~VideoTexture() {
 }

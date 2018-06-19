@@ -4,28 +4,27 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  FFL_Texture.hpp
-*  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  VideoTexture.hpp   
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/13 
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  宣言视频图片结构
-*
+*  待渲染图片的基本信息
 */
+#ifndef _VIDEO_TEXTURE_HPP_
+#define _VIDEO_TEXTURE_HPP_
 
-#pragma once
 #include <FFL.h>
 
-class FFLTexture{
+class VideoTexture{
 public:
-	FFLTexture();
-	~FFLTexture();
+	VideoTexture();
+	~VideoTexture();
 
 public:
 	uint32_t mStreamId;	
 	//
-	// 原始的pts,使用流中的时基
+	//  计算的显示时间
 	//
-	int64_t mOrginalPts;
-
 	int64_t mRenderus;
 
 	//
@@ -55,3 +54,5 @@ public:
 	uint16_t mPitches[4];
 	uint8_t *mPixels[4];
 };
+
+#endif

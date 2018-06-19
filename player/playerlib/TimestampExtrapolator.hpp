@@ -36,7 +36,7 @@ namespace player {
 		//  更新这个推算器的依赖时间点，当前时间戳对应当前的时间点
 		//  这应该是一个需要同步到这个上面的主时钟进行的
 		//
-		void update(int64_t timestamp, FFL::TimeBase units);
+		void update(int64_t timestamp, const FFL::TimeBase& units);
 		//
 		//  获取当前的时间
 		//
@@ -44,31 +44,29 @@ namespace player {
 		//
 		// 获取这个时间戳相对当前需要延迟的时长us
 		//
-		int64_t getDelayUsRelativeNow(int64_t timestamp, FFL::TimeBase units);
-	private:
+		int64_t getDelayUsRelativeNow(int64_t timestamp, FFL::TimeBase units);	
+	private:	
+		struct Tick{
+			Tick() {
+				mTimestampTime = mClockTime = 0;
+			}
+
+			bool isValid() { 
+				return mTimestampTime != 0 && mClockTime != 0;
+			}
+			//
+			//  时间戳对应的时间点，通过时间戳直接计算的
+			//
+			int64_t mTimestampTime;
+			//
+			//  当前mClock对应的时间点
+			//
+			int64_t mClockTime;
+		};
 		//
-		//  时间戳单位转到us值
+		//  最近的时钟滴答，由update进行更新
 		//
-		int64_t timestampToUs(int64_t timestamp, FFL::TimeBase units);
-		//
-		//  根据最后一次的时间戳计算相对延迟值
-		//
-		int64_t getDelayUsTimestamp(int64_t timestamp, FFL::TimeBase units);
-	private:
-		//
-		//  源点的时间点，其他时间对视相对这个的偏移值  ，本地系统的时间轴
-		//
-		int64_t mOriginLocalTimeUs;
-		//
-		//  外部输出的时间戳的开始时间点，外部的时间轴
-		//
-		int64_t mOriginTimestampUs;
-		//
-		//  最后一次获取delay的时间戳，和计算的clock时间点
-		//
-		int64_t mLastTimestamp;
-		int64_t mLastTimestampLocalTimeUs;
-	public:
+		Tick mRecentTick;	
 		FFL::sp<FFL::Clock> mClock;
 	};
 }

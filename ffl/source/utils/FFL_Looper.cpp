@@ -6,6 +6,7 @@
  *
  *  FFL_Looper.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
+ *  https://github.com/zhenfei2016/FFL-v2.git
  *  参考 Android Open Source Project 进行修改的
  *  消息循环类
  *
@@ -230,27 +231,27 @@ namespace FFL {
 	//
 	void Looper::getMessageList(List< sp<Message> >& list)
 	{
-		mMsgQueue->peekAll(list);
+		mMsgQueue->peekAll(&list);
 	}
     
 	//
 	// 清空等待处理的消息队列
 	//
-	void Looper::clearMessageList(List< sp<Message> >& list)
+	void Looper::clearMessageList(List< sp<Message> >* list)
 	{
 		mMsgQueue->getAll(list);
 	}
 	//
 	// 清空等待处理的特定handler消息队列
 	//
-	void Looper::clearMessageList(List< sp<Message> >& list, Looper::handler_id handlerId) {
+	void Looper::clearMessageList(List< sp<Message> >* list, Looper::handler_id handlerId) {
 		mMsgQueue->getAll(list,handlerId);
 	}
 	//
 	// 取消一条消息
 	//
-	bool Looper::cancelMessage(const sp<Message>& msg){
-		return mMsgQueue->cancel(msg);	
+	bool Looper::cancelMessage(uint32_t msgId){
+		return mMsgQueue->cancel(msgId);
 	}
 	void Looper::setDebug(bool debug)
 	{ mMsgQueue->mDebug = debug; }

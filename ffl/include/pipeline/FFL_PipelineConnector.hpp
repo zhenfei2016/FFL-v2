@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineConnector.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/10
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  node连接器基类
 *
@@ -17,6 +18,7 @@
 
 #include <ref/FFL_Ref.hpp>
 #include <thread/FFL_Mutex.hpp>
+#include <utils/FFL_Looper.hpp>
 
 
 namespace FFL
@@ -70,7 +72,10 @@ namespace FFL
 		// 转发的消息已经处理了
 		//
 		virtual void consumer(const sp<PipelineMessage> &msg);
-
+		//
+		//  清空转发的消息
+		//
+		virtual void clearMessage()=0;
     protected:
         //
         // 开始分派系统消息
@@ -109,6 +114,10 @@ namespace FFL
 		// delayUs:同步连接的情况下这个参数无效的
 		//
 		status_t tranport(const sp<PipelineMessage> &msg, int64_t delayUs = 0);
+		//
+		//  清空转发的消息
+		//
+		void clearMessage() ;
 	};
 }
 

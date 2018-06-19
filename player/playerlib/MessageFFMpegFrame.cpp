@@ -12,6 +12,7 @@
 */
 
 #include "MessageFFMpegFrame.hpp"
+#include "PlayerConstant.hpp"
 
 namespace message {
 	FFMpegVideoFrame::FFMpegVideoFrame():mFrame(NULL)
@@ -33,11 +34,12 @@ namespace message {
 	//  已经处理完成了，可以回收了		
 	//
 	void FFMpegVideoFrame::consume()
-	{
+	{		
 		av_frame_unref(mFrame);
 		av_frame_free(&mFrame);
 	}
 
+	int64_t gLastPts = 0;
 	//
 	//  填充数据
 	//
@@ -49,11 +51,16 @@ namespace message {
 		mFrame = frame;
 
 		mTexture.mWidth = frame->width;
-		mTexture.mHeight = frame->height;
+		mTexture.mHeight = frame->height;		
 		
-
 		mTexture.mDuration = frame->pkt_duration;
 		mTexture.mPts = frame->pts;
+
+		if (mTexture.mPts < gLastPts) {
+			//FFL_ASSERT(0);
+		}
+		gLastPts = mTexture.mPts;
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "decoder pts=%" lld64 " dts=%" lld64, frame->pts, frame->pkt_dts);
 		
 		switch (frame->format)
 		{
@@ -98,6 +105,7 @@ namespace message {
 	//
 	void FFMpegAudioFrame::consume()
 	{
+		mSamples.freeData();
 		av_frame_unref(mFrame);
 		av_frame_free(&mFrame);
 	}
@@ -105,28 +113,15 @@ namespace message {
 	//
 	//  填充数据
 	//
-	void FFMpegAudioFrame::fillAvframe(AVFrame* frame)
-	{
+	void FFMpegAudioFrame::fillAvframe(AVFrame* frame){
 		if (mFrame) {
 			FFL_LOG_WARNING("FFMpegVideoFrame av_frame_unref");
 		}
 		mFrame = frame;
 
-		mSamples.mFreq = 0;
-		mSamples.mSampleNum= frame->nb_samples;
-		mSamples.mChannel = frame->channels;
-		mSamples.mFormat = frame->format;
-		mSamples.mChannelLayout=(uint32_t)frame->channel_layout;
-
-
+		mSamples.mSampleNum= frame->nb_samples;		
 		mSamples.mDuration = frame->pkt_duration;
 		mSamples.mPts = frame->pts;
-
-		mSamples.mLinesize = frame->linesize[0];
-		for (int i = 0; i < 4; i++) {
-			
-			mSamples.mDataTemp[i] = frame->data[i];
-		}
-		mSamples.mData = mSamples.mDataTemp;
+		mSamples.fillData(frame->data, frame->linesize[0], frame->nb_samples);
 	}
 }

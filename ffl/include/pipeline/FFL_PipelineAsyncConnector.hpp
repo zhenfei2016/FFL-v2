@@ -6,7 +6,8 @@
  *
  *  FFL_PipelineAsyncConnector.hpp
  *  Created by zhufeifei(34008081@qq.com) on 2017/12/10
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *
  *  node异步连接器,进行消息处理中消息的缓存异步处理
  *
 */
@@ -39,7 +40,6 @@ namespace FFL
 		PipelineAsyncConnector();
 		PipelineAsyncConnector(sp<PipelineLooper> looper);
 		virtual  ~PipelineAsyncConnector();
-
 		//
 		//  启动，停止这个连接器
 		//
@@ -53,12 +53,15 @@ namespace FFL
 		//
 		// 这个connector在哪一个looper中进行处理
 		//
-		sp<PipelineLooper> getLooper();
-	
+		sp<PipelineLooper> getLooper();	
 		//
 		// 连接器转发消息
 		//
 		status_t tranport(const sp<PipelineMessage> &msg ,int64_t delayUs );
+		//
+		//  清空转发的消息
+		//
+		void clearMessage();
 		//
 		//  获取时钟，这个是tranport使用的，delayUs会通过这个时钟进行计算延迟多长时间
 		//
@@ -86,7 +89,6 @@ namespace FFL
 		bool mIsOuterLooper;
 
 		sp<Clock> mLooperClock;
-
 		//
 		//  消息处理句柄
 		//

@@ -19,14 +19,13 @@ ENDIF ()
 
 SET(LOCAL_SRC_FILES   
    FFMpeg.cpp;FFMpeg.hpp
-   FFL_Player.cpp;FFL_Player.hpp
-   FFL_PlayerEvent.hpp;FFL_PlayerEvent.cpp
-   Statistic.hpp;Statistic.cpp
-   FFL_Texture.hpp;FFL_Texture.cpp
-   FFL_Sample.hpp;FFL_Sample.cpp
-   FFL_Renderer.hpp;FFL_Renderer.cpp
-   FFL_Window.hpp;FFL_Window.cpp   
-   FFL_AudioDevice.hpp;FFL_AudioDevice.cpp
+   AVDeviceCreator.cpp;AVDeviceCreator.hpp
+   Player.cpp;Player.hpp
+   PlayerEvent.hpp;PlayerEvent.cpp
+   PlayerConstant.hpp
+   Statistic.hpp;Statistic.cpp   
+      
+   RenderWindow.hpp;RenderWindow.cpp      
    NodeBase.cpp;NodeBase.hpp
    IReader.hpp
    NodeReader.cpp;NodeReader.hpp
@@ -37,25 +36,34 @@ SET(LOCAL_SRC_FILES
    NodeFFMpegAudioDecoder.hpp;NodeFFMpegAudioDecoder.cpp
    Stream.hpp;Stream.cpp
    Decoder.hpp;Decoder.cpp
-   Composer.hpp;Composer.cpp   
-   VideoComposer.hpp;VideoComposer.cpp
-   AudioComposer.hpp;AudioComposer.cpp
-   AudioResample.hpp;AudioResample.cpp
-   Render.hpp;Render.cpp
-   VideoRender.hpp;VideoRender.cpp
+   Composer.hpp;Composer.cpp  
+   AudioUtils.hpp;AudioUtils.cpp 
+   AudioFormat.hpp;AudioFormat.cpp
+   AudioDevice.hpp;AudioDevice.cpp
+   AudioStream.hpp;AudioStream.cpp
+   AudioSample.hpp;AudioSample.cpp   
    AudioRender.hpp;AudioRender.cpp
+   AudioResample.hpp;AudioResample.cpp
+   AudioComposer.hpp;AudioComposer.cpp
+   VideoComposer.hpp;VideoComposer.cpp
+   VideoUtils.hpp;VideoUtils.cpp 
+   VideoDevice.hpp;VideoDevice.cpp
+   VideoStream.hpp;VideoStream.cpp
+   VideoTexture.hpp;VideoTexture.cpp   
+   VideoScale.hpp;VideoScale.cpp   
+   VideoRender.hpp;VideoRender.cpp   
+   Render.hpp;Render.cpp      
    FFMpegStream.hpp;FFMpegStream.cpp
-   SDL2Module.hpp;SDL2Module.cpp
-   VideoSDL2Render.hpp;VideoSDL2Render.cpp
-   AudioSDL2Render.hpp;AudioSDL2Render.cpp
-
+   SDL2Module.hpp;SDL2Module.cpp   
+   SDL2AudioDevice.hpp;SDL2AudioDevice.cpp   
+   SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
    MessageBase.hpp;MessageBase.cpp
    MessageFFMpegPacket.hpp;MessageFFMpegPacket.cpp
    MessageFFMpegFrame.hpp;MessageFFMpegFrame.cpp
    MessageSDL2Texture.hpp;MessageSDL2Texture.cpp
-   TimestampExtrapolator.hpp;TimestampExtrapolator.cpp   
-   LogtagConstant.hpp
-   VideoScale.hpp;VideoScale.cpp
+   TimestampExtrapolator.hpp;TimestampExtrapolator.cpp    
+   ClockUpdater.hpp;ClockUpdater.cpp
+   TimestampUtils.hpp;TimestampUtils.cpp
    )
 
 

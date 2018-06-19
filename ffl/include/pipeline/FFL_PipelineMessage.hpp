@@ -37,7 +37,8 @@ namespace FFL{
 	};
 
 	class PipelineMessage : public Serializable {
-		friend class PipelineAsyncConnector;
+		friend class PipelineAsyncConnector;		
+		friend class PipelineLooper;
 	public:
 		PipelineMessage();	
 		//
@@ -74,6 +75,12 @@ namespace FFL{
 		//
 		void setPayload(PipelineMessagePayload* payload,bool autoDel=true);
 		PipelineMessagePayload* getPayload() const;	
+		//
+		// 设置这个消息带的参数，
+		//
+		void setParams(int64_t param1, int64_t param2);
+		int64_t getParam1() const;
+		int64_t getParam2() const;
 	private:
 		//
 		//  消息类型，可以根据这个类型解析出Playload的值
@@ -86,16 +93,20 @@ namespace FFL{
 		PipelineMessagePayload* mPayload;
         bool mPayloadAutoDel;
 		//
+		//  参数
+		//
+		int64_t mParam1;
+		int64_t mParam2;
+		//
 		//  监听器
 		//
 		MessageConsumeListener* mConsumeListener;
-        
-    public:
-        //
-        //  测试值
-        //
-        int32_t v;
-		
+
+		//
+		//Message::uniqueId() 
+		//保存Message的唯一id
+		//
+		uint32_t mMessageUniqueId;
 	};
    
 	

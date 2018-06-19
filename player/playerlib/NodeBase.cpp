@@ -11,7 +11,7 @@
  *
 */
 #include "NodeBase.hpp"
-#include "FFL_Player.hpp"
+#include "Player.hpp"
 #include <pipeline/FFL_PipelineSourceConnector.hpp>
 #include "MessageFFMpegPacket.hpp"
 
@@ -73,8 +73,6 @@ namespace player {
 
 	NodeBase::~NodeBase()
 	{}
-
-
 	//
 	// 开始创建这个节点
 	//
@@ -103,6 +101,9 @@ namespace player {
 			onDestroy();
 		}
 	}	
+	bool NodeBase::isCreated() const{
+		return mPlayer != NULL;
+	}
 	void NodeBase::setName(const char* name)
 	{
 		mNodeName = name ? name : "";
@@ -163,6 +164,9 @@ namespace player {
     FFL::sp<FFL::PipelineInput> NodeBase::getInput(FFL::PipelineInputId id){
         return mNodeHandler->getInput(id);
     }
+	FFL::sp<FFL::PipelineOutput> NodeBase::getOutput(FFL::PipelineOutputId id) {
+		return mNodeHandler->getOutput(id);
+	}
 	//
 	//  连接一个输出到一个输入
 	//
@@ -252,10 +256,6 @@ namespace player {
 	{}
 	void NodeBase::onQuitMessageLooper()
 	{}
-
-	bool NodeBase::isCreated() {
-		return mPlayer != NULL;
-	}
 	//
 	//  获取这个节点属于哪一个线的
 	//

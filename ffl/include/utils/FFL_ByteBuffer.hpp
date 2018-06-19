@@ -15,7 +15,7 @@
 #include <FFL.h>
 
 namespace FFL{
- 
+	class ByteStream;
 	class ByteBuffer {
 	public:
 		ByteBuffer();
@@ -23,16 +23,27 @@ namespace FFL{
 		~ByteBuffer();
 		
 		//
+		// 重新申请一下空间
+		//
+		uint32_t alloc(uint32_t size);
+		//
 		//  扩大一下内存空间,如果size小于已经申请的则返回以前的大小
 		//
 		uint32_t realloc(uint32_t size);
+		
 
 		uint8_t* data() const;
 		uint32_t size() const;
 		
+		//
+		//  获取这个内存的操作流
+		//
+		ByteStream* getByteStream();
 	private:
 		uint8_t* mData;
 		uint32_t mSize;
+
+		ByteStream* mStream;
 	};
 }
 

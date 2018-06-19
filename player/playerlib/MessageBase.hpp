@@ -31,8 +31,6 @@ namespace message {
     protected:
         void setType(int32_t type);
         int32_t mPayloadType;
-        
-		
     public:
 		//
 		//  已经处理完成了，可以回收了		

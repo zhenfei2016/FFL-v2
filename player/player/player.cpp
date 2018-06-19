@@ -11,7 +11,7 @@
 *
 */
 
-#include "FFL_Player.hpp"
+#include "Player.hpp"
 #include "SDL2Module.hpp"
 #include <utils/FFL_MemoryWatch.hpp>
 #if WIN32
@@ -44,9 +44,9 @@ bool keyPressed(void* userdata, int key) {
 	    //
 		//  加速
 		//
-		uint32_t speed = player->mClock->speed();
+		uint32_t speed = player->getSpeed();
 		speed = FFL_MIN(speed + 5, 300);
-		player->mClock->setSpeed(speed);
+		player->setSpeed(speed);
 	}
 		break;
 
@@ -56,9 +56,9 @@ bool keyPressed(void* userdata, int key) {
 		//
 		//  减速
 		//
-		uint32_t speed = player->mClock->speed();
+		uint32_t speed = player->getSpeed();
 		speed =FFL_MAX(speed- 5,10);
-		player->mClock->setSpeed(speed);
+		player->setSpeed(speed);
 	}
 		
 		break;
@@ -68,7 +68,11 @@ bool keyPressed(void* userdata, int key) {
 		//
 	{
         int64_t cur=player->getPositionUs();
-        player->setPositionUs(cur+ 5*1000*1000);
+		cur += 1000 * 1000;
+		if (cur > player->getDurationUs()) {
+			cur = player->getDurationUs()-10;
+		}
+        player->setPositionUs(cur);
 	}
 		break;
 	case '2':
@@ -77,7 +81,11 @@ bool keyPressed(void* userdata, int key) {
 		//
 	{
         int64_t cur=player->getPositionUs();
-        player->setPositionUs(cur- 5*1000*1000);
+		cur -= 1000 * 1000;
+		if (cur < 0) {
+			cur = 0;
+		}
+		player->setPositionUs(cur);
 	}
 	break;
 	default:
@@ -88,8 +96,7 @@ bool keyPressed(void* userdata, int key) {
 }
 
 int playerMain() {
-	player::FFLPlayer player;
-	player.createAndsetSDL2Render(&player);
+	player::FFLPlayer player;	
 	std::string url;	
 #if WIN32
 	url = "d://movic//sintel.ts";       
@@ -102,6 +109,7 @@ int playerMain() {
 	url = "/Users/zhufeifei/work/testvideo/sintel.ts";
 #endif
 	player.mUrl = url;
+	//player.play(url.c_str());
 	player::SDL2Loop(keyPressed,&player);
 	player.release();			
 	return 0;

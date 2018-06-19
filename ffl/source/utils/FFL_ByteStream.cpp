@@ -207,7 +207,14 @@ namespace FFL {
 	}
 	ByteStream::~ByteStream() {
 	}
-
+	//
+	//  重置读写指针
+	//
+	void ByteStream::reset(){
+		mReadPos = 0;
+		mWritePos = 0;
+		mDataSize = 0;
+	}
 	//
 	//  读写
 	//

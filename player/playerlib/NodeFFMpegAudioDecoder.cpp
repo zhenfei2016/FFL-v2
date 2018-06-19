@@ -14,13 +14,14 @@
 #include "MessageFFMpegPacket.hpp"
 #include "NodeFFMpegAudioDecoder.hpp"
 #include "FFMpegStream.hpp"
-#include "FFL_Player.hpp"
-#include "FFL_Texture.hpp"
+#include "Player.hpp"
+#include "VideoTexture.hpp"
+#include "AudioStream.hpp"
 
 namespace player {
-	NodeFFMpegAudioDecoder::NodeFFMpegAudioDecoder(FFMpegStream* stream):
-		NodeFFMpegDecoder(stream){
-		mStream = stream;
+	NodeFFMpegAudioDecoder::NodeFFMpegAudioDecoder(AudioStream* stream,AVCodecContext* ctx):
+		NodeFFMpegDecoder(ctx),
+		mAudioStream(stream){
 		FFL_ASSERT(stream);
 		setName("NodeFFMpegAudioDecoder");		
 		mMessageCache = new FFL::PipelineMessageCache(MSG_FFMPEG_AUDIO_FRAME);
@@ -30,15 +31,15 @@ namespace player {
 	{
 	}
 	
-	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame)
-	{
-		
-		message::FFMpegAudioFrame* texture = 0;
-		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &texture, MSG_FFMPEG_AUDIO_FRAME);
-		texture->fillAvframe(frame);
-		texture->mSamples.mStreamId = mStream->getIndex();
-		texture->mSamples.mFreq = mStream->getAudioSamples();
-		correctTimestamp(texture);
+	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame){		
+		message::FFMpegAudioFrame* sample = 0;
+		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &sample, MSG_FFMPEG_AUDIO_FRAME);
+		correctTimestamp(sample, frame);
+
+		sample->fillAvframe(frame);
+		sample->mSamples.mStreamId = mAudioStream->getIndex();		
+		mAudioStream->getFormat(mFormat);		
+		sample->mSamples.setAudioFormat(mFormat);		
 
 		if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
 			msg->consume(this);
@@ -50,18 +51,14 @@ namespace player {
 	//
 	//  修正时间戳
 	//
-	void NodeFFMpegAudioDecoder::correctTimestamp(message::FFMpegAudioFrame* sample)
-	{
-		AVFrame* frame = sample->mFrame;
+	void NodeFFMpegAudioDecoder::correctTimestamp(message::FFMpegAudioFrame* audioFrame, AVFrame* frame){
 		//
 		//  计算pts
 		//
 		int64_t pts = frame->pts;
 		if (pts == AV_NOPTS_VALUE) {
 			pts = frame->pkt_dts;
-		}
-
-		sample->mSamples.mOrginalPts = pts;
+		}		
 		frame->pts = pts;	
 	}
 }

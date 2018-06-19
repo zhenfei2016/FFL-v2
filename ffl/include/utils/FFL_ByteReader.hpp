@@ -14,6 +14,7 @@
 
 #include <FFL.h>
 
+
 namespace FFL{ 
 	class ByteReader {	
 	public:
@@ -25,7 +26,7 @@ namespace FFL{
 		virtual bool read3Bytes(int32_t& val) = 0;
 		virtual bool read4Bytes(int32_t& val) = 0;
 		virtual bool read8Bytes(int64_t& val) = 0;
-		virtual bool readString(String& val, uint32_t len) = 0;
+		virtual bool readString(std::string& val, uint32_t len) = 0;
 		virtual bool readBytes(int8_t* data, uint32_t size) = 0;
 	};
 }

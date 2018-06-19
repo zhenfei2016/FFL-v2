@@ -17,8 +17,7 @@ namespace player {
 	class Decoder : public NodeBase{
 	public:
 		Decoder();
-		~Decoder();
-			
+		~Decoder();			
 		//
 		//  获取这个节点处理的延迟
 		//
@@ -27,8 +26,7 @@ namespace player {
 		//  设置这个解码器的输出到那个一个合成器中
 		//
 		void setOutputComposer(FFL::sp<Composer> composer);
-		FFL::sp<Composer> getComposer();
-		
+		FFL::sp<Composer> getComposer();		
 	protected:
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
@@ -36,8 +34,7 @@ namespace player {
 		virtual FFL::sp<FFL::PipelineConnector > onCreateConnector(
 			const OutputInterface& output,
 			const InputInterface& input,
-			void* userdata);
-				
+			void* userdata);				
 	public:
 		OutputInterface mFrameOutput;
 		FFL::sp<Composer> mComposer;

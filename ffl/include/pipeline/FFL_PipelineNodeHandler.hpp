@@ -18,6 +18,7 @@
 #include <pipeline/FFL_PipelineMessage.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
 #include <pipeline/FFL_PipelineInput.hpp>
+#include <pipeline/FFL_PipelineOutput.hpp>
 
 namespace FFL
 {
@@ -65,6 +66,7 @@ namespace FFL
 		status_t postSelfMessage(PipelineInputId dstId, const sp<PipelineMessage> &msg, uint64_t delayUs);
         
         sp<PipelineInput> getInput(PipelineInputId id);
+		sp<PipelineOutput> getOutput(PipelineOutputId id);
 	private:
 		friend class PipelineNode;
 		PipelineNode* mPipeLineNode;

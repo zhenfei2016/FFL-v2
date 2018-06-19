@@ -6,6 +6,7 @@
 *
 *  FFL_Looper
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
+*  https://github.com/zhenfei2016/FFL-v2.git
 *  参考 Android Open Source Project 进行修改的
 *  消息循环类
 *
@@ -76,15 +77,16 @@ namespace FFL {
         //
         // 清空等待处理的消息队列
         //
-		void clearMessageList(List< sp<Message> >& list);
+		void clearMessageList(List< sp<Message> >* list);
 		//
 		// 清空等待处理的特定handler消息队列
 		//
-		void clearMessageList(List< sp<Message> >& list,Looper::handler_id handlerId);
+		void clearMessageList(List< sp<Message> >* list,Looper::handler_id handlerId);
         //
         // 取消一条消息
+		//  msgId :消息的唯一id 
         //
-        bool cancelMessage(const sp<Message>& msg);
+        bool cancelMessage(uint32_t msgId);
 	public:
 		void setDebug(bool debug);
 	protected:
@@ -117,6 +119,7 @@ namespace FFL {
 	protected:
 		//
         // 入队一条消息 , msg不可以为空
+		// delayUs<0则会插入到最先执行的位置
 		//		
 		bool post(const sp<Message> &msg, int64_t delayUs);
 		//

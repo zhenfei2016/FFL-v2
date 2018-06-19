@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineAsyncConnector.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/10
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  node异步连接器,进行消息处理中消息的缓存异步处理
 *
@@ -122,7 +123,7 @@ namespace FFL {
 		}
 
 		mLooper->waitStop();
-		mLooper->clearMessageQueue();
+		mLooper->clearMessage();
 		return FFL_OK;
 	}
 
@@ -160,6 +161,14 @@ namespace FFL {
 		return FFL_OK;
 	}
 	//
+	//  清空转发的消息
+	//
+	void PipelineAsyncConnector::clearMessage() {
+		if (!mLooper.isEmpty() && !mHandler.isEmpty()) {
+			mLooper->clearMessage(mHandler->id());
+		}
+	}
+	//
 	// 开始分派消息
 	//
 	void PipelineAsyncConnector::dispathMessage(const sp<PipelineMessage>& msg) {
@@ -176,10 +185,9 @@ namespace FFL {
 		getLooper()->registerHandler(mHandler);
 	}
 	void PipelineAsyncConnector::unregisterHandler() {		
-		if (!mHandler.isEmpty()) {
-			List< sp<Message> > msgList;
+		if (!mHandler.isEmpty()) {			
 			Looper::handler_id id= mHandler->id();
-			getLooper()->clearMessageList(msgList, id);
+			getLooper()->clearMessageList(NULL, id);
 			getLooper()->unregisterHandler(id);
 		}
 	}

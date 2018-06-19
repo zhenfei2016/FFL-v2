@@ -29,6 +29,8 @@ namespace player {
 		//
 		status_t create(FFLPlayer* player);
 		void destroy();
+		bool isCreated() const;
+
 		//
 		//  获取设置名称
 		//
@@ -54,6 +56,7 @@ namespace player {
         //  获取输入
         //
         FFL::sp<FFL::PipelineInput> getInput(FFL::PipelineInputId id);
+		FFL::sp<FFL::PipelineOutput> getOutput(FFL::PipelineOutputId id);
 		//
 		//  连接一个输出到一个输入
 		//
@@ -112,8 +115,7 @@ namespace player {
 		virtual void onDestroy();
 		virtual void onStartMessageLooper();
 		virtual void onQuitMessageLooper();
-
-		bool isCreated();
+		
 		//
 		//  获取这个节点属于哪一个线的
 		//
@@ -162,5 +164,6 @@ namespace player {
 
 		FFL::PipelineNodeId  mNodeId;
 		FFL::PipelineOutputId mId;
+		FFL::String mName;
 	};
 }

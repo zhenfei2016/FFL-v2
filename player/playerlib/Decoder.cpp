@@ -10,7 +10,6 @@
 *  解码基类
 *
 */
-
 #include "Decoder.hpp"
 #include "Composer.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>

@@ -31,11 +31,14 @@ enum
 	// 读到结尾了
 	//
 	MSG_CONTROL_READER_EOF,
-
+	//
+	// 丢弃消息
+	//
+	MSG_CONTROL_DISCARD_MSG,
     //
-    // 对其cache
+    // 对其音视频同步指令
     //
-    MSG_CONTROL_DISCARD_CACHE,
+    MSG_CONTROL_AV_SYNC,
     
 
 };
@@ -47,6 +50,9 @@ typedef struct MsgCodeEntry{
 
 #define REGISTER_MSG_CODE(msg) {msg,FFL_TOSTRING(msg)}
 
+//
+// 获取对应消息的名称
+//
 inline const char* getMsgName(int32_t msg){
     static MsgCodeEntry entry[]={
         REGISTER_MSG_CODE(MSG_FFMPEG_AVPACKET),
@@ -55,7 +61,8 @@ inline const char* getMsgName(int32_t msg){
         REGISTER_MSG_CODE(MSG_SDL2_TEXTURE),
         REGISTER_MSG_CODE(MSG_SDL2_SAMPLES),
         REGISTER_MSG_CODE(MSG_CONTROL_READER_EOF),
-        REGISTER_MSG_CODE(MSG_CONTROL_DISCARD_CACHE),
+		REGISTER_MSG_CODE(MSG_CONTROL_DISCARD_MSG),
+        REGISTER_MSG_CODE(MSG_CONTROL_AV_SYNC),
     };
     
     for(int i=0;i<sizeof(entry)/sizeof(entry[0]);i++){
