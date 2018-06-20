@@ -13,7 +13,7 @@
 
 #pragma once
 #include "Render.hpp"
-#include "RenderWindow.hpp"
+#include "VideoSurface.hpp"
 #include "VideoTexture.hpp"
 #include "AudioSample.hpp"
 #include "Statistic.hpp"

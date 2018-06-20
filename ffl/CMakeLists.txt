@@ -146,6 +146,9 @@ ADD_SRC_FILE(FFL_HandlerManager.hpp)
 ADD_SRC_FILE(FFL_List.hpp)
 ADD_SRC_FILE(FFL_String.hpp)
 ADD_SRC_FILE(FFL_Vector.hpp)
+ADD_SRC_FILE(FFL_Io.hpp)
+ADD_SRC_FILE(FFL_File.hpp)
+
 
 
 
@@ -161,12 +164,9 @@ ADD_SRC_FILE(FFL_MessageQueue.cpp)
 ADD_SRC_FILE(FFL_Looper.cpp)
 ADD_SRC_FILE(FFL_Handler.cpp)
 ADD_SRC_FILE(FFL_HandlerManager.cpp)
-#ADD_SRC_FILE(FFL_LooperRoster.cpp)
 ADD_SRC_FILE(FFL_Message.cpp)
 ADD_SRC_FILE(FFL_Clock.cpp)
-
-
-
+ADD_SRC_FILE(FFL_File.cpp)
 
 
 SET(LOCAL_SRC_DIR ./include/pipeline/)

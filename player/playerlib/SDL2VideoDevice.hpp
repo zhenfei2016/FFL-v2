@@ -14,9 +14,13 @@ namespace player {
 		SDL2VideoDevice();
 		~SDL2VideoDevice();
 		//
+		// 获取设置绘制窗口
+		//		
+		virtual FFL::sp<VideoSurface> getSurface();
+		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(void* wnd, int32_t widht, int32_t height);
+		virtual bool open(FFL::sp<VideoSurface> wnd, int32_t widht, int32_t height);
 		virtual void close();
 		//
 		//  显示当前文理
@@ -30,6 +34,7 @@ namespace player {
 		bool showSDL2Texture(FFL::sp<FFL::PipelineMessage> msg);
 
 	private:
+		FFL::sp<VideoSurface> mSurface;
 		SDL_Window* mWindow;
 		SDL_Renderer* mSDLRenderer;
 

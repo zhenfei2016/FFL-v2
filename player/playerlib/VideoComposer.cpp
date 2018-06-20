@@ -13,7 +13,7 @@
 #include "VideoComposer.hpp"
 #include "MessageFFMpegFrame.hpp"
 #include "VideoTexture.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "Stream.hpp"
 #include "PlayerConstant.hpp"
 #include "TimestampExtrapolator.hpp"

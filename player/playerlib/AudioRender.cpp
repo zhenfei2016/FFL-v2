@@ -14,7 +14,7 @@
 #include "AudioRender.hpp"
 #include "AudioResample.hpp"
 #include "MessageFFMpegFrame.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "PlayerConstant.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 

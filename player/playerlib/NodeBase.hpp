@@ -16,7 +16,7 @@
 namespace player {
 	class InputInterface;
 	class OutputInterface;
-	class FFLPlayer;
+	class PlayerCore;
 
 	class NodeBase : public FFL::RefBase
 	{
@@ -27,7 +27,7 @@ namespace player {
 		//
 		// 开始创建这个节点
 		//
-		status_t create(FFLPlayer* player);
+		status_t create(PlayerCore* player);
 		void destroy();
 		bool isCreated() const;
 
@@ -39,7 +39,7 @@ namespace player {
 		//
 		//  获取这个node的所有者player
 		//
-		FFLPlayer* getOwner() const;	
+		PlayerCore* getOwner() const;	
 		//
 		//  获取nodeid
 		//
@@ -124,7 +124,7 @@ namespace player {
 		//
 		//  所属的播放器
 		//
-		FFLPlayer* mPlayer;
+		PlayerCore* mPlayer;
 		//
 		// 节点id
 		//

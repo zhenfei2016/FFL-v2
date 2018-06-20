@@ -11,7 +11,7 @@
  *
 */
 #include "NodeBase.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include <pipeline/FFL_PipelineSourceConnector.hpp>
 #include "MessageFFMpegPacket.hpp"
 
@@ -64,7 +64,7 @@ namespace player {
 		NodeBase* mNodeBase;
 	};
 
-	class FFLPlayer;
+	class PlayerCore;
 	NodeBase::NodeBase() : mNodeId(FFL::Pipeline_INVALID_Id)
 	{
 		mPlayer = NULL;
@@ -76,7 +76,7 @@ namespace player {
 	//
 	// 开始创建这个节点
 	//
-	status_t NodeBase::create(FFLPlayer* player) {
+	status_t NodeBase::create(PlayerCore* player) {
 		if (mPlayer != NULL || player==NULL) {
 			FFL_LOG_WARNING("NodeBase::create fail ");
 			return FFL_ERROR_FAIL;
@@ -114,7 +114,7 @@ namespace player {
 	//
 	//  获取这个node的所有者player
 	//
-	FFLPlayer* NodeBase::getOwner() const {
+	PlayerCore* NodeBase::getOwner() const {
 		return mPlayer;
 	}
 	//

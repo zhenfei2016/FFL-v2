@@ -11,7 +11,7 @@
 *
 */
 
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "SDL2Module.hpp"
 #include <utils/FFL_MemoryWatch.hpp>
 #if WIN32
@@ -20,7 +20,7 @@
 
 
 bool keyPressed(void* userdata, int key) {
-	player::FFLPlayer* player=(player::FFLPlayer*) userdata;
+	player::PlayerCore* player=(player::PlayerCore*) userdata;
 
 	switch (key)
 	{
@@ -96,13 +96,13 @@ bool keyPressed(void* userdata, int key) {
 }
 
 int playerMain() {
-	player::FFLPlayer player;	
+	player::PlayerCore player;	
 	std::string url;	
 #if WIN32
 	url = "d://movic//sintel.ts";       
 	//url = "d://movic//Nocturne.m4a";
 	//url = "d://movic//test.avi";
-	url = "d://movic//zhuoyaoji.mp4";
+	//url = "d://movic//zhuoyaoji.mp4";
 	
 	
 #else

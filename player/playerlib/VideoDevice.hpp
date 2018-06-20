@@ -6,15 +6,19 @@
 
 namespace player {
 	class VideoRender;
+	class VideoSurface;
 	class VideoDevice : public FFL::RefBase{
 	public:		
 		VideoDevice();
-		virtual ~VideoDevice();
-	
+		virtual ~VideoDevice();	
+		//
+		// 获取绘制窗口
+		//		
+		virtual FFL::sp<VideoSurface> getSurface()=0;
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(void* wnd,int32_t widht,int32_t height) = 0;
+		virtual bool open(FFL::sp<VideoSurface> surface,int32_t widht,int32_t height) = 0;
 		virtual void close() = 0;
 		//
 		//  写一帧数据

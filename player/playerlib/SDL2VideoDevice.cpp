@@ -1,6 +1,7 @@
 #include "SDL2VideoDevice.hpp"
 #include "MessageSDL2Texture.hpp"
 #include "VideoRender.hpp"
+#include "VideoSurface.hpp"
 
 namespace player {
 	SDL2VideoDevice::SDL2VideoDevice():
@@ -11,18 +12,21 @@ namespace player {
 	}
 	SDL2VideoDevice::~SDL2VideoDevice() {
 	}
+
+	FFL::sp<VideoSurface> SDL2VideoDevice::getSurface() {
+		return mSurface;
+	}
 	//
 	//  打开关闭视频设备
 	//
-	bool SDL2VideoDevice::open(void* wnd, int32_t widht, int32_t height) {		
+	bool SDL2VideoDevice::open(FFL::sp<VideoSurface> surface, int32_t widht, int32_t height) {
 		SDL_Window * hWnd=NULL;
-		if (wnd == NULL) {
-			hWnd = SDL_CreateWindow("FFLPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		if (surface.isEmpty() || surface->getHandle()==NULL) {
+			hWnd = SDL_CreateWindow("PlayerCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 				widht, height, SDL_WINDOW_OPENGL );
 		}else {
-			hWnd = SDL_CreateWindowFrom(wnd);
-		}	
-		
+			hWnd = SDL_CreateWindowFrom(surface->getHandle());
+		}
 		mWindow = hWnd;
 		return mWindow!=NULL;
 	}

@@ -19,7 +19,7 @@
 #include "VideoTexture.hpp"
 #include <pipeline/FFL_PipelineMessageCache.hpp>
 #include <SDL.h>
-#include "RenderWindow.hpp"
+#include "VideoSurface.hpp"
 #include "AudioSample.hpp"
 #include "MessageSDL2Texture.hpp"
 #include <utils/FFL_Utils.hpp>

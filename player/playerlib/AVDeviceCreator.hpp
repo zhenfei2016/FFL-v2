@@ -5,7 +5,7 @@
 namespace player {
 	class VideoDevice;
 	class AudioDevice;
-	class FFLPlayer;
+	class PlayerCore;
 	class AVDeviceCreator {
 	public:
 		AVDeviceCreator();
@@ -14,11 +14,11 @@ namespace player {
 		//
 		//  创建播放视频设备
 		//
-		virtual FFL::sp<VideoDevice> createVideoDevice(FFLPlayer* player)=0;
+		virtual FFL::sp<VideoDevice> createVideoDevice(PlayerCore* player)=0;
 		//
 		//  创建播放音频设备
 		//
-		virtual FFL::sp<AudioDevice> createAudioDevice(FFLPlayer* player)=0;
+		virtual FFL::sp<AudioDevice> createAudioDevice(PlayerCore* player)=0;
 	};
 }
 #endif

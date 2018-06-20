@@ -25,6 +25,7 @@ typedef enum  ERROR_NO
 	/*  发生错误了  */
 	FFL_ERROR_FAIL = -1,
 	FFL_ERROR_FAILED = -1,
+	FFL_FAILED = -1,
 
 	/*
 	 * 无效操作 
@@ -62,6 +63,18 @@ typedef enum  ERROR_NO
 	 *  跳过这个buffer
 	 *  */
 	PIPELINE_SKIP_BUFFER,
+
+	/*
+	 *  文件已经打开了
+	 */
+	FFL_FILE_ALREADY_OPENED,
+	/*
+	*  文件打开失败了
+	*/
+	FFL_FILE_OPEN_FAILED,
+	FFL_FILE_CLOSE_FAILED,
+	FFL_FILE_WRITE_FAILED,
+	FFL_FILE_READ_FAILED,
 
 }ERROR_NO;
 

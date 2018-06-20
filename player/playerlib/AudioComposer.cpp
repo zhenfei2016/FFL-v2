@@ -12,7 +12,7 @@
 */
 
 #include "AudioComposer.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "MessageFFMpegFrame.hpp"
 #include "AudioResample.hpp"
 #include "FFMpeg.hpp"
@@ -23,9 +23,14 @@ namespace player {
 		mDstFormat(NULL) {
 		setName("AudioComposer");
 		mResample = new AudioResample();
+
+		FFL::String file;
+		file = "e://1.pcm";
+		mTestFile.create(file);
 	}
 
 	AudioComposer::~AudioComposer() {
+		mTestFile.close();
 		FFL_SafeFree(mResample);
 		FFL_SafeFree(mDstFormat);
 	}
@@ -77,7 +82,7 @@ namespace player {
 		
 		return true;
 	}
-	
+	int gFrameCOunt = 0;
 	void AudioComposer::handleSamples(const FFL::sp<FFL::PipelineMessage>& msg, AudioSample* sample) {
 		if (!mDstFormat) {
 			FFL_LOG_WARNING("Faild to AudioComposer::handleSamples (dstFormat is null)");
@@ -95,6 +100,12 @@ namespace player {
 			targetSample.setAudioFormat(*mDstFormat);			
 			mResample->resample(sample, &targetSample, getOwner()->getSpeed());
 			sample->moveData(targetSample);
+
+			size_t writed = 0;
+			//mTestFile.write((*sample->mData), sample->mLinesize, &writed);
+			if (gFrameCOunt++ > 100) {
+				int i = 0;
+			}
 		}else {
 			//
 			//  不需要重采样

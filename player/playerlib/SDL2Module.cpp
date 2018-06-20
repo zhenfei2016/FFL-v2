@@ -23,7 +23,7 @@ namespace player {
 	//
 	//  创建播放视频设备
 	//
-	FFL::sp<VideoDevice> SDL2Module::createVideoDevice(FFLPlayer* player) {
+	FFL::sp<VideoDevice> SDL2Module::createVideoDevice(PlayerCore* player) {
 		if (mVideoDevice.isEmpty()) {
 			mVideoDevice = new SDL2VideoDevice();
 		}
@@ -32,7 +32,7 @@ namespace player {
 	//
 	//  创建播放音频设备
 	//
-	FFL::sp<AudioDevice> SDL2Module::createAudioDevice(FFLPlayer* player) {
+	FFL::sp<AudioDevice> SDL2Module::createAudioDevice(PlayerCore* player) {
 		if (mAudioDevice.isEmpty()) {
 			mAudioDevice = new SDL2AudioDevice();
 		}

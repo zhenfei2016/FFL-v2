@@ -14,7 +14,7 @@
 #include "Stream.hpp"
 #include "Decoder.hpp"
 #include "Composer.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include <pipeline/FFL_Pipeline.hpp>
 
 namespace player {

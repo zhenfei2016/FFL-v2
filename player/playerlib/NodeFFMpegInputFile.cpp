@@ -19,7 +19,7 @@
 #include "NodeBase.hpp"
 #include "MessageFFMpegPacket.hpp"
 #include "PlayerEvent.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "PlayerConstant.hpp"
 #include "FFMpegStream.hpp"
 #include "NodeFFMpegVideoDecoder.hpp"

@@ -15,6 +15,7 @@
 #include "TimestampExtrapolator.hpp"
 #include "MessageFFMpegFrame.hpp"
 #include "AudioResample.hpp"
+#include <utils/FFL_File.hpp>
 
 namespace player {
 	class AudioComposer : public Composer {
@@ -57,5 +58,7 @@ namespace player {
 		//  合成的目标格式
 		//
 		AudioFormat* mDstFormat;
+
+		FFL::File mTestFile;
 	};
 }

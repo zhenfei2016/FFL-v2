@@ -22,7 +22,7 @@
 #include "IReader.hpp"
 
 namespace player {
-	class FFLPlayer;	
+	class PlayerCore;	
 	class NodeFFMpegInputFile : public NodeBase, public IReader
 	{
 	public:

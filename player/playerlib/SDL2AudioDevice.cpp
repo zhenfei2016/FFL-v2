@@ -108,7 +108,7 @@ namespace player {
 		wantedSpec.format = ffmpegFormat2SDL2Format(inFormat.mFormat);
 		wantedSpec.channels = inFormat.mChannelNum;
 		wantedSpec.silence = 0;
-		wantedSpec.samples = FFL_MAX(sampleNum, 1024);
+		wantedSpec.samples = FFL_MAX(sampleNum, 1024) ;
 		wantedSpec.callback = SDL2AudioDevice::SDL2_fillAudio;
 		wantedSpec.userdata = this;
 

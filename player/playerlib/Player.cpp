@@ -1,353 +1,255 @@
-/*
-*  This file is part of FFL project.
-*
-*  The MIT License (MIT)
-*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
-*
-*  FFL_Player.cpp
-*  Created by zhufeifei(34008081@qq.com) on 2018/03/03
-*
-*  ²¥·ÅÆ÷
-*
+/* 
+ *  This file is part of FFL project.
+ *
+ *  The MIT License (MIT)
+ *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+ *
+ *  Player.cpp
+ *  Created by zhufeifei(34008081@qq.com) on 2018/06/20 
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *  
+ *
+ *
 */
-
 #include "Player.hpp"
-#include <pipeline/FFL_PipelineInputHandler.hpp>
+#include "PlayerCore.hpp"
+#include "PlayerEvent.hpp"
+#include <utils/FFL_File.hpp>
+#include <pipeline/FFL_Pipeline.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
 
-#include "FFMpeg.hpp"
-#include "NodeBase.hpp"
-#include "NodeReader.hpp"
-#include "AudioComposer.hpp"
-#include "VideoComposer.hpp"
-
-#include "VideoStream.hpp"
-#include "AudioStream.hpp"
-
-#include "VideoRender.hpp"
-#include "AudioRender.hpp"
-
-#include "SDL2Module.hpp"
-#include "PlayerEvent.hpp"
-
-#include "Decoder.hpp"
-
 namespace player {
-	class FFLPlayer::FFLPlayerEventFilter : public FFL::PipelineEventFilter {
-	public:
-		FFLPlayerEventFilter(FFLPlayer* player) :mPlayer(player) {}
-		virtual ~FFLPlayerEventFilter() {
-
-		}
-
-		//
-		// ÅÉ·¢ÏûÏ¢Ç°µÄ×¼±¸£¬ÏûÏ¢ÅÉ·¢Ç°»áÏÈµ½ÕâµØ·½µÄ
-		// ·µ»Øfalse±íÊ¾²»ÒªÏòÏÂÅÉ·¢ÁË
-		//
-		bool onPrepareDispatch(const FFL::sp<FFL::PipelineEvent> event) {
-
-			FFL::sp<event::PlayerEvent> evt =(event::PlayerEvent*) event.get();
-			mPlayer->onEvent(evt);
-			return true;
-		}
-
-		FFLPlayer* mPlayer;
-	};
-
-	FFLPlayer::FFLPlayer() :mTimestampExtrapolator(NULL){
-		mVideoComposer = NULL;
-		mAudioComposer = NULL;
-		av_register_all();			
-		mEventFilter = new FFLPlayerEventFilter(this);
-		mPipeline = new FFL::Pipeline();
-		mPipeline->setEventFilter(mEventFilter);
-		mClock = new FFL::Clock();
-		setSpeed(100);
-		mTimestampExtrapolator = new TimestampExtrapolator(mClock);
-
-		init();
+	FFLPlayer::FFLPlayer():mListener(NULL){
+		mCore = new PlayerCore();
+		mEventPrepare = new FFL::PipelineEvent(
+			new FFL::ClassMethodCallback<player::FFLPlayer>(this, &FFLPlayer::onPrepare));
 	}
-	FFLPlayer::~FFLPlayer()
-	{
-		FFL_SafeFree(mDeviceCreator);
-		FFL_SafeFree(mTimestampExtrapolator);
-		FFL_SafeFree(mEventFilter);
+	FFLPlayer::~FFLPlayer() {
+		FFL_SafeFree(mCore);
 	}
 
-	status_t FFLPlayer::play(const char* url) {
-		if (!mPipeline.isEmpty()) {
-			mFileReader->play(url);
-			return mPipeline->startup();
+	//
+	// FFL::PipelineEventFilter
+	// æ´¾å‘æ¶ˆæ¯å‰çš„å‡†å¤‡ï¼Œæ¶ˆæ¯æ´¾å‘å‰ä¼šå…ˆåˆ°è¿™åœ°æ–¹çš„
+	// è¿”å›falseè¡¨ç¤ºä¸è¦å‘ä¸‹æ´¾å‘äº†
+	//
+	bool FFLPlayer::onPrepareDispatch(const FFL::sp<FFL::PipelineEvent> event) {
+		FFL::sp<event::PlayerEvent> evt = (event::PlayerEvent*) event.get();
+		mCore->onEvent(evt);
+		return true;
+	}
+	//
+	//  è®¾ç½®æ’­æ”¾url
+	//
+	status_t FFLPlayer::setUrl(const char *url){
+		if (url == NULL || url[0] == NULL) {
+			return FFL_FAILED;
+		}
+
+		{
+			FFL::CMutex::Autolock l(mMutex);
+			if (isLooping() || isStarting()) {
+				FFL_LOG_WARNING("Failed to seturl(%s). Player is playing.",url);
+				return FFL_FAILED;
+			}
+		}
+
+		mUrl = url;
+		if (!FFL::fileIsExist(url)) {
+			return FFL_FAILED;
+		}
+		return FFL_OK;
+	}
+	//
+	// è®¾ç½®æ¸²æŸ“åˆ°çš„ç›®æ ‡
+	//
+	status_t FFLPlayer::setSurface(void* surface){
+		FFL_ASSERT_LOG(0, "setSurface not impl.");
+		return FFL_NOT_IMPLEMENT;
+	}
+	//
+	//  æ’­æ”¾ï¼Œæš‚åœï¼Œåœæ­¢
+	//
+	status_t FFLPlayer::prepare(){
+		FFL::CMutex::Autolock l(mMutex);
+		if (!isPrepared()) {
+			mFlag.modifyFlags(FLAG_PREPAREING, 0);
+			mCore->getPipeline()->postEvent(mEventPrepare);
+			return FFL_OK;
 		}
 		return FFL_ERROR_FAIL;
 	}
-
-	status_t FFLPlayer::stop()
-	{
-		if (!mPipeline.isEmpty())
+	status_t FFLPlayer::start(){ 
 		{
-			if (!mAudioDevice.isEmpty()) {
-				mAudioDevice->close();
+			FFL::CMutex::Autolock l(mMutex);
+			if (!isPrepared()|| isStarted() || isStarting()) {
+				return FFL_ERROR_FAIL;
 			}
-
-			if (!mVideoDevice.isEmpty()) {
-				mVideoDevice->close();
-			}			
-
-			mPipeline->shutdownAndWait();
-			mPipeline->setEventFilter(NULL);
+			mFlag.modifyFlags(FLAG_STARTING, 0);
 		}
+
+		onStart(NULL);
+		return FFL_OK; }
+	status_t FFLPlayer::pause(){
+		{
+			FFL::CMutex::Autolock l(mMutex);
+			if (!isLooping()) {
+				return FFL_ERROR_FAIL;
+			}
+			mFlag.modifyFlags(FLAG_PAUSEING, 0);
+		}
+
+		onPause(NULL);
 		return FFL_OK;
 	}
-
-	void FFLPlayer::release() {
-		if (!mPipeline.isEmpty())
+	status_t FFLPlayer::stop(){
 		{
-			mPipeline->exit();
-			mPipeline.clear();
+			FFL::CMutex::Autolock l(mMutex);
+			if (!isLooping() || isStoping() ) {
+				return FFL_ERROR_FAIL;
+			}
+			mFlag.modifyFlags(FLAG_STOPING, 0);
 		}
-	}
-
-	//
-	//»ñÈ¡£¬ÉèÖÃ²¥·ÅµÄÎ»ÖÃ,×ÜÊ±³¤
-	//
-	void FFLPlayer::setPositionUs(int64_t pos) {
-		mFileReader->seek(pos);
-	}
-	int64_t FFLPlayer::getPositionUs() {
-		return mFileReader->getCurrentUs();
-	}
-	int64_t FFLPlayer::getDurationUs() {
-		return mFileReader->getDurationUs();
-	}
-	status_t FFLPlayer::init(){		
-		mDeviceCreator = new SDL2Module();
-		//
-		//  ´ò¿ªÎÄ¼ş£¬¶ÁĞ´ÎÄ¼ş½Úµã
-		//	
-		mFileReader = new NodeReader();		
-		mFileReader->setName("reader");
-		mFileReader->create(this);
-
-		////
-		//// ÒôÊÓÆµºÏ³É
-		////
-		//mAudioComposer = new AudioComposer();
-		//mAudioComposer->create(this);
-
-		//mVideoComposer = new VideoComposer();
-		//mVideoComposer->create(this);
-
-		createVideoDisplay();
+		onStop(NULL);
 		return FFL_OK;
 	}
-
-	void FFLPlayer::onEvent(const FFL::sp<event::PlayerEvent> event)
-	{
-		int32_t eventID = event->getEventId();
-		switch (eventID)
+	//
+	//  å®šä½åˆ°æŒ‡å®šuså¤„
+	//  è·å–å½“å‰çš„æ’­æ”¾ä½ç½®us
+	//  è·å–æ€»çš„æ’­æ”¾æ—¶é•¿us
+	//
+	status_t FFLPlayer::seekTo(int64_t us){
 		{
-		case event::EVENT_VIDEO_SIZE_CAHNGED:
-		{
-			int32_t width = event->mInt32Parma1;
-			int32_t height = event->mInt32Parma2;
-			//mWindow->setWindowSize(width,height);
-		}
-		break;
-
-		case event::EVENT_VIDEO_RENDER_FIRST_FRAME:
-
-			break;
-		case event::EVENT_VIDEO_RENDER_LAST_FRAME:
-			//mVideoRender->stop();
-			//mPipeline->shutdown();
-			break;
-
-		case event::EVENT_AUDIO_RENDER_FIRST_FRAME:
-
-			break;
-
-		case event::EVENT_AUDIO_RENDER_LAST_FRAME:	
-			//mAudioRender->stop();
-			//mPipeline->shutdown();
-			break;
-		default:
-			break;
-		}
-	}
-
-	void FFLPlayer::registerNode( FFL::sp<NodeBase> node) {
-		FFL::CMutex::Autolock l(mNodeLock);
-		mNodeList.push_back(node);
-	}
-	void FFLPlayer::unRegisterNode( FFL::sp<NodeBase> node) {
-		FFL::CMutex::Autolock l(mNodeLock);
-		for (FFL::List<  FFL::sp<NodeBase> >::iterator it = mNodeList.begin();
-			it != mNodeList.end(); it++) {
-			if (it->get() == node.get()) {
-				mNodeList.erase(it);
-				break;
+			FFL::CMutex::Autolock l(mMutex);
+			if (!isLooping()) {
+				return FFL_ERROR_FAIL;
 			}
 		}
+		mCore->setPositionUs(us);
+		return FFL_OK;
 	}
-	void FFLPlayer::updateClcok(int64_t tm, int32_t streamId, void* uesrdata) {
-		//¸üĞÂÍ¬²½Ê±ÖÓ
-		mTimestampExtrapolator->update(tm, mAudioTb);
+	int64_t  FFLPlayer::getCurrentPosition(){
+		return mCore->getPositionUs();
 	}
-	void FFLPlayer::onAddVideoStream(FFL::sp<VideoStream> stream) {
-		if (mVideoDevice.isEmpty()) {
-			mVideoDevice = mDeviceCreator->createVideoDevice(this);
-			uint32_t width = 0;
-			uint32_t height = 0;
-			stream->getSize(width, height);			
-			mVideoDevice->open(NULL, width, height);
-
-			mTimestampExtrapolator->reset();
-		}	
-
-		if (!mVideoComposer) {
-			mVideoComposer = new VideoComposer();
-			mVideoComposer->mTimestampExtrapolator = mTimestampExtrapolator;
-			mVideoComposer->create(this);
-		}
-	
-		FFL::sp<VideoRender> render = mVideoDevice->getRender(NULL);
-		if (!render->isCreated()) {
-			render->create(this);
-			mVideoComposer->setOutputRender(render);
-		}
-
-		FFL::sp<Decoder> decoder = stream->createDecoder();
-		if (!decoder->isCreated()) {
-			decoder->create(this);
-		}
-		decoder->setOutputComposer(mVideoComposer);
-		
-
-		//
-		// Æô¶¯decoderºÍcompoerµÄ´¦Àí
-		//
-		mPipeline->startup(decoder->getNodeId());
-		mPipeline->startup(mVideoComposer->getNodeId());
-		mPipeline->startup(render->getNodeId());
-	}
-	void FFLPlayer::onAddAudioStream(FFL::sp<AudioStream> stream) {
-		if (mAudioDevice.isEmpty()) {
-			mAudioDevice = mDeviceCreator->createAudioDevice(this);			
-
-			AudioFormat fmt;
-			stream->getFormat(fmt);
-			//x 
-			// Æô¶¯ÒôÆµÉè±¸
-			//
-			AudioFormat obtainedFmt;
-			if (mAudioDevice->open(fmt, 1024, obtainedFmt)) {				
-			}
-		}
-
-		FFL::sp<AudioRender> render = mAudioDevice->getRender(NULL);
-		if (!render.isEmpty() && !render->isCreated()) {
-			render->mTimestampExtrapolator = mTimestampExtrapolator;
-			stream->getTimebase(mAudioTb);
-			render->setClockUpdater(this, 0);
-			render->create(this);
-		}
-
-		if (!mAudioComposer) {
-			mAudioComposer = new AudioComposer();
-			mAudioComposer->mTimestampExtrapolator = mTimestampExtrapolator;
-			mAudioComposer->setOutputFormat(mAudioDevice->getOpenFormat());
-			mAudioComposer->create(this);
-			mAudioComposer->setOutputRender(render);
-		}		
-
-		FFL::sp<Decoder> decoder = stream->createDecoder();
-		if (!decoder->isCreated()) {
-			decoder->create(this);
-		}
-		decoder->setOutputComposer(mAudioComposer);
-
-		//
-		// Æô¶¯decoderºÍcompoerµÄ´¦Àí
-		//
-		mPipeline->startup(decoder->getNodeId());
-		mPipeline->startup(mAudioComposer->getNodeId());
-		mPipeline->startup(render->getNodeId());
-	}
-	void FFLPlayer::onAddOtherStream(FFL::sp<Stream> stream) {
-	}
-	void FFLPlayer::createVideoDisplay() {
-		if (mVideoDevice.isEmpty()) {
-			mVideoDevice = mDeviceCreator->createVideoDevice(this);
-			
-			uint32_t width = 400;
-			uint32_t height = 300;
-			mVideoDevice->open(NULL, width, height);	
-		}
-	}
-	//  IStreamManager
-	bool FFLPlayer::addStream(FFL::sp<Stream> stream) {
-		if (stream.isEmpty()) {
-			return false;
-		}
-
-		{
-			FFL::CMutex::Autolock l(mStreamLock);
-			mStreamVec.push_back(stream);
-		}
-
-		bool ret = false;
-		switch (stream->getStreamType())
-		{
-		case  STREAM_TYPE_VIDEO:
-		{ 
-			onAddVideoStream((VideoStream*)stream.get());			
-			ret = true;
-		}
-			break;
-		case  STREAM_TYPE_AUDIO:
-		{			
-			onAddAudioStream((AudioStream*)stream.get());			
-			ret = true;
-		}
-			break;
-		default:
-			onAddOtherStream(stream);
-			ret = false;
-			break;
-		};
-
-		return ret;
-	}
-	FFL::sp<Stream> FFLPlayer::removeStream(uint32_t index) {	
-		FFL_LOG_WARNING("FFLPlayer::removeStream no impl.");
-		return NULL;
-	}
-	FFL::sp<Stream> FFLPlayer::getStream(uint32_t index) {
-		FFL::CMutex::Autolock l(mStreamLock);
-		for (uint32_t i = 0; i < mStreamVec.size(); i++) {
-			if (mStreamVec[i]->getIndex() == index) {
-				return mStreamVec[i];
-			}
-		}
-
-		return NULL;
-	}
-	IStreamManager* FFLPlayer::getStreamMgr() {
-		return this;
+	int64_t  FFLPlayer::getDuration(){
+		return mCore->getDurationUs();
 	}
 	//
-	//  ÉèÖÃ£¬»ñÈ¡²¥·ÅËÙ¶È
+	//  è·å–ï¼Œè®¾ç½®æ’­æ”¾é€Ÿåº¦ï¼Œæ­£å¸¸é€Ÿåº¦=100
 	//
-	void FFLPlayer::setSpeed(uint32_t speed) {
-		if (speed > 300) {
-			speed = 300;
-		}else if (speed <= 10) {
-			speed = 10;
-		}		
-		mClock->setSpeed(speed);
+	uint32_t FFLPlayer::getSpeed(){
+		return mCore->getSpeed();
 	}
-	uint32_t FFLPlayer::getSpeed() {
-		return mClock->speed();
+	void FFLPlayer::setSpeed(uint32_t speed){
+		mCore->setSpeed(speed);
+	}
+	//
+	// è·å–ï¼Œè®¾ç½®éŸ³é‡
+	//
+	void FFLPlayer::setVolume(float left, float right){
+		FFL_ASSERT_LOG(0, "setVolume not impl.");
+	}
+	void FFLPlayer::getVolume(float* left, float* right){
+		FFL_ASSERT_LOG(0, "getVolume not impl.");
+	}
+	//
+	// è·å–ï¼Œè®¾ç½®å¾ªç¯æ’­æ”¾æ¬¡æ•°
+	// å¦‚æœ<0 : ä¸€ç›´å¾ªç¯æ’­æ”¾
+	//     =0 : æ’­æ”¾ä¸€æ¬¡
+	//     >0 : æ’­æ”¾num+1æ¬¡
+	//
+	void FFLPlayer::setLoop(int32_t num){
+		FFL_ASSERT_LOG(0, "setLoop not impl.");
+	}
+	int32_t FFLPlayer::getLoop(){
+		FFL_ASSERT_LOG(0, "getLoop not impl.");
+		return 0;
+	}
+	//
+	// è·å–ï¼Œè®¾ç½®ä¸€äº›ç‰¹å®šçš„é€‰é¡¹
+	//
+	void FFLPlayer::setOptionString(const char* name, const char* value){
+		FFL_ASSERT_LOG(0, "setOptionString not impl.");
+	}
+	void FFLPlayer::getOptionString(const char* name, char* buf, uint32_t bufSize, const char* defaultVal){
+		FFL_ASSERT_LOG(0, "getOptionString not impl.");
+	}
+	//
+	// è·å–ï¼Œè®¾ç½®ä¸€äº›ç‰¹å®šçš„é€‰é¡¹
+	//
+	void FFLPlayer::setOptionInt64(const char* name, int64_t value){
+		FFL_ASSERT_LOG(0, "setOptionInt64 not impl.");
+	}
+	void FFLPlayer::getOptionInt64(const char* name, int64_t* value, int64_t defaultVal){
+		FFL_ASSERT_LOG(0, "getOptionInt64 not impl.");
+	}
+	//
+	//  è®¾ç½®æ’­æ”¾å™¨ä¸€ç³»åˆ—äº‹ä»¶çš„å›è°ƒ
+	//
+	void FFLPlayer::setListener(IPlayerListener* listener){
+		FFL::CMutex::Autolock l(mMutex);
+		if (mFlag.getFlags() == FLAG_INIT) {
+			mListener = listener;
+		}else {
+		}
+	}
+	//
+	//  æ˜¯å¦prepated
+	//
+	bool FFLPlayer::isPrepared() const {
+		return mFlag.hasFlags(FLAG_PREPARED);
+	}
+	//
+	//  æ˜¯å¦å·²ç»å¯åŠ¨äº†
+	//
+	bool FFLPlayer::isStarted() const {
+		return mFlag.hasFlags(FLAG_LOOPING);
+	}
+	bool FFLPlayer::isPaused() const {
+		return mFlag.hasFlags(FLAG_PAUSED);
+	}
+	bool FFLPlayer::isStoped() const {
+		return mFlag.getFlags()==FLAG_INIT;
+	}
+	bool FFLPlayer::isStarting() const {
+		return mFlag.hasFlags(FLAG_STARTING);
+	}
+	bool FFLPlayer::isPauseing() const {
+		return mFlag.hasFlags(FLAG_PAUSEING);
+	}
+	bool FFLPlayer::isStoping() const {
+		return mFlag.hasFlags(FLAG_STOPING);
+	}
+	bool FFLPlayer::isLooping() const {
+		return mFlag.hasFlags(FLAG_LOOPING);
+	}
+	//
+	//  prepare æ’­æ”¾ï¼Œæš‚åœï¼Œåœæ­¢å…·ä½“å®ç°å‡½æ•°
+	//
+	void  FFLPlayer::onPrepare(const FFL::sp<FFL::PipelineEvent>& even) {
+		FFL::CMutex::Autolock l(mMutex);
+		mFlag.modifyFlags(FLAG_PREPARED,FLAG_PREPAREING);
+	}
+	void  FFLPlayer::onStart(const FFL::sp<FFL::PipelineEvent>& even) {
+		if (mUrl.empty()) {
+
+		}
+
+		FFL::CMutex::Autolock l(mMutex);
+		mFlag.modifyFlags(FLAG_LOOPING, FLAG_STARTING);
+
+		mCore->play(mUrl.c_str());
+	}
+	void  FFLPlayer::onPause(const FFL::sp<FFL::PipelineEvent>& even) {
+		FFL::CMutex::Autolock l(mMutex);
+		mFlag.modifyFlags(FLAG_PAUSED, FLAG_PAUSEING);
+
+		mCore->pause();
+	}
+	void  FFLPlayer::onStop(const FFL::sp<FFL::PipelineEvent>& even) {
+		FFL::CMutex::Autolock l(mMutex);
+		mFlag.resetFlags(FLAG_INIT);
+
+		mCore->stop();
 	}
 }

@@ -14,7 +14,7 @@
 #include "MessageFFMpegPacket.hpp"
 #include "NodeFFMpegDecoder.hpp"
 #include "FFMpegStream.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "VideoTexture.hpp"
 
 namespace player {

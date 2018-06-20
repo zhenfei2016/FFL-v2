@@ -14,7 +14,7 @@
 #include "MessageFFMpegFrame.hpp"
 #include "SDL2Module.hpp"
 #include "VideoDevice.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include "PlayerConstant.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 

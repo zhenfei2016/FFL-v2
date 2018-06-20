@@ -20,12 +20,13 @@ ENDIF ()
 SET(LOCAL_SRC_FILES   
    FFMpeg.cpp;FFMpeg.hpp
    AVDeviceCreator.cpp;AVDeviceCreator.hpp
-   Player.cpp;Player.hpp
+   PlayerCore.cpp;PlayerCore.hpp
    PlayerEvent.hpp;PlayerEvent.cpp
    PlayerConstant.hpp
-   Statistic.hpp;Statistic.cpp   
-      
-   RenderWindow.hpp;RenderWindow.cpp      
+   Player.hpp;Player.cpp
+   PlayerInterface.hpp
+   Statistic.hpp;Statistic.cpp         
+   
    NodeBase.cpp;NodeBase.hpp
    IReader.hpp
    NodeReader.cpp;NodeReader.hpp
@@ -47,6 +48,7 @@ SET(LOCAL_SRC_FILES
    AudioComposer.hpp;AudioComposer.cpp
    VideoComposer.hpp;VideoComposer.cpp
    VideoUtils.hpp;VideoUtils.cpp 
+   VideoSurface.hpp;VideoSurface.cpp      
    VideoDevice.hpp;VideoDevice.cpp
    VideoStream.hpp;VideoStream.cpp
    VideoTexture.hpp;VideoTexture.cpp   

@@ -13,7 +13,7 @@
 
 #include "NodeReader.hpp"
 #include "NodeFFMpegInputFile.hpp"
-#include "Player.hpp"
+#include "PlayerCore.hpp"
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 
 namespace player {
