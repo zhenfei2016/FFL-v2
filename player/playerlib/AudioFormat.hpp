@@ -6,7 +6,8 @@
  *
  *  AudioFormat.hpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/06/13 
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *
  *  音频采集的格式信息
  *
 */

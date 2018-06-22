@@ -74,7 +74,7 @@ namespace FFL {
 	//  转换当前时钟的一个时间段转成系统时钟时间段
 	//  例如可以把当前时钟5分钟转成系统时钟8分钟
 	//
-	int64_t Clock::clockToSystemRelativeUs(int64_t dy) {
+	int64_t Clock::clockToWorldTimeBucket(int64_t dy) {
 		//
 		// y=ax+b
 		// 计算dx
@@ -88,7 +88,7 @@ namespace FFL {
 		//
 		return (int64_t)((double)(dx *  mA) / 100);
 	}
-	int64_t Clock::systemToClockUs(int64_t x) {
+	int64_t Clock::worldToClockUs(int64_t x) {
 		//
 		// y=ax+b
 		// 计算dy

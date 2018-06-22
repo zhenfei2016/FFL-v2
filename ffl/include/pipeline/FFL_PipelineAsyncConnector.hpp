@@ -66,6 +66,8 @@ namespace FFL
 		//  获取时钟，这个是tranport使用的，delayUs会通过这个时钟进行计算延迟多长时间
 		//
 		FFL::sp<FFL::Clock> getClock();
+	public:
+		void setDebug(bool debug);
 	protected:
 		//
 		// 消息异步发送

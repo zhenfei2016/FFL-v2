@@ -17,13 +17,16 @@
 #include "Stream.hpp"
 #include "PlayerConstant.hpp"
 #include "TimestampExtrapolator.hpp"
+#include "SyncUtils.hpp"
 
 namespace player {
 	VideoComposer::VideoComposer():mTimestampExtrapolator(NULL){
 		setName("VideoComposer");
+		mTimestampExtrapolator = new TimestampExtrapolator();
 	}
 
 	VideoComposer::~VideoComposer(){
+		FFL_SafeFree(mTimestampExtrapolator);
 	}
 	//
 	//  成功创建了node
@@ -77,45 +80,37 @@ namespace player {
 	//
 	int64_t VideoComposer::getDelay(VideoTexture* texture) {
 		FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
-		stream->getTimebase(mTimerUnits);
-		int64_t delay = mTimestampExtrapolator->getDelayUsRelativeNow(texture->mPts, mTimerUnits);
+		stream->getTimebase(mTb);
+
+		uint32_t speed=getOwner()->getSpeed();
+		mTimestampExtrapolator->setSpeed(speed);
+
+		int64_t delay = mTimestampExtrapolator->getDelayAndUpdate(texture->mPts, mTb);
 		if (delay < 0) {
 			delay += 0;
 		}
 
-		texture->mRenderus = FFL_getNowUs() + delay;
+		texture->mRenderus = FFL_getNowUs() + delay * 100 / speed;
 		delay -= mStatistic->getVideoRenderDelayUs();
 		delay = FFL_MAX(0, delay);
 
-		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "VideoComposer pts=%" lld64 " delay=%" lld64,
-			texture->mPts, delay);
-		return delay;
-	}
-	//
-	//  音视频同步,返回集体等待的时长，如果<0 则跳过这一帧
-	//
-	int64_t VideoComposer::avSync(int64_t delay) {
-		if (delay < -SYNC_DROP_FRAME_THRESHOLD_US || delay>SYNC_DROP_FRAME_THRESHOLD_US) {
-			//
-			//  丢帧
-			//
-			FFL::sp<FFL::PipelineMessage> msgAvSync = new FFL::PipelineMessage(MSG_CONTROL_AV_SYNC);			
-			postMessageDelayToRender(msgAvSync, 0);
-			return -1;
-		}else if (delay < -SYNC_CHANGE_SPEED_THRESHOLD_US || delay>SYNC_CHANGE_SPEED_THRESHOLD_US) {
-			//
-			//  调整播放速度
-			//
+		
+		OptMode mode;
+		int64_t correctDelay = correctVideoDelay(getOwner()->getMasterClock(),
+			stream->getSyncClock(),
+			delay,&mode);
 
-		}
-		return delay;
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
+			"VideoComposer pts=%" lld64 " delay=%" lld64 " correctDelay=%" lld64,
+			texture->mPts, delay, correctDelay);
+
+		return correctDelay;
 	}
 	//
 	//  收到待显示的纹理包
 	//	
 	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture) {
-		int64_t delay = getDelay(texture);
-		delay =avSync(delay);
+		int64_t delay = getDelay(texture);		
 		if (delay < 0) {
 			msg->consume(this);
 			return;
@@ -129,6 +124,6 @@ namespace player {
 	//  接收到eof消息
 	//
 	void VideoComposer::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
-		postMessageDelayToRender(eof,1000);
+		postMessageDelayToRender(eof,-1);
 	}
 }

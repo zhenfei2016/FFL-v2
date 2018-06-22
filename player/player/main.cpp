@@ -17,7 +17,7 @@
 int printLog(int level,const char* tag, const char *format, va_list v) 
 {
 	if (tag) {
-		if (strcmp(tag, "audio") == 0 ||
+		if (strcmp(tag, "MsgQueue") == 0 ||
 			strcmp(tag, "timestamp") == 0) {
 			char str[1024] = {};
 			vsnprintf(str+2, 1024 - 1, format, v);

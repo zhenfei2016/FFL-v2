@@ -14,6 +14,8 @@
 #include <utils/FFL_MessageQueue.hpp>
 
 namespace FFL {
+	const char* TAG_MESSAGEQUEUE = "MsgQueue";
+
 	MessageQueue::MessageQueue(sp<Clock> clock):mRequestWakeup(false){
 		mDebug = false;
 		if (clock.isEmpty()) {
@@ -55,19 +57,24 @@ namespace FFL {
         int index = 0;
 		List<MessageEntry>::iterator it = mMsgQueue.begin();
 		if (delayUs >= 0) {
-			for (; it != mMsgQueue.end() && ((*it).mCreatetimeUs + (*it).mDelayTimeUs) <= whenUs; it++) {
+			for (; it != mMsgQueue.end() && ((*it).mWorldCreatetimeUs + (*it).mWorldDelayTimeUs) <= whenUs; it++) {
 				index++;
 			}
 		}
 
         MessageEntry event;        
         event.mMessage = msg;        
-        event.mCreatetimeUs=createTime;
-        event.mDelayTimeUs=delayUs;
-        event.mClockCreateTimeUs=mClock->systemToClockUs(createTime);
+        event.mWorldCreatetimeUs=createTime;
+        event.mWorldDelayTimeUs=delayUs;
+        event.mClockCreateTimeUs=mClock->worldToClockUs(createTime);		
         
 		if (mDebug) {
-			FFL_LOG_CRIT("MessageQueue::post createTime=%" lld64 "delayUs=%" lld64 " whenUs=%" lld64 " clock=%" lld64, createTime, delayUs, whenUs, event.mClockCreateTimeUs);
+			FFL_LOG_DEBUG_TAG(TAG_MESSAGEQUEUE,
+				"MessageQueue::post worldCreateTime=%" lld64 " worldDelayUs=%" lld64 " whenUs=%" lld64 " clockCreate=%" lld64,
+				createTime,
+				delayUs, 
+				whenUs,
+				event.mClockCreateTimeUs);
 		}
 
         if (index==0) {
@@ -102,7 +109,7 @@ namespace FFL {
 		}
 
 		MessageEntry msg = *mMsgQueue.begin();
-		int64_t whenUs = msg.mCreatetimeUs+ msg.mDelayTimeUs;
+		int64_t whenUs = msg.mWorldCreatetimeUs+ msg.mWorldDelayTimeUs;
 		int64_t nowUs = mClock->nowUs();
 		if (whenUs > nowUs) {			
 			return NULL;
@@ -126,9 +133,9 @@ namespace FFL {
 			}
 
 			MessageEntry msg = *mMsgQueue.begin();	
-			int64_t sysUs = 0;
-			int64_t nowUs = mClock->nowUs(&sysUs);
-            int64_t whenUs=mClock->systemToClockUs(msg.mCreatetimeUs+msg.mDelayTimeUs);
+			int64_t worldUs = 0;
+			int64_t nowUs  = mClock->nowUs(&worldUs);            
+			int64_t whenUs = msg.mClockCreateTimeUs + msg.mWorldDelayTimeUs;
             
 			if (whenUs <= nowUs) {
 				//
@@ -136,12 +143,15 @@ namespace FFL {
 				//
 				findedMsg = msg.mMessage;
 				if (mDebug) {
-					FFL_LOG_CRIT("MessageQueue::next createTime=%" lld64 "delayUs=%" lld64 " whenUs=%" lld64 " clockNow=%" lld64,
-						msg.mCreatetimeUs, msg.mDelayTimeUs, whenUs, nowUs);
+					FFL_LOG_DEBUG_TAG(TAG_MESSAGEQUEUE,"MessageQueue::nextBlock worldCreateTime=%" lld64 " worldDelayUs=%" lld64 " whenUs=%" lld64 " clockCreate=%" lld64,
+						msg.mWorldCreatetimeUs, 
+						msg.mWorldDelayTimeUs,
+						whenUs,
+						msg.mClockCreateTimeUs);
 				}		
 				break;
 			}else {
-				int64_t delayUs = mClock->clockToSystemRelativeUs(whenUs - nowUs);				
+				int64_t delayUs = mClock->clockToWorldTimeBucket(whenUs- nowUs);
 				mQueueChangedCondition.waitRelative(mLock, (uint32_t)(delayUs / 1000));
 			}
 		}
@@ -165,17 +175,17 @@ namespace FFL {
         }
         
         MessageEntry msg = *mMsgQueue.begin();
-        int64_t whenUs=mClock->systemToClockUs(msg.mCreatetimeUs+msg.mDelayTimeUs);
-    
+		int64_t whenUs = msg.mClockCreateTimeUs + msg.mWorldDelayTimeUs;
         int64_t nowUs = mClock->nowUs();
+
         if (whenUs > nowUs) {
             return NULL;
         }
         mMsgQueue.erase(mMsgQueue.begin());
 
 		if (mDebug) {
-			FFL_LOG_CRIT("MessageQueue::next createTime=%" lld64 "delayUs=%" lld64 " whenUs=%" lld64 " clockNow=%" lld64,
-				msg.mCreatetimeUs, msg.mDelayTimeUs, whenUs, nowUs);
+			FFL_LOG_DEBUG_TAG(TAG_MESSAGEQUEUE,"MessageQueue::next createTime=%" lld64 "delayUs=%" lld64 " whenUs=%" lld64 " clockNow=%" lld64,
+				msg.mWorldCreatetimeUs, msg.mWorldDelayTimeUs, whenUs, nowUs);
 		}
         return msg.mMessage;
     }

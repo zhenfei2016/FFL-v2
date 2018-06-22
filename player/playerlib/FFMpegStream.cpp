@@ -6,7 +6,8 @@
  *
  *  FFMpegStream.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/04/16 
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *
  *  流基本信息
  *
 */

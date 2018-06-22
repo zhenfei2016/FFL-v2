@@ -19,8 +19,15 @@
 
 namespace player {
 	Stream::Stream(){
+		mSyncClock = new SyncClock();		
 	}	
 	Stream::~Stream() {
+		FFL_SafeFree(mSyncClock);
 	}	
-
+	//
+	//  获取同步时钟
+	//
+	SyncClock* Stream::getSyncClock() {
+		return mSyncClock;
+	}
 }

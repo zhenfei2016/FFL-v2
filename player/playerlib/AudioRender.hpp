@@ -6,6 +6,7 @@
 *
 *  AudioRender.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  声音的渲染类
 *
@@ -18,6 +19,7 @@
 #include "AudioSample.hpp"
 #include "Statistic.hpp"
 #include "TimestampExtrapolator.hpp"
+
 namespace player {
 	class AudioResample;
 	class AudioDevice;
@@ -27,7 +29,13 @@ namespace player {
 		~AudioRender();	
 
 		void onCreate();
+
+	
 	public:
+		//
+		//  获取渲染时钟，可以改变时钟速度
+		//
+		virtual FFL::sp<FFL::Clock> getRenderClock();
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
 		//
@@ -43,12 +51,13 @@ namespace player {
 		virtual void onShowSamples(AudioSample* samples);
 
 	protected:
-		IStatisticAudioRender* mStatistic;
-	public:
+		IStatisticAudioRender* mStatistic;	
 		TimestampExtrapolator* mTimestampExtrapolator;
 
 		FFL::sp<AudioDevice> mDevice;
 
 		int64_t mFrameIndex;
+
+		FFL::sp<FFL::Clock> mClock;
 	};
 }

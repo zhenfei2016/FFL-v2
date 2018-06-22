@@ -113,5 +113,11 @@ namespace FFL
 			conn->clearMessage();
 		}
 	}
+	//
+	// 获取待处理的消息的大小
+	//
+	int64_t PipelineOutput::getPendingMessageSize() {
+		return 0;
+	}
 }
 

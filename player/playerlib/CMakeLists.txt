@@ -19,7 +19,7 @@ ENDIF ()
 
 SET(LOCAL_SRC_FILES   
    FFMpeg.cpp;FFMpeg.hpp
-   AVDeviceCreator.cpp;AVDeviceCreator.hpp
+   DeviceFactory.cpp;DeviceFactory.hpp
    PlayerCore.cpp;PlayerCore.hpp
    PlayerEvent.hpp;PlayerEvent.cpp
    PlayerConstant.hpp
@@ -63,9 +63,11 @@ SET(LOCAL_SRC_FILES
    MessageFFMpegPacket.hpp;MessageFFMpegPacket.cpp
    MessageFFMpegFrame.hpp;MessageFFMpegFrame.cpp
    MessageSDL2Texture.hpp;MessageSDL2Texture.cpp
-   TimestampExtrapolator.hpp;TimestampExtrapolator.cpp    
-   ClockUpdater.hpp;ClockUpdater.cpp
+   TimestampExtrapolator.hpp;TimestampExtrapolator.cpp       
    TimestampUtils.hpp;TimestampUtils.cpp
+
+   SyncClock.hpp;SyncClock.cpp
+   SyncUtils.hpp;SyncUtils.cpp
    )
 
 

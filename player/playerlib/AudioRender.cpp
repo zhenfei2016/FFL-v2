@@ -6,6 +6,7 @@
 *
 *  AudioRender.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  声音的渲染类
 *
@@ -31,12 +32,22 @@ namespace player {
 		Render::onCreate();
 		mStatistic = &(getOwner()->mStats);
 	}
+
+	//
+	//  获取渲染时钟，可以改变时钟速度
+	//
+	FFL::sp<FFL::Clock> AudioRender::getRenderClock() {
+		return mClock;
+	}
 	//
 	//   外部setDataInput时候调用此函数，创建对应conn
 	//
 	FFL::sp<FFL::PipelineConnector > AudioRender::onCreateConnector(const OutputInterface& output,
 		const InputInterface& input,void* userdata) {
-		return new FFL::PipelineAsyncConnectorFixSize(2);
+		FFL::sp<FFL::PipelineAsyncConnectorFixSize> conn = new FFL::PipelineAsyncConnectorFixSize(2);
+		mClock = conn->getClock();
+		setSpeed(getSpeed());
+		return conn;
 	}
 
 	bool AudioRender::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)
@@ -75,7 +86,12 @@ namespace player {
 		mStatistic->renderAudioFrame(pts, FFL_getNowUs());
 
 		if (pts>0){
-			updateRenderTimestamp(pts,samples->mStreamId);
+			FFL::sp<Stream> stream= getOwner()->getStream(samples->mStreamId);
+			if (!stream.isEmpty()) {
+				FFL::TimeBase tb;
+				stream->getTimebase(tb);
+				stream->getSyncClock()->updateClock(pts,tb);
+			}			
 		}
 			
 		mStatistic->renderAudioDelayUs(mDevice->getDeviceDelayUs());

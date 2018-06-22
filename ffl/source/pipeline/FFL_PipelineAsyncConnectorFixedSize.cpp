@@ -210,7 +210,13 @@ namespace FFL {
 			mIsFull = false;
 			mCond.signal();
 		}
-	}	
+	}
+	//
+	// 获取待处理的消息的大小
+	//
+	int64_t PipelineAsyncConnectorFixSize::getPendingMessageSize() {
+		return mSize;
+	}
 
 	//
 	// 设置满了情况的处理标志

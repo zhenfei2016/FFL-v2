@@ -13,8 +13,8 @@
 #include "TimestampUtils.hpp"
 
 namespace player {
-	TimestampExtrapolator::TimestampExtrapolator(FFL::sp<FFL::Clock> clock) :
-		mClock(clock){	
+	TimestampExtrapolator::TimestampExtrapolator(){			
+		reset();
 	}
 
 	TimestampExtrapolator::~TimestampExtrapolator() {
@@ -23,73 +23,82 @@ namespace player {
 	// 重置
 	//
 	void TimestampExtrapolator::reset() {
-		mRecentTick.mClockTime = 0;
-		mRecentTick.mTimestampTime = 0;
+		mRecentTick.mWorldClock = 0;
+		mRecentTick.mTimestampClock = 0;
+		mRecentTick.mDelayUs = 0;
+		setSpeed(100);
 	}
 	//
-	//  重置一下时钟，当前时间戳对应当前的时间点
+	//  设置时钟的速度
 	//
-	void TimestampExtrapolator::update(int64_t timestamp,const FFL::TimeBase& tb) {
-		int64_t updateTimestampUs = timestampToUs(timestamp, tb);
-
-		if (mRecentTick.mTimestampTime != updateTimestampUs) {			
-			int64_t now = getNowUs();
-			FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "Extrapolator: update timestampUs=%" lld64 " localUs=%" lld64 " difftm=%" lld64 " difflocal = %" lld64,								
-				updateTimestampUs,
-				now,				
-				updateTimestampUs- mRecentTick.mTimestampTime,
-				now - mRecentTick.mClockTime);
-
-			mRecentTick.mTimestampTime = updateTimestampUs;
-			mRecentTick.mClockTime = now;
-
-		}
-		if (timestamp < 1024) {
-			int i = 0;
-			i++;
-		}
+	void TimestampExtrapolator::setSpeed(uint32_t speed) {
+		mSpeed = speed==0?1:speed;
 	}
-	//
-	//  获取当前的时间
-	//
-	int64_t TimestampExtrapolator::getNowUs() {
-		return mClock->nowUs();
+	uint32_t TimestampExtrapolator::getSpeed() const {
+		return mSpeed;
 	}
+
+	////
+	////  重置一下时钟，当前时间戳对应当前的时间点
+	////
+	//void TimestampExtrapolator::update(int64_t timestamp,const FFL::TimeBase& tb) {
+	//	int64_t updateTimestampUs = timestampToUs(timestamp, tb);
+
+	//	if (mRecentTick.mTimestampClock != updateTimestampUs) {			
+	//		int64_t now = FFL_getNowUs();			
+	//		mRecentTick.mTimestampClock = updateTimestampUs;
+	//		mRecentTick.mWorldClock = now;
+	//	}
+	//	if (timestamp < 1024) {
+	//		int i = 0;
+	//		i++;
+	//	}
+	//}
+	////
+	//// 获取这个时间戳到现在的相对时间
+	////
+	//int64_t TimestampExtrapolator::getDelay(int64_t timestamp, const FFL::TimeBase& tb) {
+	//	if (!mRecentTick.isValid()) {
+	//		return 0;
+	//	}
+
+	//	int64_t timestampUs = timestampToUs(timestamp, tb);
+	//	int64_t clockUs = FFL_getNowUs();
+
+	//	int64_t delay = timestampUs - mRecentTick.mTimestampClock;
+	//	delay -=(clockUs - mRecentTick.mWorldClock);
+	//	return delay;
+	//}
+
 	//
 	// 获取这个时间戳到现在的相对时间
 	//
-	int64_t TimestampExtrapolator::getDelayUsRelativeNow(int64_t timestamp, FFL::TimeBase tb) {
-		if (!mRecentTick.isValid()) {
-			return 0;
-		}
-
+	int64_t TimestampExtrapolator::getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb) {
 		int64_t timestampUs = timestampToUs(timestamp, tb);
-		int64_t clockUs = mClock->nowUs();
+		int64_t worldUs = FFL_getNowUs();
 
-		//
-		// 根据时间戳计算相对上一个时间戳，要等待多长时间
-		//
-		int64_t deltaTimestamp= (timestampUs - mRecentTick.mTimestampTime);
-		if (mClock->speed() != 100) {
-			deltaTimestamp = (deltaTimestamp * 100) / mClock->speed();
+		int64_t delay = 0;
+		if (mRecentTick.isValid()) {			
+			delay = timestampUs - mRecentTick.mTimestampClock;
+			//
+			// 因为整体速度改变了，world时钟相应的也需要进行调整
+			//
+			//
+			double distance= ((double)((worldUs - mRecentTick.mWorldClock) * mSpeed)) / 100  - mRecentTick.mDelayUs;
+			delay -= (int64_t)distance;
 		}
 
-		//
-		//  本地clock已经过去了多长时间了
-		//
-		int64_t deltaClock = clockUs - mRecentTick.mClockTime;
-		if (deltaTimestamp < 0 || deltaClock < 0) {
-            FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,"Extrapolator: get timestampUs=%" lld64 " deltaTimestamp<0 || deltaClock<0  deltaTimestamp=%" lld64 " deltaClock=%" lld64,
-				timestampUs, deltaTimestamp, deltaClock);
-		}
+		mRecentTick.mWorldClock = worldUs;
+		mRecentTick.mTimestampClock = timestampUs;
+		mRecentTick.mDelayUs = delay;
 
-		int64_t delay = deltaTimestamp - deltaClock;
-
-		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "Extrapolator: get timestampUs=% " lld64 " deltaTimestamp=%" lld64 " deltaClock=%" lld64 " delay=%" lld64,
-			timestampUs, deltaTimestamp, deltaClock,delay);
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "TimestampExtrapolator::getDelayAndUpdate(%p) timestampUs=%" lld64 " worldClock=%" lld64 " delay=%" lld64,
+			this,
+			mRecentTick.mTimestampClock,
+			mRecentTick.mWorldClock,
+			delay);	
+		
 		return delay;
 	}
-
-	
 
 }

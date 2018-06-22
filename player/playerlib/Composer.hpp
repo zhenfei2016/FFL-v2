@@ -6,6 +6,7 @@
 *
 *  Composer.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/01
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  合成基类
 *

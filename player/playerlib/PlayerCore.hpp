@@ -19,8 +19,7 @@
 #include "VideoDevice.hpp"
 #include "StreamManager.hpp"
 #include "Statistic.hpp"
-#include "AVDeviceCreator.hpp"
-#include "ClockUpdater.hpp"
+#include "DeviceFactory.hpp"
 
 
 namespace player {
@@ -40,7 +39,7 @@ namespace player {
 
 	class SDL2Module;
 
-	class PlayerCore : public IStreamManager ,public ClockUpdater
+	class PlayerCore : public IStreamManager 
 	{
 		friend class NodeBase;
 		friend class FFLPlayer;
@@ -71,6 +70,14 @@ namespace player {
 		//
 		void setSpeed(uint32_t speed);
 		uint32_t getSpeed();
+
+	public:
+		//
+		//  获取同步的主时钟
+		//
+		SyncClock* getMasterClock() const {
+			return mMasterClock;
+		};
 	public:
 		FFL::sp<FFL::Pipeline> getPipeline() { return mPipeline; };
 		IStreamManager* getStreamMgr();
@@ -78,8 +85,6 @@ namespace player {
 		status_t init();
 
 		void onEvent(const FFL::sp<event::PlayerEvent> event);
-
-		void updateClcok(int64_t tm, int32_t streamId, void* uesrdata);
 	public:
 		//  IStreamManager
 		virtual bool addStream(FFL::sp<Stream> stream);
@@ -112,7 +117,7 @@ namespace player {
 		friend class PlayerCoreEventFilter;
 		PlayerCoreEventFilter* mEventFilter;
 
-		AVDeviceCreator* mDeviceCreator;
+		DeviceFactory* mDeviceCreator;
 		FFL::sp<AudioDevice> mAudioDevice;
 		FFL::sp<VideoDevice> mVideoDevice;		
 
@@ -120,9 +125,9 @@ namespace player {
 		AudioComposer* mAudioComposer;
 
 		FFL::sp<VideoSurface> mSurface;
-	private:
-		FFL::sp<FFL::Clock> mClock;
-		TimestampExtrapolator* mTimestampExtrapolator;
+
+		uint32_t mSpeed;
+		SyncClock*  mMasterClock;
 	public:
 		PlayerStatistic mStats;
 	public:

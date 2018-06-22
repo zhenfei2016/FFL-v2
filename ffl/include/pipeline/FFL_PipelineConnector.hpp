@@ -76,6 +76,10 @@ namespace FFL
 		//  清空转发的消息
 		//
 		virtual void clearMessage()=0;
+		//
+		// 获取待处理的消息的大小
+		//
+		virtual int64_t getPendingMessageSize();
     protected:
         //
         // 开始分派系统消息
@@ -118,6 +122,10 @@ namespace FFL
 		//  清空转发的消息
 		//
 		void clearMessage() ;
+		//
+		// 获取待处理的消息的大小
+		//
+		int64_t getPendingMessageSize();
 	};
 }
 

@@ -15,6 +15,7 @@
 #include <ref/FFL_Ref.hpp>
 #include <utils/FFL_Clock.hpp>
 #include "NodeBase.hpp"
+#include "SyncClock.hpp"
 
 namespace player {
 
@@ -50,12 +51,17 @@ namespace player {
 		//
 		//  创建这个流需要的解码器
 		//
-		virtual FFL::sp<Decoder> createDecoder()=0;		
+		virtual FFL::sp<Decoder> createDecoder()=0;	
+	public:
+		//
+		//  获取同步时钟
+		//
+		SyncClock* getSyncClock();		
 	protected:
 		//
-		//  流的时钟
+		//  进行同步的时钟
 		//
-		FFL::sp<FFL::Clock> mClock;
+		SyncClock* mSyncClock;
 	public:
 		//
 		//  这个流数据的输入源

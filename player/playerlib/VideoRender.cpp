@@ -34,13 +34,21 @@ namespace player {
 	}
 
 	//
+	//  获取渲染时钟，可以改变时钟速度
+	//
+	FFL::sp<FFL::Clock> VideoRender::getRenderClock() {
+		return mClock;
+	}
+	//
 	//   外部setDataInput时候调用此函数，创建对应conn
 	//
 	FFL::sp<FFL::PipelineConnector > VideoRender::onCreateConnector(
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
 		FFL::PipelineAsyncConnectorFixSize* conn = new FFL::PipelineAsyncConnectorFixSize(3);
-		//conn->getLooper()->setDebug(true);
+		conn->setDebug(true);
+		mClock = conn->getClock();
+		setSpeed(getSpeed());
 		return conn;
 	}
 	//
@@ -88,6 +96,13 @@ namespace player {
 			texture->mPts,
 			t2, texture->mRenderus, t2 - texture->mRenderus);
 		mStatistic->renderVideoDelayUs(t2 - t1);
+
+		FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
+		if (!stream.isEmpty()) {
+			FFL::TimeBase tb;
+			stream->getTimebase(tb);
+			stream->getSyncClock()->updateClock(texture->mPts, tb);
+		}
 
 		if (mFrameIndex == -1) {
 			mFrameIndex = 0;

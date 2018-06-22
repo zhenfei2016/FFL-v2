@@ -48,12 +48,12 @@ namespace FFL {
 
 		//
 		//  转换当前时钟的一个时间段转成系统时钟时间段
-		//  例如可以把当前时钟5分钟转成系统时钟8分钟
+		//  例如可以把当前时钟5us转成系统时钟8us
 		//
-		int64_t clockToSystemRelativeUs(int64_t dy);
+		int64_t clockToWorldTimeBucket(int64_t dy);
 		int64_t SystemToClockRelativeUs(int64_t dx);
 
-		int64_t systemToClockUs(int64_t x);
+		int64_t worldToClockUs(int64_t x);
 
 
         //

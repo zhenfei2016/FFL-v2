@@ -52,6 +52,10 @@ namespace FFL
 		//  清空等待处理的消息
 		//
 		void clearMessage();
+		//
+		// 获取待处理的消息的大小
+		//
+		int64_t getPendingMessageSize();
 	protected:
 		PipelineOutputId mId;
 	private:

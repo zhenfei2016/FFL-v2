@@ -89,7 +89,12 @@ namespace FFL {
             input->dispathSysMessage(msg);
         }        
     }
-
+	//
+	// 获取待处理的消息的大小
+	//
+	int64_t PipelineConnector::getPendingMessageSize() {
+		return 0;
+	}
 
 	SyncPipelineConnector::SyncPipelineConnector() {
 
@@ -115,6 +120,12 @@ namespace FFL {
 	//
 	void SyncPipelineConnector::clearMessage() {
 
+	}
+	//
+	// 获取待处理的消息的大小
+	//
+	int64_t SyncPipelineConnector::getPendingMessageSize() {
+		return 0;
 	}
 
 }

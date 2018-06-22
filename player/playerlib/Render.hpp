@@ -12,8 +12,7 @@
 */
 #pragma once
 #include "NodeBase.hpp"
-namespace player {
-	class ClockUpdater;
+namespace player {	
 	class Render  : public NodeBase{
 	public:
 		Render();
@@ -25,9 +24,14 @@ namespace player {
 		int64_t getDelayUs() { return 0; }	
 
 		//
-		// 设置时钟的更新器
+		//  获取，设置渲染速度
 		//
-		void setClockUpdater(ClockUpdater* updater,void* userdata);
+		void setSpeed(uint32_t speed);
+		uint32_t getSpeed();
+		//
+		//  获取渲染时钟，可以改变时钟速度
+		//
+		virtual FFL::sp<FFL::Clock> getRenderClock()=0;
 	protected:
 		//
 		//  更新当前绘制tm时间戳的帧
@@ -38,13 +42,9 @@ namespace player {
 		//   外部setDataInput时候调用此函数，创建对应conn
 		//
 		virtual FFL::sp<FFL::PipelineConnector > onCreateConnector(const OutputInterface& output,
-			const InputInterface& input,void* userdata);
+			const InputInterface& input,void* userdata)=0;
 	
 	private:
-		//
-		//  渲染的时候需要更新这个时钟
-		//
-		ClockUpdater* mClockUpdater;
-		void* mClockUpdaterUserdata;
+		uint32_t mSpeed;
 	};
 }

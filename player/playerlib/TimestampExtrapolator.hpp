@@ -26,48 +26,50 @@ namespace player {
 		//  clock: 依赖这一个时钟，进行时间的推算
 		//  可以改变这个clock的速度，这样计算出来的延迟值就相应的改变了
 		// 
-		TimestampExtrapolator(FFL::sp<FFL::Clock> clock);
+		TimestampExtrapolator();
 		~TimestampExtrapolator();
 		//
 		// 重置
 		//
 		void reset();
 		//
-		//  更新这个推算器的依赖时间点，当前时间戳对应当前的时间点
-		//  这应该是一个需要同步到这个上面的主时钟进行的
+		//  设置时钟的速度
 		//
-		void update(int64_t timestamp, const FFL::TimeBase& units);
-		//
-		//  获取当前的时间
-		//
-		int64_t getNowUs();
-		//
-		// 获取这个时间戳相对当前需要延迟的时长us
-		//
-		int64_t getDelayUsRelativeNow(int64_t timestamp, FFL::TimeBase units);	
+		void setSpeed(uint32_t speed);
+		uint32_t getSpeed() const;
+		////
+		////  更新这个推算器的依赖时间点，
+		////
+		//void update(int64_t timestamp, const FFL::TimeBase& tb);
+		////
+		//// 获取这个时间戳相对当前需要延迟的时长us
+		////
+		//int64_t getDelay(int64_t timestamp,const FFL::TimeBase& tb);
+		int64_t getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb);
 	private:	
 		struct Tick{
 			Tick() {
-				mTimestampTime = mClockTime = 0;
+				mTimestampClock = mWorldClock = 0;
 			}
 
 			bool isValid() { 
-				return mTimestampTime != 0 && mClockTime != 0;
+				return mTimestampClock != 0 && mWorldClock != 0;
 			}
 			//
 			//  时间戳对应的时间点，通过时间戳直接计算的
 			//
-			int64_t mTimestampTime;
+			int64_t mTimestampClock;
 			//
 			//  当前mClock对应的时间点
 			//
-			int64_t mClockTime;
+			int64_t mWorldClock;
+			int64_t mDelayUs;
 		};
 		//
 		//  最近的时钟滴答，由update进行更新
 		//
 		Tick mRecentTick;	
-		FFL::sp<FFL::Clock> mClock;
+		uint32_t mSpeed;
 	};
 }
 

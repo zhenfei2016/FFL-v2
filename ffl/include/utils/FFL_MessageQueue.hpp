@@ -87,8 +87,8 @@ namespace FFL {
             //
             //  消息的创建时间，和在创建时间基础上什么时候显示
             //
-            int64_t mCreatetimeUs;
-            int64_t mDelayTimeUs;
+            int64_t mWorldCreatetimeUs;
+            int64_t mWorldDelayTimeUs;
             
 			//int64_t mWhenUs;
             

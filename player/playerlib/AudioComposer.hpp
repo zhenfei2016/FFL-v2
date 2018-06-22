@@ -6,6 +6,7 @@
 *
 *  AudioComposer.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  声音的合成类
 *
@@ -46,9 +47,14 @@ namespace player {
 		//  接收到eof消息
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
+
+		//
+		//  计算多长时间后播放这一桢
+		//
+		int64_t getDelay(AudioSample* sample);
 	protected:
-		FFL::TimeBase mTimerUnits;
-	public:
+		FFL::TimeBase mTb;
+	
 		TimestampExtrapolator* mTimestampExtrapolator;
 		//
 		//  音频重采样

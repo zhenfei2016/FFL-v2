@@ -6,6 +6,7 @@
 *
 *  AudioComposer.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  声音的合成类
 *
@@ -16,6 +17,8 @@
 #include "MessageFFMpegFrame.hpp"
 #include "AudioResample.hpp"
 #include "FFMpeg.hpp"
+#include "SyncUtils.hpp"
+#include "PlayerConstant.hpp"
 
 namespace player {
 	AudioComposer::AudioComposer():
@@ -23,16 +26,21 @@ namespace player {
 		mDstFormat(NULL) {
 		setName("AudioComposer");
 		mResample = new AudioResample();
-
+		mTimestampExtrapolator = new TimestampExtrapolator();
+#ifdef SAVE_PCM
 		FFL::String file;
 		file = "e://1.pcm";
 		mTestFile.create(file);
+#endif
 	}
 
 	AudioComposer::~AudioComposer() {
+#ifdef SAVE_PCM
 		mTestFile.close();
+#endif
 		FFL_SafeFree(mResample);
 		FFL_SafeFree(mDstFormat);
+		FFL_SafeFree(mTimestampExtrapolator);
 	}
 	//
 	//  设置输出的格式
@@ -82,6 +90,36 @@ namespace player {
 		
 		return true;
 	}
+
+	//
+	//  计算多长时间后播放这一桢
+	//
+	int64_t AudioComposer::getDelay(AudioSample* sample) {
+		FFL::sp<Stream> stream = getOwner()->getStream(sample->mStreamId);
+		stream->getTimebase(mTb);
+
+		uint32_t speed = getOwner()->getSpeed();
+		mTimestampExtrapolator->setSpeed(speed);
+
+		int64_t delay = mTimestampExtrapolator->getDelayAndUpdate(sample->mPts, mTb);
+		if (delay < 0) {
+			delay += 0;
+		}		
+		delay = FFL_MAX(0, delay);
+
+
+		OptMode mode;
+		int64_t correctDelay = correctAudioDelay(getOwner()->getMasterClock(),
+			stream->getSyncClock(),
+			delay, &mode);
+
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
+			"AudioComposer pts=%" lld64 " delay=%" lld64 " correctDelay=%" lld64,
+			sample->mPts, delay, correctDelay);
+
+		return correctDelay;
+	}
+
 	int gFrameCOunt = 0;
 	void AudioComposer::handleSamples(const FFL::sp<FFL::PipelineMessage>& msg, AudioSample* sample) {
 		if (!mDstFormat) {
@@ -102,7 +140,9 @@ namespace player {
 			sample->moveData(targetSample);
 
 			size_t writed = 0;
-			//mTestFile.write((*sample->mData), sample->mLinesize, &writed);
+#ifdef SAVE_PCM
+			mTestFile.write((*sample->mData), sample->mLinesize, &writed);
+#endif 		
 			if (gFrameCOunt++ > 100) {
 				int i = 0;
 			}
@@ -111,6 +151,8 @@ namespace player {
 			//  不需要重采样
 			//		
 		}
+
+		int64_t delay=getDelay(sample);
 		//
 		// 发送到这个输出接口上
 		//		

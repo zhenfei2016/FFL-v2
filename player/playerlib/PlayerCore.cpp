@@ -54,23 +54,20 @@ namespace player {
 		PlayerCore* mPlayer;
 	};
 
-	PlayerCore::PlayerCore() :mTimestampExtrapolator(NULL){
+	PlayerCore::PlayerCore():mSpeed(100){
+		mMasterClock = NULL;
 		mVideoComposer = NULL;
 		mAudioComposer = NULL;
 		av_register_all();			
 		mEventFilter = new PlayerCoreEventFilter(this);
 		mPipeline = new FFL::Pipeline();
-		mPipeline->setEventFilter(mEventFilter);
-		mClock = new FFL::Clock();
+		mPipeline->setEventFilter(mEventFilter);		
 		setSpeed(100);
-		mTimestampExtrapolator = new TimestampExtrapolator(mClock);
-
 		init();
 	}
 	PlayerCore::~PlayerCore()
 	{
-		FFL_SafeFree(mDeviceCreator);
-		FFL_SafeFree(mTimestampExtrapolator);
+		FFL_SafeFree(mDeviceCreator);		
 		FFL_SafeFree(mEventFilter);
 	}
 	//
@@ -189,10 +186,6 @@ namespace player {
 			}
 		}
 	}
-	void PlayerCore::updateClcok(int64_t tm, int32_t streamId, void* uesrdata) {
-		//更新同步时钟
-		mTimestampExtrapolator->update(tm, mAudioTb);
-	}
 	void PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {
 		if (mVideoDevice.isEmpty()) {
 			mVideoDevice = mDeviceCreator->createVideoDevice(this);
@@ -200,19 +193,17 @@ namespace player {
 			uint32_t height = 0;
 			stream->getSize(width, height);			
 			mVideoDevice->open(NULL, width, height);
-
-			mTimestampExtrapolator->reset();
 		}	
 
 		if (!mVideoComposer) {
-			mVideoComposer = new VideoComposer();
-			mVideoComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+			mVideoComposer = new VideoComposer();			
 			mVideoComposer->create(this);
 		}
 	
 		FFL::sp<VideoRender> render = mVideoDevice->getRender(NULL);
 		if (!render->isCreated()) {
 			render->create(this);
+			render->setSpeed(getSpeed());
 			mVideoComposer->setOutputRender(render);
 		}
 
@@ -245,16 +236,14 @@ namespace player {
 		}
 
 		FFL::sp<AudioRender> render = mAudioDevice->getRender(NULL);
-		if (!render.isEmpty() && !render->isCreated()) {
-			render->mTimestampExtrapolator = mTimestampExtrapolator;
-			stream->getTimebase(mAudioTb);
-			render->setClockUpdater(this, 0);
+		if (!render.isEmpty() && !render->isCreated()) {			
+			stream->getTimebase(mAudioTb);			
+			render->setSpeed(getSpeed());
 			render->create(this);
 		}
 
 		if (!mAudioComposer) {
-			mAudioComposer = new AudioComposer();
-			mAudioComposer->mTimestampExtrapolator = mTimestampExtrapolator;
+			mAudioComposer = new AudioComposer();			
 			mAudioComposer->setOutputFormat(mAudioDevice->getOpenFormat());
 			mAudioComposer->create(this);
 			mAudioComposer->setOutputRender(render);
@@ -266,6 +255,7 @@ namespace player {
 		}
 		decoder->setOutputComposer(mAudioComposer);
 
+		mMasterClock = stream->getSyncClock();
 		//
 		// 启动decoder和compoer的处理
 		//
@@ -343,10 +333,24 @@ namespace player {
 			speed = 300;
 		}else if (speed <= 10) {
 			speed = 10;
-		}		
-		mClock->setSpeed(speed);
+		}
+
+		mSpeed = speed;
+		if(!mVideoDevice.isEmpty()){
+			FFL::sp<VideoRender> render = mVideoDevice->getRender(0);
+			if (!render.isEmpty()) {
+				render->getRenderClock()->setSpeed(speed);
+			}
+		}
+
+		if (!mAudioDevice.isEmpty()) {
+			FFL::sp<AudioRender> render = mAudioDevice->getRender(0);
+			if (!render.isEmpty()) {
+				render->getRenderClock()->setSpeed(speed);
+			}
+		}
 	}
 	uint32_t PlayerCore::getSpeed() {
-		return mClock->speed();
+		return mSpeed;
 	}
 }

@@ -53,6 +53,10 @@ namespace FFL
 		//  消耗了这条消息
 		//
 		void consumer(const sp<PipelineMessage> &msg);		
+		//
+		// 获取待处理的消息的大小
+		//
+		int64_t getPendingMessageSize();
 	protected:
 		CCondition mCond;
 		mutable CMutex mMutex;

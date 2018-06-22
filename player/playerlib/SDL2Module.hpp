@@ -17,14 +17,14 @@
 #include <SDL.h>
 #include "SDL2VideoDevice.hpp"
 #include "SDL2AudioDevice.hpp"
-#include "AVDeviceCreator.hpp"
+#include "DeviceFactory.hpp"
 
 
 namespace player {
 	class SDL2VideoDevice;
 	class SDL2AudioDevice;
 	
-	class SDL2Module : public AVDeviceCreator {
+	class SDL2Module : public DeviceFactory {
 	public:
 		SDL2Module();
 		~SDL2Module();	

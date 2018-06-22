@@ -30,7 +30,10 @@ namespace player {
 		//  成功创建了node
 		//
 		virtual void onCreate();
-		
+		//
+		//  获取渲染时钟，可以改变时钟速度
+		//
+		FFL::sp<FFL::Clock> getRenderClock();
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
 		//
@@ -53,5 +56,7 @@ namespace player {
 		FFL::sp<VideoDevice> mDevice;
 
 		int64_t mFrameIndex;
+
+		FFL::sp<FFL::Clock> mClock;
 	};
 }

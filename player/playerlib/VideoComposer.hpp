@@ -25,6 +25,7 @@ namespace player {
 		VideoComposer();
 		~VideoComposer();
 
+		
 	protected:
 		void onCreate();
 		//
@@ -46,11 +47,6 @@ namespace player {
 		//
 		int64_t getDelay(VideoTexture* texture);
 		//
-		//  音视频同步,返回集体等待的时长，如果<0 则跳过这一帧
-		//
-		int64_t avSync(int64_t delay);
-
-		//
 		//  开始处理收到的纹理数据
 		//
 		void handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture);
@@ -58,8 +54,9 @@ namespace player {
 		//  接收到eof消息
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
-	public:
-		FFL::TimeBase mTimerUnits;
+	
+	private:
+		FFL::TimeBase mTb;
 		TimestampExtrapolator* mTimestampExtrapolator;
 
 	protected:

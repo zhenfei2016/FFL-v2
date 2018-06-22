@@ -6,6 +6,7 @@
 *
 *  AudioSample.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  一帧采样结构
 *

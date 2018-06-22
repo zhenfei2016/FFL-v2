@@ -144,7 +144,9 @@ namespace FFL {
 	sp<Clock> PipelineAsyncConnector::getClock() {
 		return mLooperClock;
 	}
-	
+	void PipelineAsyncConnector::setDebug(bool debug) {
+		getLooper()->setDebug(debug);
+	}
 	//
 	// 消息异步发送
 	//
