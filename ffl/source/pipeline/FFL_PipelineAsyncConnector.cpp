@@ -26,30 +26,32 @@ namespace FFL {
 	public:
 		InputHandler(PipelineAsyncConnector* conn) :mConn(conn)
 		{}
-        void handleMessage(const sp<PipelineMessage> &msg){
-            if (!msg.isEmpty()) {
-                mConn->dispathMessage(msg);
-            }else{
-                FFL_LOG_WARNING("PipelineAsyncConnector::handleMessage msg is  null");
-            }
-        }
-        //
-        //  收到系统消息
-        //
-        void handleSysMessage(const sp<PipelineMessage> &msg) {
-            if (!msg.isEmpty()) {
-                mConn->dispathSysMessage(msg);
-            }else{
-                FFL_LOG_WARNING("PipelineAsyncConnector::handleMessage msg is  null");
-            }
-        }
-        //
-        //  退出消息循环
-        //
-        void handleQuitMessage(uint32_t exitCode)
-        {
-            mConn->dispathSysMessage(NULL);
-        }
+		void handleMessage(const sp<PipelineMessage> &msg) {
+			if (!msg.isEmpty()) {
+				mConn->dispathMessage(msg);
+			}
+			else {
+				FFL_LOG_WARNING("PipelineAsyncConnector::handleMessage msg is  null");
+			}
+		}
+		//
+		//  收到系统消息
+		//
+		void handleSysMessage(const sp<PipelineMessage> &msg) {
+			if (!msg.isEmpty()) {
+				mConn->dispathSysMessage(msg);
+			}
+			else {
+				FFL_LOG_WARNING("PipelineAsyncConnector::handleMessage msg is  null");
+			}
+		}
+		//
+		//  退出消息循环
+		//
+		void handleQuitMessage(uint32_t exitCode)
+		{
+			mConn->dispathSysMessage(NULL);
+		}
 	private:
 		PipelineAsyncConnector* mConn;
 	};
@@ -63,13 +65,14 @@ namespace FFL {
 		mLooper = new PipelineLooper(mLooperClock);
 		mFlags.resetFlags(READYING);
 	}
-	PipelineAsyncConnector::PipelineAsyncConnector(sp<PipelineLooper>  looper) {		
+	PipelineAsyncConnector::PipelineAsyncConnector(sp<PipelineLooper>  looper) {
 		mHandler = new InputHandler(this);
 		if (looper.isEmpty()) {
 			mIsOuterLooper = false;
 			mLooperClock = new Clock();
 			mLooper = new PipelineLooper(NULL);
-		}else {
+		}
+		else {
 			mIsOuterLooper = true;
 			mLooper = looper;
 		}
@@ -97,7 +100,10 @@ namespace FFL {
 		String name;
 		getInput()->getName(name);
 		mLooper->setName(name.c_str());
-		return mLooper->start();
+		FFL_LOG_DEBUG("looper (%s) starting", name.c_str());
+		status_t ret = mLooper->start();
+		FFL_LOG_DEBUG("looper (%s) started %s", name.c_str(), (ret == FFL_OK ? "ok" : "faild"));
+		return ret;
 	}
 	status_t PipelineAsyncConnector::shutdown() {
 		requestShutdown();
@@ -134,9 +140,9 @@ namespace FFL {
 	//
 	// 连接器转发消息
 	//
-	status_t PipelineAsyncConnector::tranport(const sp<PipelineMessage> &msg,int64_t delayUs)
+	status_t PipelineAsyncConnector::tranport(const sp<PipelineMessage> &msg, int64_t delayUs)
 	{
-		return postMessage(msg,delayUs);
+		return postMessage(msg, delayUs);
 	}
 	//
 	//  获取时钟，这个是tranport使用的，delayUs会通过这个时钟进行计算延迟多长时间
@@ -157,8 +163,28 @@ namespace FFL {
 			FFL_LOG_WARNING("SyncPipelineConnector input is null");
 			return FFL_ERROR_FAIL;
 		}
-		else {			
-			mLooper->postMessage(msg, mHandler->id(),delayUs);
+		else {
+			//
+			//  等待looper启动起来，这个需要注意，可能会卡线程好长一段时间
+			//
+			if (!mLooper->isLooping()) {
+				FFL_LOG_WARNING("PipelineAsyncConnector wait looping...");
+				if (mLooper->waitLooping(-1)) {
+
+				}
+				FFL_LOG_WARNING("PipelineAsyncConnector looping");
+			}
+
+			if (mHandler->id() == 0) {
+				FFL_LOG_WARNING("PipelineAsyncConnector handlerId=0");
+			}
+			//
+			// 发送
+			//
+			if (!mLooper->postMessage(msg, mHandler->id(), delayUs)) {
+
+
+			}
 		}
 		return FFL_OK;
 	}
@@ -176,19 +202,19 @@ namespace FFL {
 	void PipelineAsyncConnector::dispathMessage(const sp<PipelineMessage>& msg) {
 		sp<PipelineInput> input = getInput();
 		if (!input.isEmpty()) {
-			input->dispathMessage( msg);
+			input->dispathMessage(msg);
 		}
 	}
 
 	//
 	//  注册/反注册处理句柄到looper中
 	//
-	void PipelineAsyncConnector::registerHandler() {				
+	void PipelineAsyncConnector::registerHandler() {
 		getLooper()->registerHandler(mHandler);
 	}
-	void PipelineAsyncConnector::unregisterHandler() {		
-		if (!mHandler.isEmpty()) {			
-			Looper::handler_id id= mHandler->id();
+	void PipelineAsyncConnector::unregisterHandler() {
+		if (!mHandler.isEmpty()) {
+			Looper::handler_id id = mHandler->id();
 			getLooper()->clearMessageList(NULL, id);
 			getLooper()->unregisterHandler(id);
 		}

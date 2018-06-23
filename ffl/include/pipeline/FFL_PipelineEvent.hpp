@@ -35,6 +35,12 @@ namespace FFL{
 
 		void setEventId(int32_t eventId);
 		int32_t getEventId() const;
+		//
+		// 设置这个消息带的参数，
+		//
+		void setParams(int64_t param1, int64_t param2);
+		int64_t getParam1() const;
+		int64_t getParam2() const;
 	public:
 		//
 		//是否回调方式的
@@ -67,6 +73,12 @@ namespace FFL{
 		// callback
 		//
 		sp<EventCallback> mCallback;
+
+		//
+		//  参数
+		//
+		int64_t mParam1;
+		int64_t mParam2;
 	};
 	
 	//

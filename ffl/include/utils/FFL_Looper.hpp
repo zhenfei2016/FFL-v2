@@ -59,7 +59,7 @@ namespace FFL {
 		//
 		//启动，停止这个Looper的处理流程
 		//
-		status_t start(bool runOnCallingThread = false,int32_t priority = FFL_THREAD_PRIORITY_NORMAL);
+		status_t start(int32_t priority = FFL_THREAD_PRIORITY_NORMAL);
 		//
 		//  请求并且等待退出
 		//
@@ -69,6 +69,12 @@ namespace FFL {
 		//
 		status_t requestStop();
 		status_t waitStop();
+		//
+		//  等待到looping，返回是否成功了
+		//  waitMs:等待的时长，如果<0 则一直等待
+		//
+		bool waitLooping(int32_t waitMs);
+		bool isLooping() const;
 
 		//
 		//  获取当前使用的messagelist
@@ -94,14 +100,9 @@ namespace FFL {
 	private:
 		FFL::String mName;
 		CMutex mLock;
-	
+			
 		class LooperThread;
-		sp<LooperThread> mThread;
-		//
-		//  是否在调用线程中执行
-		//
-		bool mRunningLocally;
-
+		sp<LooperThread> mThread;		
 		//
 		//  空闲处理句柄
 		//
@@ -145,7 +146,13 @@ namespace FFL {
 		DISABLE_COPY_CONSTRUCTORS(Looper);
 	private:
 		sp<Message> mMsgQuitLooper;
-		sp<Message> mMsgFlush;
+		sp<Message> mMsgFlush;		
+
+	private:
+		void setIsLooping(bool looping);
+		CMutex mLoopingMutex;
+		CCondition mLoopingCond;
+		volatile int32_t mLooping;
 	};
 }  
 #endif

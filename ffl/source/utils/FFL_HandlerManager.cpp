@@ -115,7 +115,7 @@ namespace FFL {
 
 		KeyedVectorHandler::iterator index = mHandlers.find(handlerID);
 		if (index == mHandlers.end()) {
-			FFL_LOG_WARNING("failed to deliver message. Target handler not registered.");
+			FFL_LOG_WARNING("failed to deliver message. Target handler(%d) not registered.", handlerID);
 			return NULL;
 		}
 

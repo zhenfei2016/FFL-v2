@@ -52,13 +52,19 @@ namespace FFL
 
 		//
 		// 启动这个Node节点的处理循环. 由pipenode调用
+		//  todo :startup后除了消息循环默认式pause状态，需要resume
 		//
 		status_t startup();
 		//
 		//停止这个节点的处理. 由pipenode调用
 		//
 		status_t shutdown();	
-
+		//
+		// 暂停，恢复消息的处理
+		// todo
+		//
+		void pause();
+		void resume();
 		//
 		//停止这个节点的一个输入接口处理
 		//

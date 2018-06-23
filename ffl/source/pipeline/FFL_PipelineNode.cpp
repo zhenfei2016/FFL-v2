@@ -85,8 +85,7 @@ namespace FFL
 			for (std::vector< sp<PipelineInput> >::iterator it = inputs.begin(); it != inputs.end(); it++) {
 				sp<PipelineInput> input = *it;
 				if (input.is_empty()) continue;
-				if (FFL_OK != input->startup())
-				{
+				if (FFL_OK != input->startup()){
 					FFL_LOG_WARNING("PipelineNode.input(%d.%d) startup fail.", getId(), input->getId());
 				}
 			}
@@ -145,7 +144,15 @@ namespace FFL
 
 		return FFL_OK;		
 	}
+	//
+	// 暂停，恢复消息的处理
+	//
+	void PipelineNode::pause() {
 
+	}
+	void PipelineNode::resume() {
+
+	}
 	//
 	//停止这个节点的一个输入接口处理
 	//

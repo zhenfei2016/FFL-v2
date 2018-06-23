@@ -135,7 +135,7 @@ ADD_SRC_FILE(FFL_Flags.hpp)
 
 ADD_SRC_FILE(FFL_ByteReader.hpp)
 ADD_SRC_FILE(FFL_ByteWriter.hpp)
-ADD_SRC_FILE(FFL_ByteStream.hpp)
+ADD_SRC_FILE(FFL_Bytereader/Stream.hpp)
 ADD_SRC_FILE(FFL_ByteBuffer.hpp)
 ADD_SRC_FILE(FFL_Serializable.hpp)
 ADD_SRC_FILE(FFL_MessageQueue.hpp)
@@ -148,10 +148,8 @@ ADD_SRC_FILE(FFL_String.hpp)
 ADD_SRC_FILE(FFL_Vector.hpp)
 ADD_SRC_FILE(FFL_Io.hpp)
 ADD_SRC_FILE(FFL_File.hpp)
-
-
-
-
+ADD_SRC_FILE(FFL_Singleton.hpp)
+ADD_SRC_FILE(FFL_Dictionary.hpp)
 
 SET(LOCAL_SRC_DIR ./source/utils/)
 ADD_SRC_FILE(FFL_MemoryWatch.cpp)
@@ -167,6 +165,8 @@ ADD_SRC_FILE(FFL_HandlerManager.cpp)
 ADD_SRC_FILE(FFL_Message.cpp)
 ADD_SRC_FILE(FFL_Clock.cpp)
 ADD_SRC_FILE(FFL_File.cpp)
+ADD_SRC_FILE(FFL_Singleton.cpp)
+ADD_SRC_FILE(FFL_Dictionary.cpp)
 
 
 SET(LOCAL_SRC_DIR ./include/pipeline/)

@@ -59,8 +59,6 @@ namespace FFL{
 		// 通过索引获取节点		
 		//
 		PipelineNode* getNode(uint32_t index);
-
-		
 	protected:
 		//
 		// Pipeline管理的所有的PipelineNode

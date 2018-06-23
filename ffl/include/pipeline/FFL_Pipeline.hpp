@@ -47,13 +47,24 @@ namespace FFL{
 		//  成功返回 FFL_OK
 		//  注意startup后不需要了必须调用shutdown
 		//
-		status_t startup();
+		status_t startup();		
 		//
-		//  单独启动一个node，只有在整个pipeline启动后才能单独启动
-		//  异步的
-		//  成功返回 FFL_OK		
+		//  注意只有在整个pipeline启动后才能调用这函数
+		//  同步，异步启动所有的node，	如果node已经启动则会忽略
+		//  如果未启动则启动它
 		//
-		status_t startup(PipelineNodeId nodeId);
+		status_t ansyStartupAllNode();
+		status_t syncStartupAllNode();
+		//
+		// 注意只有在整个pipeline启动后才能调用这函数
+		// 同步，异步启动一个或多个node，		
+		// 成功返回 FFL_OK		
+		//
+		status_t syncStartupNode(PipelineNodeId nodeId);
+		status_t ansyStartupNode(PipelineNodeId nodeId);
+		status_t syncStartupNode(PipelineNodeId* nodeId, int32_t count);
+		status_t ansyStartupNode(PipelineNodeId* nodeId, int32_t count);
+
 		//
 		//  停止pipeline,异步的
 		//
@@ -76,6 +87,10 @@ namespace FFL{
 		//
 		friend class SingleNodeStartupEvent;
 		void handleSingleNodeStartup(const sp<PipelineEvent>& event);
+		//
+		//  ansyStartupAllNode 触发的所有node进行启动
+		//
+		void handleAllNodeStartup(const sp<PipelineEvent>& event);
 		//
 		//  停止的处理逻辑
 		//
@@ -196,4 +211,5 @@ namespace FFL{
 
 
 #endif
+
 

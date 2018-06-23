@@ -7,7 +7,7 @@
  *  FFL_Pipeline.cpp 
  *  Created by zhufeifei(34008081@qq.com) on 2017/12/02 
  *  
- *  Á÷Ë®ÏßÊµÀı£¬¿ÉÒÔ°üº¬n¶àµÄ½Úµã £¬È»ºóÆô¶¯£¬½áÊøÁ÷Ë®Ïß
+ *  æµæ°´çº¿å®ä¾‹ï¼Œå¯ä»¥åŒ…å«nå¤šçš„èŠ‚ç‚¹ ï¼Œç„¶åå¯åŠ¨ï¼Œç»“æŸæµæ°´çº¿
  *
 */
 #include <pipeline/FFL_Pipeline.hpp>
@@ -44,7 +44,7 @@ namespace FFL{
 	void Pipeline::onFirstRef() {
         sp<Pipeline> pipeline=this;
 		mEventLooper = new PipelineEventLooper(pipeline);
-		mEventLooper->setName("pipelineEvent");
+		mEventLooper->setName("pipelineEventLooper");
 		mEventLooper->start();
 	}
 
@@ -55,9 +55,9 @@ namespace FFL{
 		}
 	}
 	//
-	//  Æô¶¯pipeline, ĞèÒªÅäÖÃÍêPipelineNodeManager
-	//  Òì²½µÄ
-	//  ³É¹¦·µ»Ø FFL_OK
+	//  å¯åŠ¨pipeline, éœ€è¦é…ç½®å®ŒPipelineNodeManager
+	//  å¼‚æ­¥çš„
+	//  æˆåŠŸè¿”å› FFL_OK
 	//
 	status_t Pipeline::startup()
 	{
@@ -71,36 +71,99 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	//  µ¥¶ÀÆô¶¯Ò»¸önode£¬Ö»ÓĞÔÚÕû¸öpipelineÆô¶¯ºó²ÅÄÜµ¥¶ÀÆô¶¯
-	//  Òì²½µÄ
-	//  ³É¹¦·µ»Ø FFL_OK		
+	//  å•ç‹¬å¯åŠ¨ä¸€ä¸ªnodeï¼Œåªæœ‰åœ¨æ•´ä¸ªpipelineå¯åŠ¨åæ‰èƒ½å•ç‹¬å¯åŠ¨
+	//  å¼‚æ­¥çš„
+	//  æˆåŠŸè¿”å› FFL_OK		
 	//
-
 	class SingleNodeStartupEvent : public PipelineEvent {
 	public:
 		SingleNodeStartupEvent(Pipeline* p, PipelineNodeId nodeId):
-			PipelineEvent(new ClassMethodCallback<Pipeline>(p, &Pipeline::handleSingleNodeStartup)),
-			mNodeId(nodeId)
+			PipelineEvent(new ClassMethodCallback<Pipeline>(p, &Pipeline::handleSingleNodeStartup))			
 		{
+			mNodeId[0] = nodeId;
+			mCount = 1;
 		}
 
-		PipelineNodeId mNodeId;
+		SingleNodeStartupEvent(Pipeline* p, PipelineNodeId* nodeId,int count) :
+			PipelineEvent(new ClassMethodCallback<Pipeline>(p, &Pipeline::handleSingleNodeStartup))
+		{
+			int maxCount = FFL_MAX(count, 10);
+			for (int32_t i = 0; i < maxCount; i++) {
+				mNodeId[i] = nodeId[i];
+			}
+			mCount = maxCount;
+		}
+
+		PipelineNodeId mNodeId[10];
+		int32_t mCount;
 	};
-	status_t Pipeline::startup(PipelineNodeId nodeId) {
+	//
+	//  æ³¨æ„åªæœ‰åœ¨æ•´ä¸ªpipelineå¯åŠ¨åæ‰èƒ½è°ƒç”¨è¿™å‡½æ•°
+	//  åŒæ­¥ï¼Œå¼‚æ­¥å¯åŠ¨æ‰€æœ‰çš„nodeï¼Œ	å¦‚æœnodeå·²ç»å¯åŠ¨åˆ™ä¼šå¿½ç•¥
+	//  å¦‚æœæœªå¯åŠ¨åˆ™å¯åŠ¨å®ƒ
+	//
+	status_t Pipeline::ansyStartupAllNode() {
 		CMutex::Autolock l(mEventMutex);
 		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
 			return FFL_INVALID_OPERATION;
-		}		
-		//postEvent(new SingleNodeStartupEvent(this, nodeId));
-        
-        handleSingleNodeStartup(new SingleNodeStartupEvent(this, nodeId));
+		}
+
+		EventCallback* cb= new ClassMethodCallback<Pipeline>(this, &Pipeline::handleAllNodeStartup);
+		postEvent(new PipelineEvent(cb));
+		return FFL_OK;
+	}
+	status_t Pipeline::syncStartupAllNode() {
+		CMutex::Autolock l(mEventMutex);
+		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
+			return FFL_INVALID_OPERATION;
+		}
+
+		handleAllNodeStartup(NULL);
 		return FFL_OK;
 	}
 	//
-	//  Í£Ö¹pipeline,Òì²½µÄ
+	// åŒæ­¥ï¼Œå¼‚æ­¥å¯åŠ¨å¯åŠ¨ä¸€ä¸ªnodeï¼Œ
+	// æ³¨æ„åªæœ‰åœ¨æ•´ä¸ªpipelineå¯åŠ¨åæ‰èƒ½å•ç‹¬å¯åŠ¨
+	//  æˆåŠŸè¿”å› FFL_OK		
 	//
-	status_t Pipeline::shutdown()
-	{
+	status_t Pipeline::syncStartupNode(PipelineNodeId nodeId) {
+		CMutex::Autolock l(mEventMutex);
+		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
+			return FFL_INVALID_OPERATION;
+		}
+		handleSingleNodeStartup(new SingleNodeStartupEvent(this, nodeId));
+		return FFL_OK;
+	}
+	status_t Pipeline::ansyStartupNode(PipelineNodeId nodeId) {
+		CMutex::Autolock l(mEventMutex);
+		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
+			return FFL_INVALID_OPERATION;
+		}
+		postEvent(new SingleNodeStartupEvent(this, nodeId));
+		return FFL_OK;
+	}
+	status_t Pipeline::syncStartupNode(PipelineNodeId* nodeId, int32_t count) {
+		CMutex::Autolock l(mEventMutex);
+		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
+			return FFL_INVALID_OPERATION;
+		}
+		for (int32_t i = 0; i < count; i++) {
+			handleSingleNodeStartup(new SingleNodeStartupEvent(this, nodeId[i]));
+		}
+		return FFL_OK;
+	}
+	status_t Pipeline::ansyStartupNode(PipelineNodeId* nodeId, int32_t count) {
+		CMutex::Autolock l(mEventMutex);
+		if (mEventStartupPending || (mFlags.hasFlags(SHUDOWNING))) {
+			return FFL_INVALID_OPERATION;
+		}
+		postEvent(new SingleNodeStartupEvent(this, nodeId,count));
+		return FFL_OK;
+	}
+	//
+	//  åœæ­¢pipeline,å¼‚æ­¥çš„
+	//
+	status_t Pipeline::shutdown(){
 		CMutex::Autolock l(mEventMutex);
 		if (mEventShutdownPending ||isLooping()==false ) {
 			return FFL_INVALID_OPERATION;
@@ -111,7 +174,7 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	//  Í£Ö¹pipeline,²¢µÈ´ı³É¹¦
+	//  åœæ­¢pipeline,å¹¶ç­‰å¾…æˆåŠŸ
 	//
 	status_t Pipeline::shutdownAndWait()
 	{
@@ -125,7 +188,7 @@ namespace FFL{
 		return status;
 	}
 	//
-	//  µ÷ÓÃÕâ¸öÒÔºóÕâ¸öpipeline ¾Í²»ÄÜÊ¹ÓÃÁË
+	//  è°ƒç”¨è¿™ä¸ªä»¥åè¿™ä¸ªpipeline å°±ä¸èƒ½ä½¿ç”¨äº†
 	//
 	void Pipeline::exit() {
 		shutdownAndWait();
@@ -133,7 +196,7 @@ namespace FFL{
 		mEventLooper.clear();
 	}
 	//
-	//  Æô¶¯µÄ´¦ÀíÂß¼­£¬Õâ¸öÔÚÊÂ¼şÏß³ÌÖĞÖ´ĞĞ
+	//  å¯åŠ¨çš„å¤„ç†é€»è¾‘ï¼Œè¿™ä¸ªåœ¨äº‹ä»¶çº¿ç¨‹ä¸­æ‰§è¡Œ
 	//
 	void Pipeline::handleStartup(const sp<PipelineEvent>& event)
 	{
@@ -150,10 +213,9 @@ namespace FFL{
 		}
 	}
 	//
-	//  µ¥¸önodeÆô¶¯µÄ´¦ÀíÂß¼­£¬
+	//  å•ä¸ªnodeå¯åŠ¨çš„å¤„ç†é€»è¾‘ï¼Œ
 	//
 	void Pipeline::handleSingleNodeStartup(const sp<PipelineEvent>& event){
-
 		{
 			CMutex::Autolock l(mEventMutex);
 			if (mFlags.hasFlags(SHUDOWNING)) {			
@@ -164,20 +226,38 @@ namespace FFL{
 		PipelineNodeId nodeId = Pipeline_INVALID_Id;
 		SingleNodeStartupEvent* evt = (SingleNodeStartupEvent*)(event.get());
 		if (evt != NULL) {
-			nodeId = evt->mNodeId;
-		}
 
-		//
-		//  Æô¶¯µ¥¸ö½Úµã
-		//
-		if (nodeId != Pipeline_INVALID_Id) {			
-			PipelineNode* node = mNodeManager->findNode(nodeId);
-			if(node)
-			   node->startup();
+			for (int32_t i = 0; i < evt->mCount; i++) {
+				nodeId = evt->mNodeId[i];
+				//
+				//  å¯åŠ¨å•ä¸ªèŠ‚ç‚¹
+				//
+				if (nodeId != Pipeline_INVALID_Id) {
+					PipelineNode* node = mNodeManager->findNode(nodeId);
+					if (node)
+						node->startup();
+				}
+			}
 		}
 	}
 	//
-	//  Í£Ö¹µÄ´¦ÀíÂß¼­£¬Õâ¸öÔÚÊÂ¼şÏß³ÌÖĞÖ´ĞĞ
+	//  ansyStartupAllNode è§¦å‘çš„æ‰€æœ‰nodeè¿›è¡Œå¯åŠ¨
+	//
+	void Pipeline::handleAllNodeStartup(const sp<PipelineEvent>& event){
+		{
+			CMutex::Autolock l(mEventMutex);
+			if (mFlags.hasFlags(SHUDOWNING)) 
+				return;			
+		}
+
+		for (uint32_t index = 0; index < mNodeManager->getCount(); index++) {
+			PipelineNode* node = mNodeManager->getNode(index);
+			if (node)
+				node->startup();
+		}
+	}
+	//
+	//  åœæ­¢çš„å¤„ç†é€»è¾‘ï¼Œè¿™ä¸ªåœ¨äº‹ä»¶çº¿ç¨‹ä¸­æ‰§è¡Œ
 	//
 	void Pipeline::handleShutdown(const sp<PipelineEvent>& event)
 	{		
@@ -197,7 +277,7 @@ namespace FFL{
 		mShutdownCond.signal();
 	}
 	//
-	// ·¢ËÍÊÂ¼şµ½ÊÂ¼şÏµÍ³ÖĞ£¬ Òì²½µÄ
+	// å‘é€äº‹ä»¶åˆ°äº‹ä»¶ç³»ç»Ÿä¸­ï¼Œ å¼‚æ­¥çš„
 	//
 	status_t Pipeline::postEvent(const sp<PipelineEvent>& msg)
 	{
@@ -208,7 +288,7 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	// ÉèÖÃÊÂ¼ş¹ıÂËÆ÷
+	// è®¾ç½®äº‹ä»¶è¿‡æ»¤å™¨
 	//
 	void Pipeline::setEventFilter(PipelineEventFilter* filter)
 	{
@@ -229,23 +309,23 @@ namespace FFL{
 		}
 	}
 	//
-	// »ñÈ¡½Úµã¹ÜÀíÆ÷£¬·µ»ØÕâ¸öPipeline³ÖÓĞµÄPipelineNode
-	// ÉúÃüÖÜÆÚÓëÕâ¸öPipelineÒ»ÖÂµÄ
+	// è·å–èŠ‚ç‚¹ç®¡ç†å™¨ï¼Œè¿”å›è¿™ä¸ªPipelineæŒæœ‰çš„PipelineNode
+	// ç”Ÿå‘½å‘¨æœŸä¸è¿™ä¸ªPipelineä¸€è‡´çš„
 	//
 	PipelineNodeManager*  Pipeline::getNodeManager() {
 		return mNodeManager;
 	}
 
 	//
-	// ´´½¨Ò»¸öNode½Úµã
-	// handler£º Îª½ÚµãµÄ´¦ÀíÂß¼­¾ä±ú
-	// ·µ»ØNode½ÚµãµÄ id  , PipelineNode::INVALID_NodeId ±íÊ¾ÎŞĞ§Öµ
+	// åˆ›å»ºä¸€ä¸ªNodeèŠ‚ç‚¹
+	// handlerï¼š ä¸ºèŠ‚ç‚¹çš„å¤„ç†é€»è¾‘å¥æŸ„
+	// è¿”å›NodeèŠ‚ç‚¹çš„ id  , PipelineNode::INVALID_NodeId è¡¨ç¤ºæ— æ•ˆå€¼
 	//
 	PipelineNodeId  Pipeline::createNode(sp<PipelineNodeHandler> handler) {
 		return getNodeManager()->createNode(handler);		
 	}
 	//
-	// ´´½¨Ò»¸öÊäÈë½Ó¿Ú
+	// åˆ›å»ºä¸€ä¸ªè¾“å…¥æ¥å£
 	//
 	PipelineInputId Pipeline::createInput(PipelineNodeId nodeId, sp<PipelineInputHandler> handler, const char* name)
 	{
@@ -257,7 +337,7 @@ namespace FFL{
 		return node->createInput(name,handler);
 	}
 	//
-	// É¾³ıÒ»¸öÊäÈë½Ó¿Ú
+	// åˆ é™¤ä¸€ä¸ªè¾“å…¥æ¥å£
 	//
 	void Pipeline::destroyInput(PipelineNodeId nodeId, PipelineInputId id)
 	{
@@ -269,7 +349,7 @@ namespace FFL{
 		node->destroyInput(id);		
 	}
 	//
-	// ´´½¨Ò»¸öÊä³ö½Ó¿Ú
+	// åˆ›å»ºä¸€ä¸ªè¾“å‡ºæ¥å£
 	//
 	PipelineOutputId Pipeline::createOutput(PipelineNodeId nodeId){
 		PipelineNode* node = getNodeManager()->findNode(nodeId);
@@ -280,7 +360,7 @@ namespace FFL{
 		return node->createOutput();
 	}
 	//
-	// É¾³ıÒ»¸öÊä³ö½Ó¿Ú
+	// åˆ é™¤ä¸€ä¸ªè¾“å‡ºæ¥å£
 	//
 	void Pipeline::destroyOutput(PipelineNodeId nodeId, PipelineOutputId id)
 	{
@@ -292,14 +372,14 @@ namespace FFL{
 		node->destroyOutput(id);
 	}
 	//
-	//É¾³ıÒ»¸öNode½Úµã £¬½ÚµãÉ¾³ıÊ±ºò£¬ËùÓĞµÄÊäÈë£¬Êä³ö½Ó¿Ú¶¼¶Ïµô
+	//åˆ é™¤ä¸€ä¸ªNodeèŠ‚ç‚¹ ï¼ŒèŠ‚ç‚¹åˆ é™¤æ—¶å€™ï¼Œæ‰€æœ‰çš„è¾“å…¥ï¼Œè¾“å‡ºæ¥å£éƒ½æ–­æ‰
 	//
 	void Pipeline::destroyNode(PipelineNodeId nodeId) {
 		getNodeManager()->destroyNode(nodeId);
 	}
 	//
-	//Á¬½ÓÒ»¸öNodeµÄÊä³ö¿Úµ½ÁíÒ»¸öµÄÊäÈë¿Ú
-	//conn :Á¬½ÓÀàĞÍ
+	//è¿æ¥ä¸€ä¸ªNodeçš„è¾“å‡ºå£åˆ°å¦ä¸€ä¸ªçš„è¾“å…¥å£
+	//conn :è¿æ¥ç±»å‹
 	//
 	status_t Pipeline::connect(
 		PipelineNodeId srcNodeId, PipelineOutputId srcOutputId,
@@ -339,7 +419,7 @@ namespace FFL{
 	}
 
 	//
-	//  Á¬½ÓÒ»¸öÔ´½Úµã
+	//  è¿æ¥ä¸€ä¸ªæºèŠ‚ç‚¹
 	//
 	status_t Pipeline::connectSource(PipelineNodeId nodeId, PipelineInputId inputId,
 		sp<PipelineSourceConnector> conn) {	    	
@@ -363,7 +443,7 @@ namespace FFL{
 			return FFL_OK;
 	}
 	//
-	//¶Ï¿ªÊä³ö£¬ÊäÈëµÄÁ¬½Ó
+	//æ–­å¼€è¾“å‡ºï¼Œè¾“å…¥çš„è¿æ¥
 	//
 	status_t Pipeline::disconnect(PipelineNodeId nodeId, PipelineOutputId srcOutputId) {
 		PipelineNode* node = getNodeManager()->findNode(nodeId);
@@ -379,7 +459,7 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	//¶Ï¿ªnodeidµÄËùÓĞµÄÊäÈë½Ó¿Ú
+	//æ–­å¼€nodeidçš„æ‰€æœ‰çš„è¾“å…¥æ¥å£
 	//
 	status_t Pipeline::disconnectInput(PipelineNodeId nodeId) {
 		PipelineNode* node = getNodeManager()->findNode(nodeId);
@@ -401,7 +481,7 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	//¶Ï¿ªnodeidµÄËùÓĞµÄÊä³ö½Ó¿Ú
+	//æ–­å¼€nodeidçš„æ‰€æœ‰çš„è¾“å‡ºæ¥å£
 	//
 	status_t Pipeline::disconnectOutput(PipelineNodeId nodeId) {
 		PipelineNode* node = getNodeManager()->findNode(nodeId);
@@ -423,7 +503,7 @@ namespace FFL{
 		return FFL_OK;
 	}
 	//
-	//  ÊÇ·ñ¹¤×÷ÖĞ
+	//  æ˜¯å¦å·¥ä½œä¸­
 	//
 	bool Pipeline::isLooping()
 	{

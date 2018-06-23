@@ -39,11 +39,13 @@ namespace FFL {
 
 		virtual bool threadLoop() 
 		{
+			mLooper->setIsLooping(true);
 			return mLooper->loop();
 		}
 
 		void threadLoopExit(const Thread* t)
 		{
+			mLooper->setIsLooping(false);
 			mLooper->onQuitLooper(0);
 		}
 
@@ -63,8 +65,10 @@ namespace FFL {
 	};
 
 	Looper::Looper()
-		: mRunningLocally(false), mHaveIdleHandler(false)
+		:  mHaveIdleHandler(false)
 	{
+		mLooping = 0;
+
 		mMsgQueue = new MessageQueue(NULL);
 		mHandlerManager = new HandlerManager(this);
 
@@ -73,7 +77,8 @@ namespace FFL {
 	}
 
 	Looper::Looper(sp<Clock> clock) 
-		: mRunningLocally(false), mHaveIdleHandler(false){
+		:  mHaveIdleHandler(false){
+		mLooping = 0;
 		mMsgQueue = new MessageQueue(clock);
 		mHandlerManager = new HandlerManager(this);
 
@@ -121,28 +126,10 @@ namespace FFL {
 		mHaveIdleHandler = false;
 		mIdleHandler = NULL;
 	}
-	status_t Looper::start(bool runOnCallingThread, int32_t priority) 
+	status_t Looper::start(int32_t priority) 
 	{
-		if (runOnCallingThread)
-		{
-			{
-				CMutex::Autolock autoLock(mLock);
-
-				if (mThread != NULL || mRunningLocally) {
-					return FFL_INVALID_OPERATION;
-				}
-
-				mRunningLocally = true;
-			}
-
-			do {
-			} while (loop());
-			return FFL_NO_ERROR;
-		}
-
-
 		CMutex::Autolock autoLock(mLock);
-		if (mThread != NULL || mRunningLocally) {
+		if (mThread != NULL ) {
 			return FFL_INVALID_OPERATION;
 		}
 
@@ -170,20 +157,13 @@ namespace FFL {
 	//  请求退出，等待退出
 	//
 	status_t Looper::requestStop() {
-
 		sp<LooperThread> thread;
-		bool runningLocally;
-
 		{
 			CMutex::Autolock autoLock(mLock);
-
 			thread = mThread;
-			runningLocally = mRunningLocally;
-			//mThread.clear();
-			//mRunningLocally = false;
 		}
 
-		if (thread == NULL && !runningLocally) {
+		if (thread == NULL) {
 			return FFL_INVALID_OPERATION;
 		}
 
@@ -202,29 +182,42 @@ namespace FFL {
 	}
 
 	status_t Looper::waitStop() {
-
 		sp<LooperThread> thread;
-		bool runningLocally;
-
 		{
 			CMutex::Autolock autoLock(mLock);
 
-			thread = mThread;
-			runningLocally = mRunningLocally;
-			mThread.clear();
-			mRunningLocally = false;
+			thread = mThread;		
+			mThread.clear();			
 		}
 
 		//
 		//  等待退出
 		//
-		if (!thread.isEmpty() &&
-			!runningLocally &&
+		if (!thread.isEmpty() &&			
 			!thread->isCurrentThread()) {
 			thread->requestExitAndWait();
 		}
 
 		return FFL_OK;
+	}
+	//
+	//  等待到looping，返回是否成功了
+	//  waitMs:等待的时长，如果<0 则一直等待
+	//
+	bool Looper::waitLooping(int32_t waitMs) {	
+		CMutex::Autolock l(mLoopingMutex);
+		if (waitMs == 0) {
+			return mLooping!=0;
+		}
+		else if (waitMs < 0) {
+			mLoopingCond.waitRelative(mLoopingMutex, waitMs);
+		}
+		else
+		{
+			if (mLoopingCond.waitRelative(mLoopingMutex, waitMs)) {
+			}
+		} 
+		return mLooping!=0;
 	}
 	//
 	//  获取当前使用的messagelist
@@ -286,7 +279,7 @@ namespace FFL {
 		do
 		{
 			CMutex::Autolock autoLock(mLock);
-			if (mThread == NULL && !mRunningLocally) {
+			if (mThread == NULL) {
 				//
 				// 退出
 				//
@@ -333,13 +326,13 @@ namespace FFL {
             return true;
         }
 		if (msg.get() == mMsgQuitLooper.get()) {
-			onQuitLooper(0);
+			onQuitLooper(0);			
 			return false;
 		}else if (msg.get() == mMsgFlush.get()) {
 		}
 		else {		
 			mHandlerManager->deliverMessage(msg);
-		}
+		}		
 		return true;
 	}	
 	//
@@ -354,5 +347,16 @@ namespace FFL {
 			it != list.end(); it++) {
 			(*it)->onMessageReceived(NULL);
 		}
+	}
+
+	bool Looper::isLooping() const {
+		return mLooping!=0;
+	}
+
+	void Looper::setIsLooping(bool looping) {
+		CMutex::Autolock l(mLoopingMutex);
+		mLooping = looping?1:0;
+		mLoopingCond.signal();
+		return;
 	}
 } 

@@ -21,11 +21,15 @@ namespace FFL {
 	PipelineEvent::PipelineEvent(int32_t eventId) {
 		mEventId = eventId;
 		setWhat(PipelineEventWhat);
+		mParam1 = 0;
+		mParam2 = 0;
 	}
 	PipelineEvent::PipelineEvent(PipelineNodeId src, PipelineNodeId dst, int32_t eventId) {
 		mSrcNodeId = src;
 		mTargetNodeId = dst;
 		mEventId = eventId;
+		mParam1 = 0;
+		mParam2 = 0;
 	}
 
 	PipelineEvent::PipelineEvent(sp<EventCallback> callback) :mCallback(callback) {
@@ -45,7 +49,19 @@ namespace FFL {
 		if (!mCallback.isEmpty())
 			mCallback->fire(this);
 	}
-
+	//
+	// 设置这个消息带的参数，
+	//
+	void PipelineEvent::setParams(int64_t param1, int64_t param2) {
+		mParam1 = param1;
+		mParam2 = param2;
+	}
+	int64_t PipelineEvent::getParam1() const {
+		return mParam1;
+	}
+	int64_t PipelineEvent::getParam2() const {
+		return mParam2;
+	}
 	//
 	//
 	//
@@ -77,17 +93,19 @@ namespace FFL {
 	}
 	void PipelineEventLooper::postEvent(const sp<PipelineEvent> &event, int64_t delayUs)
 	{
+		sp<Pipeline> pipeline;
         Looper::handler_id id=mEventHandler->id();        
         if(id==0){
-           sp<Pipeline> pipeline = mPipeline.promote();
+		   pipeline = mPipeline.promote();
            if (!pipeline.isEmpty()) {
                id=registerHandler(mEventHandler);
            }
-        }
-        
-		event->setTarget(id);
-		sp<Pipeline> pipeline = mPipeline.promote();
+		}else {
+		   pipeline = mPipeline.promote();
+		}        
+		
 		if (!pipeline.isEmpty()) {
+			event->setTarget(id);
 			post(event, delayUs);
 		}
 	}

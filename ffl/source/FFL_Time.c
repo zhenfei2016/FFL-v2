@@ -11,7 +11,11 @@
 */
 
 #include "FFL_Time.h"
-
+//
+//  是否使用短类型的时间字符串
+//  短类型day hour min second ms us
+//
+#define FFL_TIME_USE_SHORT_STRING 1
 #if defined( WIN32)
 #include <windows.h>
 #include "window_time.c"

@@ -102,6 +102,20 @@
 #define FFL_MAKE_INT32(high,low) (((low)& 0xFFFF) | (((high)& 0xFFFF)<<16))
 #endif
 
+
+#ifndef FFL_INT64_HIGHT_32
+#define FFL_INT64_HIGHT_32(a) ((int32_t)( ((a) >> 32) & 0xFFFFFFFF))
+#endif
+
+#ifndef FFL_INT64_LOW_32
+#define FFL_INT64_LOW_32(a) ((int32_t)( (a) & 0xFFFFFFFF ))
+#endif
+
+#ifndef FFL_MAKE_INT64
+#define FFL_MAKE_INT64(high,low) (((low)& 0xFFFFFFFF) | (((high)& 0xFFFFFFFF)<<32))
+#endif
+
+
 /*
  *  c中定义struct结构体，模拟class定义
  *
