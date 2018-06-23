@@ -11,7 +11,7 @@
  *
 */
 #include "MessageFFMpegPacket.hpp"
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 
 namespace message {
 	FFMpegPacket::FFMpegPacket()
@@ -35,11 +35,11 @@ namespace message {
 	//  是否视频，音频桢
 	//
 	bool FFMpegPacket::isVideo() const {
-		return mPacketType == player:: STREAM_TYPE_VIDEO;
+		return mPacketType ==  STREAM_TYPE_VIDEO;
 		//mPacket->flags = ;
 	}
 	bool FFMpegPacket::isAudio() const {
-		return mPacketType == player::STREAM_TYPE_AUDIO;
+		return mPacketType == STREAM_TYPE_AUDIO;
 	}
 	//
 	//  已经处理完成了，可以回收了		

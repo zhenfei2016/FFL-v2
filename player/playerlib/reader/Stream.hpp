@@ -4,7 +4,7 @@
  *  The MIT License (MIT)
  *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
  *
- *  Stream.hpp
+ *  reader/Stream.hpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/04/01 
  *  
  *  流信息
@@ -14,24 +14,33 @@
 
 #include <ref/FFL_Ref.hpp>
 #include <utils/FFL_Clock.hpp>
-#include "NodeBase.hpp"
-#include "SyncClock.hpp"
+#include "../NodeBase.hpp"
 
 namespace player {
-
 	class Decoder;
-	enum StreamType{
-		STREAM_TYPE_VIDEO = 1,
-		STREAM_TYPE_AUDIO = 2,
-		STREAM_TYPE_SUBTITLE=3,
-		STREAM_TYPE_OTHER = 4,
-	};
+	class SyncClock;
+	class PlayerCore;
+}
 
+enum StreamType {
+	STREAM_TYPE_VIDEO = 1,
+	STREAM_TYPE_AUDIO = 2,
+	STREAM_TYPE_SUBTITLE = 3,
+	STREAM_TYPE_OTHER = 4,
+};
+
+namespace reader {
 	class Stream : public FFL::RefBase {
 	public:		
 		Stream();
 		virtual ~Stream();
 	public:
+		//
+		//  设置这个流的源输入接口
+		//
+		void setSource(const player::OutputInterface& input);
+		player::OutputInterface getSource();
+
 		//
 		// 获取流索引
 		//
@@ -51,21 +60,24 @@ namespace player {
 		//
 		//  创建这个流需要的解码器
 		//
-		virtual FFL::sp<Decoder> createDecoder()=0;	
+		virtual FFL::sp<player::Decoder> createDecoder(player::PlayerCore* core)=0;
 	public:
 		//
 		//  获取同步时钟
 		//
-		SyncClock* getSyncClock();		
+		player::SyncClock* getSyncClock();
 	protected:
 		//
 		//  进行同步的时钟
 		//
-		SyncClock* mSyncClock;
-	public:
+		player::SyncClock* mSyncClock;
 		//
 		//  这个流数据的输入源
 		//
-		OutputInterface mSource;
-	};
+		player::OutputInterface mSource;
+	public:
+		uint32_t mStreamID;
+	};	
 }
+
+typedef FFL::sp<reader::Stream> StreamPtr;

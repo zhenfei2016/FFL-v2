@@ -16,9 +16,9 @@
 #include <windows.h>
 int printLog(int level,const char* tag, const char *format, va_list v) 
 {
-	if (tag) {
-		if (strcmp(tag, "MsgQueue") == 0 ||
-			strcmp(tag, "timestamp") == 0) {
+	if ( tag) {
+		if ( strcmp(tag, "MsgQueue") == 0 ||
+			strcmp(tag, "timestamp") == 0 ) {
 			char str[1024] = {};
 			vsnprintf(str+2, 1024 - 1, format, v);
 			str[0] = ' ';
@@ -56,6 +56,6 @@ int main() {
 		FFL_LOG_INFO("quit player");
 	}
 	FFL_malloc_memory_dump();
-	getchar();
+	//getchar();
 	return 0;
 }

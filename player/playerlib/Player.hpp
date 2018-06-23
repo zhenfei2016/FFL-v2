@@ -102,7 +102,7 @@ namespace player {
 		bool isPauseing() const;
 		bool isStoping() const;
 		bool isLooping() const;
-	protected:
+	public:
 		FFL::sp<FFL::PipelineEvent> mEventPrepare;
 		//
 		//  prepare 播放，暂停，停止具体实现函数

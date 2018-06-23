@@ -56,11 +56,13 @@ namespace player {
 	}
 
 	FFMpegAudioStream::FFMpegAudioStream(AVStream* ffmpeg)
-	      :FFMpegStream(ffmpeg){
-
+	      :FFMpegStream(ffmpeg),
+		mFFMpegCodecCtx(NULL){
+		mFFMpegCodecCtx = openCodec(mFFMpegStream);
 	}
 	FFMpegAudioStream::~FFMpegAudioStream() {
-
+		if (mFFMpegCodecCtx)
+		   avcodec_free_context(&mFFMpegCodecCtx);
 	}
 	// 获取这个流的格式
 	//
@@ -72,27 +74,33 @@ namespace player {
 	//
 	//  创建这个流需要的解码器
 	//
-	FFL::sp<Decoder> FFMpegAudioStream::createDecoder() {
+	FFL::sp<Decoder> FFMpegAudioStream::createDecoder(player::PlayerCore* core) {
 		if (!mDecoder.isEmpty()) {
 			return mDecoder;
 		}
 
-	    if (getStreamType() == STREAM_TYPE_AUDIO) {
-			mFFMpegCodecCtx = openCodec(mFFMpegStream);
+	    if (getStreamType() == STREAM_TYPE_AUDIO) {			
 			if (mFFMpegCodecCtx == NULL) {
 				FFL_LOG_WARNING("Failed to FFMpegAudioStream::createDecoder id=%d", mFFMpegStream->codecpar->codec_id);
 				return NULL;
 			}
 			mDecoder = new NodeFFMpegAudioDecoder(this, mFFMpegCodecCtx);			
+			mDecoder->create(core);
+
+			InputInterface inputInterface;
+			mDecoder->connectSource(mSource, mSource.mName.c_str(), inputInterface, 0);
 		}
 		return mDecoder;
 	}
 	
-	FFMpegVideoStream::FFMpegVideoStream(AVStream* ffmpeg) :FFMpegStream(ffmpeg) {
-
+	FFMpegVideoStream::FFMpegVideoStream(AVStream* ffmpeg) :
+		FFMpegStream(ffmpeg),
+		mFFMpegCodecCtx(NULL) {
+		mFFMpegCodecCtx = openCodec(mFFMpegStream);
 	}
 	FFMpegVideoStream::~FFMpegVideoStream() {
-
+		if(mFFMpegCodecCtx)
+		   avcodec_free_context(&mFFMpegCodecCtx);
 	}
 	//
 	// 获取宽度，高度
@@ -104,18 +112,21 @@ namespace player {
 	//
 	//  创建这个流需要的解码器
 	//
-	FFL::sp<Decoder> FFMpegVideoStream::createDecoder() {
+	FFL::sp<Decoder> FFMpegVideoStream::createDecoder(player::PlayerCore* core) {
 		if (!mDecoder.isEmpty()) {
 			return mDecoder;
 		}
 
-		if (getStreamType() == STREAM_TYPE_VIDEO) {
-			mFFMpegCodecCtx=openCodec(mFFMpegStream);
+		if (getStreamType() == STREAM_TYPE_VIDEO) {			
 			if (mFFMpegCodecCtx == NULL) {
 				FFL_LOG_WARNING("Failed to FFMpegVideoStream::createDecoder id=%d", mFFMpegStream->codecpar->codec_id);
 				return NULL;
 			}
-			mDecoder = new NodeFFMpegVideoDecoder(this, mFFMpegCodecCtx);
+			mDecoder = new NodeFFMpegVideoDecoder(this, mFFMpegCodecCtx);		
+			mDecoder->create(core);
+
+			InputInterface inputInterface;
+			mDecoder->connectSource(mSource, mSource.mName.c_str(), inputInterface, 0);			
 		}
 		return mDecoder;
 	}

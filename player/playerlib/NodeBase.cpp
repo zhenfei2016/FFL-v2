@@ -111,6 +111,9 @@ namespace player {
 	void NodeBase::getName(FFL::String& name) const {
 		name = mNodeName;
 	}
+	const char* NodeBase::getName()  {
+		return mNodeName.c_str();
+	}
 	//
 	//  获取这个node的所有者player
 	//

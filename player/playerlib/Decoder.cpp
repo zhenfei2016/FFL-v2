@@ -49,7 +49,7 @@ namespace player {
 	FFL::sp<FFL::PipelineConnector > Decoder::onCreateConnector(
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
-		return new FFL::PipelineAsyncConnectorFixSize(2);
+		return new FFL::PipelineAsyncConnectorFixSize(5);
 	}
 
 }

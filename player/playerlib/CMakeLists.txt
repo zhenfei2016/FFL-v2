@@ -28,20 +28,15 @@ SET(LOCAL_SRC_FILES
    Statistic.hpp;Statistic.cpp         
    
    NodeBase.cpp;NodeBase.hpp
-   IReader.hpp
-   NodeReader.cpp;NodeReader.hpp
-   StreamManager.cpp;StreamManager.hpp
-   NodeFFMpegInputFile.cpp;NodeFFMpegInputFile.hpp   
    NodeFFMpegDecoder.hpp;NodeFFMpegDecoder.cpp
    NodeFFMpegVideoDecoder.hpp;NodeFFMpegVideoDecoder.cpp
-   NodeFFMpegAudioDecoder.hpp;NodeFFMpegAudioDecoder.cpp
-   Stream.hpp;Stream.cpp
+   NodeFFMpegAudioDecoder.hpp;NodeFFMpegAudioDecoder.cpp   
    Decoder.hpp;Decoder.cpp
    Composer.hpp;Composer.cpp  
    AudioUtils.hpp;AudioUtils.cpp 
    AudioFormat.hpp;AudioFormat.cpp
    AudioDevice.hpp;AudioDevice.cpp
-   AudioStream.hpp;AudioStream.cpp
+   Audioreader/Stream.hpp;AudioStream.cpp
    AudioSample.hpp;AudioSample.cpp   
    AudioRender.hpp;AudioRender.cpp
    AudioResample.hpp;AudioResample.cpp
@@ -50,12 +45,12 @@ SET(LOCAL_SRC_FILES
    VideoUtils.hpp;VideoUtils.cpp 
    VideoSurface.hpp;VideoSurface.cpp      
    VideoDevice.hpp;VideoDevice.cpp
-   VideoStream.hpp;VideoStream.cpp
+   Videoreader/Stream.hpp;VideoStream.cpp
    VideoTexture.hpp;VideoTexture.cpp   
    VideoScale.hpp;VideoScale.cpp   
    VideoRender.hpp;VideoRender.cpp   
    Render.hpp;Render.cpp      
-   FFMpegStream.hpp;FFMpegStream.cpp
+   FFMpegreader/Stream.hpp;FFMpegStream.cpp
    SDL2Module.hpp;SDL2Module.cpp   
    SDL2AudioDevice.hpp;SDL2AudioDevice.cpp   
    SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
@@ -68,6 +63,12 @@ SET(LOCAL_SRC_FILES
 
    SyncClock.hpp;SyncClock.cpp
    SyncUtils.hpp;SyncUtils.cpp
+      
+   reader/Stream.hpp;reader/Stream.cpp
+   reader/ReaderStreamManager.hpp;reader/ReaderStreamManager.cpp
+   reader/ReaderFactory.hpp;reader/ReaderFactory.cpp
+   reader/ReaderBase.hpp;reader/ReaderBase.cpp
+   reader/ReaderFFmpeg.hpp;reader/ReaderFFmpeg.cpp
    )
 
 

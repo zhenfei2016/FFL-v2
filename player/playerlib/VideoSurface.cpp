@@ -20,11 +20,11 @@ namespace player {
 	VideoSurface::~VideoSurface() {
 	}
 
-	void VideoSurface::setHandle(void* handle) {
+	void VideoSurface::setHandle(SurfaceHandle handle) {
 		mHandle = handle;
 	}
 
-	void* VideoSurface::getHandle() {
+	SurfaceHandle VideoSurface::getHandle() {
 		return mHandle;
 	}
 	//

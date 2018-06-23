@@ -1,0 +1,225 @@
+#include "ReaderBase.hpp"
+#include "../PlayerCore.hpp"
+
+namespace reader {
+	class DefaultStreamMgr : public ReaderStreamManager {
+	public:
+		//
+		//  添加reader下的一个stream到管理中，返回当前这个stream的id
+		//
+		virtual int32_t  addStream(ReaderBase* reader, StreamPtr stream) {
+			return -1;
+		}
+		//
+		//  添加reader下的所有stream到管理中，返回成功添加了几个流
+		//  
+		//
+		virtual uint32_t addStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr > streamVec) {
+			return 0;
+		}
+		//
+		//  根据流id获取一个流实例
+		//
+		virtual StreamPtr getStream(int32_t id) {
+			return NULL;
+		}
+		//
+		//  获取这个reader下的所有流
+		//
+		virtual void getStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr >& streamVec) {
+			streamVec.clear();
+		}
+	};
+	static DefaultStreamMgr gDefaultStreamMgr;
+
+	ReaderBase::ReaderBase():
+		mStreamMgr(&gDefaultStreamMgr),
+		mEventOpenPending(false),
+		mEventClosePending(false),
+		mEventPausePending(false),
+		mEventResumePending(false),
+		mIsPaused(false),
+		mEventSeekPending(false){
+		mUrl = "";
+
+		mEventOpen = new FFL::PipelineEvent(
+			new  FFL::ClassMethodCallback<ReaderBase>(this,&ReaderBase::onOpenStub));
+		mEventClose = new FFL::PipelineEvent(
+			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onCloseStub));
+		mEventPause = new FFL::PipelineEvent(
+			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onPauseStub));
+		mEventSeek = new FFL::PipelineEvent(
+			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onSeekStub));
+
+	}
+	ReaderBase::~ReaderBase() {
+
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//    player::NodeBase
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//  成功创建了node
+	//
+	void ReaderBase::onCreate() {
+		initLooper();
+	}
+	//
+	//  成功删除了node
+	//
+	void ReaderBase::onDestroy() {
+
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//    ReaderInterface
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//  打开
+	//
+	void ReaderBase::open(const char* url){		
+		FFL::CMutex::Autolock l(&mRequestLock);
+		if (mEventOpenPending) {
+			return;
+		}
+
+		mUrl = url;
+		mEventOpenPending = true;
+		postEvent(mEventOpen);
+	}
+	//
+	//  暂停读，但是不关闭
+	//
+	void ReaderBase::pause(){
+		FFL::CMutex::Autolock l(&mRequestLock);
+		if (mEventPausePending && mIsPaused) {
+			return;
+		}
+		mEventPausePending = true;
+		mEventPause->setParams(0, 0);
+		postEvent(mEventPause);
+	}
+	//
+	//  恢复读
+	//
+	void ReaderBase::resume(){
+		FFL::CMutex::Autolock l(&mRequestLock);
+		if (mEventResumePending || !mIsPaused) {
+			return;
+		}
+		mEventResumePending = true;		
+		mEventPause->setParams(1, 0);
+		postEvent(mEventPause);
+		mPauseCond.signal();
+	}
+	//
+	// 设置开始读位置
+	//
+	void ReaderBase::seek(int64_t pos){
+		FFL::CMutex::Autolock l(&mRequestLock);
+		if (mEventSeekPending) {
+			return;
+		}
+
+		mEventSeekPending = true;
+		mEventSeek->setParams(pos, 0);		
+		postEvent(mEventSeek);		
+	}
+	//
+	// 关闭
+	//
+	void ReaderBase::close(){
+		FFL::CMutex::Autolock l(&mRequestLock);
+		if (mEventClosePending) {
+			return;
+		}
+		mEventClosePending = true;
+		mPauseCond.signal();
+	}
+	//
+	// 是否暂停状态
+	//
+	bool ReaderBase::isPaused() const {
+		return mIsPaused;
+	}
+	bool  ReaderBase::initLooper(){
+		FFL::sp<FFL::PipelineInputHandler> callback =
+			new FFL::ClassMethodVoidInputHandler<ReaderBase>(this, &ReaderBase::onReadOnce);
+		player::InputInterface input = createInputInterface(callback, "reader-stream");
+		if (!input.isValid()) {
+			FFL_LOG_ERROR("invalid input id");
+			return false;
+		}
+
+		//mInput = input;
+		FFL::sp<FFL::PipelineSourceConnector> conn = 0;
+		if (1) {
+			conn = new FFL::PipelineIdleSourceConnector();
+		}
+		else {
+			conn = new FFL::PipelineTimerSourceConnector(3000);
+		}		
+		getOwner()->getPipeline()->connectSource(input.mNodeId, input.mId, conn);
+		return true;
+	}
+		
+	//
+	// 读取主循环
+	//
+	void ReaderBase::onReadOnce(){
+		if (mIsPaused) {
+			mPauseCond.waitRelative(mPauseLock, 100);
+			return;
+		}		
+		onReadFrame();
+	}
+	void ReaderBase::onOpenStub(const FFL::sp<FFL::PipelineEvent>& event) {
+		onOpen(mUrl.c_str());
+		{
+			FFL::CMutex::Autolock l(&mRequestLock);
+			mEventOpenPending = false;
+		}
+	}	
+	//
+	// close函数，具体实现
+	//
+	void ReaderBase::onCloseStub(const FFL::sp<FFL::PipelineEvent>& event) {
+		onClose();
+		{
+			FFL::CMutex::Autolock l(&mRequestLock);
+			mEventClosePending = false;
+		}
+	}
+
+
+	//
+	// pause函数，resume 具体实现
+	//
+	void ReaderBase::onPauseStub(const FFL::sp<FFL::PipelineEvent>& event) {
+		if (event->getParam1() == 0) {
+			onPause();
+			{
+				FFL::CMutex::Autolock l(&mRequestLock);
+				mIsPaused = true;
+				mEventPausePending = false;				
+			}
+		}
+		else {
+			onResume();
+			{
+				FFL::CMutex::Autolock l(&mRequestLock);
+				mIsPaused = false;
+				mEventResumePending = false;
+			}
+		}
+	}
+	//
+	// seek函数，具体实现
+	//
+	void ReaderBase::onSeekStub(const FFL::sp<FFL::PipelineEvent>& event) {
+		onSeek(event->getParam1());
+		{
+			FFL::CMutex::Autolock l(&mRequestLock);
+			mEventSeekPending = false;
+		}
+	}
+}

@@ -14,7 +14,7 @@
 #include "MessageFFMpegFrame.hpp"
 #include "VideoTexture.hpp"
 #include "PlayerCore.hpp"
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 #include "PlayerConstant.hpp"
 #include "TimestampExtrapolator.hpp"
 #include "SyncUtils.hpp"
@@ -79,7 +79,7 @@ namespace player {
 	//  计算多长时间后播放这一桢
 	//
 	int64_t VideoComposer::getDelay(VideoTexture* texture) {
-		FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
+		StreamPtr stream = getOwner()->getStream(texture->mStreamId);
 		stream->getTimebase(mTb);
 
 		uint32_t speed=getOwner()->getSpeed();

@@ -22,6 +22,7 @@
 namespace player {
 	AudioRender::AudioRender(FFL::sp<AudioDevice> device):mStatistic(NULL){	
 		mDevice = device;
+		setName("AudioRender");
 	}
 	AudioRender::~AudioRender() {		
 	}
@@ -86,7 +87,7 @@ namespace player {
 		mStatistic->renderAudioFrame(pts, FFL_getNowUs());
 
 		if (pts>0){
-			FFL::sp<Stream> stream= getOwner()->getStream(samples->mStreamId);
+			StreamPtr stream= getOwner()->getStream(samples->mStreamId);
 			if (!stream.isEmpty()) {
 				FFL::TimeBase tb;
 				stream->getTimebase(tb);

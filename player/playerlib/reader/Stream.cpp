@@ -12,22 +12,28 @@
 */
 
 #include "Stream.hpp"
-#include "Decoder.hpp"
-#include "Composer.hpp"
-#include "PlayerCore.hpp"
-#include <pipeline/FFL_Pipeline.hpp>
+#include "../SyncClock.hpp"
 
-namespace player {
+namespace reader {
 	Stream::Stream(){
-		mSyncClock = new SyncClock();		
+		mSyncClock = new player::SyncClock();		
 	}	
 	Stream::~Stream() {
 		FFL_SafeFree(mSyncClock);
 	}	
 	//
+	//  设置这个流的源输入接口
+	//
+	void Stream::setSource(const player::OutputInterface& input) {
+		mSource = input;
+	}
+	player::OutputInterface Stream::getSource() {
+		return mSource;
+	}
+	//
 	//  获取同步时钟
 	//
-	SyncClock* Stream::getSyncClock() {
+	player::SyncClock* Stream::getSyncClock() {
 		return mSyncClock;
 	}
 }

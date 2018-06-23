@@ -77,7 +77,7 @@ namespace player {
 		//
 		// 当前解码的序列号
 		//
-		int32_t mSerialNumber;
+		int64_t mSerialNumber;
 		bool mWaitIFrame;
 	};
 

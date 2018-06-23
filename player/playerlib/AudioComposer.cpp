@@ -95,7 +95,7 @@ namespace player {
 	//  计算多长时间后播放这一桢
 	//
 	int64_t AudioComposer::getDelay(AudioSample* sample) {
-		FFL::sp<Stream> stream = getOwner()->getStream(sample->mStreamId);
+		StreamPtr stream = getOwner()->getStream(sample->mStreamId);
 		stream->getTimebase(mTb);
 
 		uint32_t speed = getOwner()->getSpeed();

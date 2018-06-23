@@ -20,6 +20,7 @@
 
 namespace player {
 	VideoRender::VideoRender(FFL::sp<VideoDevice> device):mStatistic(NULL){
+		setName("videoRender");
 		mDevice = device;
 		mFrameIndex = -1;
 	}
@@ -97,7 +98,7 @@ namespace player {
 			t2, texture->mRenderus, t2 - texture->mRenderus);
 		mStatistic->renderVideoDelayUs(t2 - t1);
 
-		FFL::sp<Stream> stream = getOwner()->getStream(texture->mStreamId);
+		StreamPtr stream = getOwner()->getStream(texture->mStreamId);
 		if (!stream.isEmpty()) {
 			FFL::TimeBase tb;
 			stream->getTimebase(tb);

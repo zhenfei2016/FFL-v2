@@ -64,6 +64,36 @@ namespace player {
 
 	class IPlayerListener {
 	public:
-		virtual void onEvent(int32_t eventId) = 0;
+		//
+		// 视频大小改变了
+		// widht:宽度 ，height：高度
+		// aspectRatioNum/aspectRatioDen  宽高比
+		//
+		virtual void onVideoSizeChanged(int32_t width, int32_t height, int32_t aspectRatioNum, int32_t aspectRatioDen) = 0;
+		//
+		//  prepare结果 suc:表示成功。失败
+		//
+		virtual void onPrepared(int suc) = 0;
+		//
+		//  视频播放结束回调
+		//
+		virtual void onComplete()=0;
+		//
+		//  seek结束回调
+		//
+		virtual void onSeekComplete(int64_t pos,int64_t duration) = 0;
+		//
+		// 错误码
+		//
+		virtual void onError(int32_t errCode,int32_t errVal)=0;
+		//
+		// 缓冲中
+		//
+		virtual void onBufferingStart() = 0;
+		virtual void onBufferingUpdate()=0;		
+		//
+		// 一些其他的消息
+		//
+		virtual void onMessage(int32_t msg,int32_t parma1,int32_t param2)=0;
 	};
 }

@@ -36,6 +36,7 @@ namespace player {
 		//
 		void setName(const char* name);
 		void getName(FFL::String& name) const;		
+		const char* getName();
 		//
 		//  获取这个node的所有者player
 		//

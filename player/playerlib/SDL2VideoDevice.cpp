@@ -17,6 +17,13 @@ namespace player {
 		return mSurface;
 	}
 	//
+	// 更新绘制的目标窗口
+	//
+	void SDL2VideoDevice::setSurface(FFL::sp<VideoSurface> surface) {
+		FFL_ASSERT("SDL2VideoDevice::setSurface");
+	}
+
+	//
 	//  打开关闭视频设备
 	//
 	bool SDL2VideoDevice::open(FFL::sp<VideoSurface> surface, int32_t widht, int32_t height) {

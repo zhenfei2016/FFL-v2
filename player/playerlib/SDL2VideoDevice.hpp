@@ -14,9 +14,13 @@ namespace player {
 		SDL2VideoDevice();
 		~SDL2VideoDevice();
 		//
-		// 获取设置绘制窗口
+		// 获取绘制窗口
 		//		
 		virtual FFL::sp<VideoSurface> getSurface();
+		//
+		// 更新绘制的目标窗口
+		//
+		virtual void setSurface(FFL::sp<VideoSurface> surface);
 		//
 		//  打开关闭视频设备
 		//

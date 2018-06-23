@@ -4,7 +4,7 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  AudioStream.hpp   
+*  Audioreader/Stream.hpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/22 
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
@@ -13,11 +13,11 @@
 #ifndef _AUDIO_STREAM_HPP_
 #define _AUDIO_STREAM_HPP_
 
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 #include "AudioFormat.hpp"
 
 namespace player {
-	class AudioStream : public Stream {
+	class AudioStream : public reader::Stream {
 	public:
 		AudioStream();		
 		virtual ~AudioStream();	

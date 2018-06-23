@@ -49,13 +49,13 @@ namespace message {
 		//
 		uint32_t mPacketType;
 		//
-		//  是否i桢
+		//  是否i桢,视频有效
 		//
 		int32_t mIFrame;
 		//
 		// 
 		//
-		int32_t mSerialNumber;
+		int64_t mSerialNumber;
 	};
 
 }

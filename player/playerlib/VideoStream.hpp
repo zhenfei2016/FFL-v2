@@ -1,9 +1,9 @@
 #ifndef _VIDEO_STREAM_HPP_
 #define _VIDEO_STREAM_HPP_
 
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 namespace player {
-	class VideoStream : public Stream {
+	class VideoStream : public reader::Stream {
 	public:
 		VideoStream();
 		virtual ~VideoStream();

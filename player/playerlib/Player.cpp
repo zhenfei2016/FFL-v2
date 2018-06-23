@@ -20,9 +20,9 @@
 
 namespace player {
 	FFLPlayer::FFLPlayer():mListener(NULL){
-		mCore = new PlayerCore();
+		mCore = new PlayerCore(this);
 		mEventPrepare = new FFL::PipelineEvent(
-			new FFL::ClassMethodCallback<player::FFLPlayer>(this, &FFLPlayer::onPrepare));
+			new FFL::ClassMethodCallback<player::FFLPlayer>(this, &FFLPlayer::onPrepare));	
 	}
 	FFLPlayer::~FFLPlayer() {
 		FFL_SafeFree(mCore);
@@ -33,9 +33,58 @@ namespace player {
 	// 派发消息前的准备，消息派发前会先到这地方的
 	// 返回false表示不要向下派发了
 	//
-	bool FFLPlayer::onPrepareDispatch(const FFL::sp<FFL::PipelineEvent> event) {
-		FFL::sp<event::PlayerEvent> evt = (event::PlayerEvent*) event.get();
-		mCore->onEvent(evt);
+	bool FFLPlayer::onPrepareDispatch(const FFL::sp<FFL::PipelineEvent> e) {
+		FFL::sp<event::PlayerEvent> event = (event::PlayerEvent*) e.get();
+
+		int32_t eventID = event->getEventId();
+		switch (eventID)
+		{
+		case event::EVENT_PREPARED:
+			if (mListener) {
+				mListener->onPrepared(event->getParam1() == 1 ? 1 : 0);
+			} else {
+				//mCore->play();
+				//mFlag.modifyFlags(FLAG_LOOPING, FLAG_PREPARED);
+			}
+			break;
+		case event::EVENT_VIDEO_SIZE_CAHNGED:{
+			int32_t width = FFL_INT64_HIGHT_32(event->getParam1());
+			int32_t height = FFL_INT64_LOW_32(event->getParam1());
+			if (mListener) {
+				mListener->onVideoSizeChanged(width,height, 
+					FFL_INT64_HIGHT_32(event->getParam2()),
+					FFL_INT64_LOW_32(event->getParam2()));
+			}
+		}
+		break;
+
+		case event::EVENT_VIDEO_RENDER_FIRST_FRAME:
+			if (mListener) {
+				mListener->onMessage(event::EVENT_VIDEO_RENDER_FIRST_FRAME, 0, 0);
+			}
+			break;
+		case event::EVENT_VIDEO_RENDER_LAST_FRAME:
+			if (mListener) {
+				mListener->onMessage(event::EVENT_VIDEO_RENDER_LAST_FRAME, 0, 0);
+			}
+			break;
+
+		case event::EVENT_AUDIO_RENDER_FIRST_FRAME:
+			if (mListener) {
+				mListener->onMessage(event::EVENT_AUDIO_RENDER_FIRST_FRAME, 0, 0);
+			}
+			break;
+
+		case event::EVENT_AUDIO_RENDER_LAST_FRAME:
+			if (mListener) {
+				mListener->onMessage(event::EVENT_AUDIO_RENDER_LAST_FRAME, 0, 0);
+			}
+			break;
+		default:
+			break;
+		}
+
+		mCore->onEvent(event);
 		return true;
 	}
 	//
@@ -64,6 +113,13 @@ namespace player {
 	// 设置渲染到的目标
 	//
 	status_t FFLPlayer::setSurface(void* surface){
+		FFL::sp<VideoSurface> wnd;
+#if WIN32
+		wnd->setHandle((HWND)surface);
+#else
+		wnd->setHandle(surface);
+#endif
+		mCore->setVideoSurface(wnd);
 		FFL_ASSERT_LOG(0, "setSurface not impl.");
 		return FFL_NOT_IMPLEMENT;
 	}
@@ -85,11 +141,11 @@ namespace player {
 			if (!isPrepared()|| isStarted() || isStarting()) {
 				return FFL_ERROR_FAIL;
 			}
-			mFlag.modifyFlags(FLAG_STARTING, 0);
+			mFlag.modifyFlags(FLAG_STARTING, FLAG_PREPARED);
 		}
-
 		onStart(NULL);
-		return FFL_OK; }
+		return FFL_OK;
+	}
 	status_t FFLPlayer::pause(){
 		{
 			FFL::CMutex::Autolock l(mMutex);
@@ -227,6 +283,7 @@ namespace player {
 	//  prepare 播放，暂停，停止具体实现函数
 	//
 	void  FFLPlayer::onPrepare(const FFL::sp<FFL::PipelineEvent>& even) {
+		mCore->syncPrepare(mUrl.c_str());
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.modifyFlags(FLAG_PREPARED,FLAG_PREPAREING);
 	}
@@ -237,8 +294,7 @@ namespace player {
 
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.modifyFlags(FLAG_LOOPING, FLAG_STARTING);
-
-		mCore->play(mUrl.c_str());
+		mCore->play();
 	}
 	void  FFLPlayer::onPause(const FFL::sp<FFL::PipelineEvent>& even) {
 		FFL::CMutex::Autolock l(mMutex);
@@ -250,6 +306,6 @@ namespace player {
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.resetFlags(FLAG_INIT);
 
-		mCore->stop();
+		mCore->stop();		
 	}
 }

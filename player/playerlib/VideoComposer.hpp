@@ -14,7 +14,7 @@
 #pragma once
 #include "Composer.hpp"
 #include "VideoTexture.hpp"
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 #include "Statistic.hpp"
 
 

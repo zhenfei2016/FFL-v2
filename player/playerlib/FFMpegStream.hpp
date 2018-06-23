@@ -4,7 +4,7 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  FFMpegStream.hpp
+*  FFMpegreader/Stream.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/16
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
@@ -24,7 +24,8 @@ namespace player {
 	public:
 		FFMpegStream(AVStream* ffmpeg) :mFFMpegStream(ffmpeg) {
 		}
-		
+		~FFMpegStream() {
+		}
 		//
 		// 获取流索引
 		//
@@ -78,7 +79,7 @@ namespace player {
 		//
 		//  创建这个流需要的解码器
 		//
-		FFL::sp<Decoder> createDecoder();
+		FFL::sp<Decoder> createDecoder(player::PlayerCore* core);
 	private:
 		AVCodecContext* mFFMpegCodecCtx;
 		FFL::sp<Decoder> mDecoder;
@@ -96,7 +97,7 @@ namespace player {
 		//
 		//  创建这个流需要的解码器
 		//
-		FFL::sp<Decoder> createDecoder();
+		FFL::sp<Decoder> createDecoder(player::PlayerCore* core);
 	private:
 		AVCodecContext* mFFMpegCodecCtx;
 		FFL::sp<Decoder> mDecoder;

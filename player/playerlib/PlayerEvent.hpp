@@ -16,6 +16,7 @@
 
 namespace player {
 	class NodeBase;
+	class PlayerCore;
 }
 
 namespace event{
@@ -25,6 +26,11 @@ namespace event{
 	   //
 	   EVENT_ERROR =1,
 
+	   //
+	   //  prepare结果，  
+	   //  getParam1() = 1  :成功
+	   //  getParam1() = 0  :异常，失败了
+	   //
 	   EVENT_PREPARED,
 	   //
 	   //  视频大小改变了
@@ -54,14 +60,21 @@ namespace event{
 
    class PlayerEvent : public FFL::PipelineEvent{
    public:
-	   PlayerEvent(EventId eventid) :FFL::PipelineEvent((int32_t)eventid){
+	   PlayerEvent(EventId eventid,int64_t param1,int64_t param2) 
+		   :FFL::PipelineEvent((int32_t)eventid),
+		   mParam1(param1),
+		   mParam2(param2){
+	   }	      
+
+	   inline int64_t getParam1() const {
+		   return mParam1;
+	   }
+	   inline int64_t getParam2() const {
+		   return mParam2;
 	   }
 
-	   int32_t mInt32Parma1;
-	   int32_t mInt32Parma2;
-
-	   int64_t mInt64Param1;
-	   int64_t mInt64Param2;
+	   int64_t mParam1;
+	   int64_t mParam2;
 
    };
    //
@@ -69,4 +82,9 @@ namespace event{
    //   
    void postPlayerEvent(FFL::sp<player::NodeBase> node, EventId eventid);
    void postPlayerEvent(FFL::sp<player::NodeBase> node, const FFL::sp<PlayerEvent>& event);
+
+   //
+   //  发送播放器事件
+   //
+   void postPlayerEvent(player::PlayerCore* core, EventId eventid, int64_t param1, int64_t param2);
 }

@@ -17,7 +17,7 @@
 
 #include <FFL.h>
 #include <utils/FFL_Clock.hpp>
-#include "Stream.hpp"
+#include "reader/Stream.hpp"
 #include "SyncUtils.hpp"
 #include "PlayerConstant.hpp"
 
