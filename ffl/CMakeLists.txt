@@ -135,7 +135,7 @@ ADD_SRC_FILE(FFL_Flags.hpp)
 
 ADD_SRC_FILE(FFL_ByteReader.hpp)
 ADD_SRC_FILE(FFL_ByteWriter.hpp)
-ADD_SRC_FILE(FFL_Bytereader/Stream.hpp)
+ADD_SRC_FILE(FFL_ByteStream.hpp)
 ADD_SRC_FILE(FFL_ByteBuffer.hpp)
 ADD_SRC_FILE(FFL_Serializable.hpp)
 ADD_SRC_FILE(FFL_MessageQueue.hpp)

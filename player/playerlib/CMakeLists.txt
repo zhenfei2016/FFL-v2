@@ -36,7 +36,7 @@ SET(LOCAL_SRC_FILES
    AudioUtils.hpp;AudioUtils.cpp 
    AudioFormat.hpp;AudioFormat.cpp
    AudioDevice.hpp;AudioDevice.cpp
-   Audioreader/Stream.hpp;AudioStream.cpp
+   AudioStream.hpp;AudioStream.cpp
    AudioSample.hpp;AudioSample.cpp   
    AudioRender.hpp;AudioRender.cpp
    AudioResample.hpp;AudioResample.cpp
@@ -45,12 +45,12 @@ SET(LOCAL_SRC_FILES
    VideoUtils.hpp;VideoUtils.cpp 
    VideoSurface.hpp;VideoSurface.cpp      
    VideoDevice.hpp;VideoDevice.cpp
-   Videoreader/Stream.hpp;VideoStream.cpp
+   VideoStream.hpp;VideoStream.cpp
    VideoTexture.hpp;VideoTexture.cpp   
    VideoScale.hpp;VideoScale.cpp   
    VideoRender.hpp;VideoRender.cpp   
    Render.hpp;Render.cpp      
-   FFMpegreader/Stream.hpp;FFMpegStream.cpp
+   FFMpegStream.hpp;FFMpegStream.cpp
    SDL2Module.hpp;SDL2Module.cpp   
    SDL2AudioDevice.hpp;SDL2AudioDevice.cpp   
    SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
