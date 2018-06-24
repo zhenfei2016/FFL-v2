@@ -4,6 +4,17 @@
 #include "VideoSurface.hpp"
 
 namespace player {
+	class SDL2VideoSurface : public VideoSurface{
+	public:
+		//
+		//  设置窗口的宽度，高度
+		//
+		void setWindowSize(int32_t widht, int32_t height) {
+			SDL_SetWindowSize(mWindow,widht,height);
+		}
+		
+		SDL_Window* mWindow;
+	};
 	SDL2VideoDevice::SDL2VideoDevice():
 		mWindow(NULL),
 	    mSDLRenderer(NULL)
@@ -11,6 +22,7 @@ namespace player {
 		mMessageCache = new FFL::PipelineMessageCache(MSG_SDL2_TEXTURE);
 	}
 	SDL2VideoDevice::~SDL2VideoDevice() {
+		mMessageCache->clear();
 	}
 
 	FFL::sp<VideoSurface> SDL2VideoDevice::getSurface() {
@@ -19,26 +31,41 @@ namespace player {
 	//
 	// 更新绘制的目标窗口
 	//
-	void SDL2VideoDevice::setSurface(FFL::sp<VideoSurface> surface) {
+	void SDL2VideoDevice::setSurface(SurfaceHandle surface) {
 		FFL_ASSERT("SDL2VideoDevice::setSurface");
 	}
 
 	//
 	//  打开关闭视频设备
 	//
-	bool SDL2VideoDevice::open(FFL::sp<VideoSurface> surface, int32_t widht, int32_t height) {
+	bool SDL2VideoDevice::open(SurfaceHandle surface, int32_t widht, int32_t height) {
 		SDL_Window * hWnd=NULL;
-		if (surface.isEmpty() || surface->getHandle()==NULL) {
+		if (surface==NULL) {
 			hWnd = SDL_CreateWindow("PlayerCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 				widht, height, SDL_WINDOW_OPENGL );
 		}else {
-			hWnd = SDL_CreateWindowFrom(surface->getHandle());
+			hWnd = SDL_CreateWindowFrom(surface);
+		}
+
+		if (hWnd == NULL) {
+			FFL_LOG_ERROR("SDL2VideoDevice::open wnd=null.");
+			return false;
 		}
 		mWindow = hWnd;
+
+		SDL2VideoSurface* sdl2Surface = new SDL2VideoSurface();
+		sdl2Surface->setHandle(surface);
+		sdl2Surface->mWindow = mWindow;
+		mSurface=sdl2Surface;
 		return mWindow!=NULL;
 	}
 	void SDL2VideoDevice::close() {
+		mSurface = NULL;
+		SDL_DestroyRenderer(mSDLRenderer);
+		mSDLRenderer = NULL;
 
+		SDL_DestroyWindow(mWindow);		
+		mWindow = NULL;		
 	}
 
 	bool SDL2VideoDevice::showTexture(VideoTexture* texture) {

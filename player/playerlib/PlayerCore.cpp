@@ -35,6 +35,7 @@
 namespace player {
 	PlayerCore::PlayerCore(FFL::PipelineEventFilter* eventFilter):mSpeed(100){
 		mNextStreamId=0;
+		mSurfaceHandle = NULL;
 		mFileReader = NULL;
 		mMasterClock = NULL;
 		mVideoComposer = NULL;
@@ -60,7 +61,7 @@ namespace player {
 		//
 		// 创建显示窗体
 		//
-		mVideoDevice = createVideoDisplay(NULL, mSurface);
+		mVideoDevice = createVideoDisplay(NULL, mSurfaceHandle);
 		return FFL_OK;
 	}
 
@@ -375,15 +376,21 @@ namespace player {
 	//
 	// 设置绘制窗口
 	//
-	void PlayerCore::setVideoSurface(FFL::sp<VideoSurface> surface) {
-		if (mSurface.get() != surface.get()) {
-			mSurface = surface;
+	void PlayerCore::setVideoSurface(SurfaceHandle surface) {
+		if (surface != NULL && surface!=mSurfaceHandle) {
+			mSurfaceHandle = surface;
 			if (!mVideoDevice.isEmpty()) {
-				mVideoDevice->setSurface(mSurface);
+				mVideoDevice->setSurface(surface);
 			}
 		}
 	}
-	FFL::sp<VideoDevice> PlayerCore::createVideoDisplay(FFL::sp<VideoStream> stream, FFL::sp<VideoSurface> surface) {
+	FFL::sp<VideoSurface> PlayerCore::getVideoSurface() {
+		if (!mVideoDevice.isEmpty()) {
+			return mVideoDevice->getSurface();
+		}
+		return NULL;
+	}
+	FFL::sp<VideoDevice> PlayerCore::createVideoDisplay(FFL::sp<VideoStream> stream, SurfaceHandle surface) {
 		FFL::sp<VideoDevice> dev = mDeviceCreator->createVideoDevice(this);
 		uint32_t width = 400;
 		uint32_t height = 300;
@@ -415,7 +422,7 @@ namespace player {
 		// 启动音频设备
 		//
 		AudioFormat obtainedFmt;
-		if (!dev->open(fmt, 4096, obtainedFmt)) {
+		if (!dev->open(fmt, 1024, obtainedFmt)) {
 			return NULL;
 		}
 

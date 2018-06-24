@@ -22,7 +22,7 @@
 namespace player {
 	VideoComposer::VideoComposer():mTimestampExtrapolator(NULL){
 		setName("VideoComposer");
-		mTimestampExtrapolator = new TimestampExtrapolator();
+		mTimestampExtrapolator = new TimestampExtrapolator("video");
 	}
 
 	VideoComposer::~VideoComposer(){
@@ -78,40 +78,49 @@ namespace player {
 	//
 	//  计算多长时间后播放这一桢
 	//
-	int64_t VideoComposer::getDelay(VideoTexture* texture) {
+	int64_t VideoComposer::getDelay(VideoTexture* texture,OptMode& mode) {
 		StreamPtr stream = getOwner()->getStream(texture->mStreamId);
 		stream->getTimebase(mTb);
 
 		uint32_t speed=getOwner()->getSpeed();
 		mTimestampExtrapolator->setSpeed(speed);
 
-		int64_t delay = mTimestampExtrapolator->getDelayAndUpdate(texture->mPts, mTb);
+		int64_t lastFrameDuration = 0;
+		int64_t delay = mTimestampExtrapolator->getDelayAndUpdate(texture->mPts, mTb,&lastFrameDuration);
 		if (delay < 0) {
 			delay += 0;
 		}
 
 		texture->mRenderus = FFL_getNowUs() + delay * 100 / speed;
 		delay -= mStatistic->getVideoRenderDelayUs();
-		delay = FFL_MAX(0, delay);
 
+		delay -= lastFrameDuration;
 		
-		OptMode mode;
 		int64_t correctDelay = correctVideoDelay(getOwner()->getMasterClock(),
 			stream->getSyncClock(),
-			delay,&mode);
+			lastFrameDuration,&mode);
 
 		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
 			"VideoComposer pts=%" lld64 " delay=%" lld64 " correctDelay=%" lld64,
 			texture->mPts, delay, correctDelay);
 
-		return correctDelay;
+		return delay+correctDelay;
 	}
 	//
 	//  收到待显示的纹理包
 	//	
 	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture) {
-		int64_t delay = getDelay(texture);		
-		if (delay < 0) {
+		OptMode mode;
+		int64_t delay = getDelay(texture, mode);
+		if (delay < 0 /*|| mode==DROP_FRAME*/) {
+			FFL_LOG_WARNING_TAG(TAG_TIMESTAMP,"VideoComposer drop frame pts=%" lld64,texture->mPts);
+			StreamPtr stream = getOwner()->getStream(texture->mStreamId);
+			if (!stream.isEmpty()) {
+				FFL::TimeBase tb;
+				stream->getTimebase(tb);
+				stream->getSyncClock()->updateClock(texture->mPts, tb);
+			}
+
 			msg->consume(this);
 			return;
 		}		

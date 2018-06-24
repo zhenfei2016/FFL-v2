@@ -12,13 +12,27 @@
 */
 #include <stdio.h>
 #include <utils/FFL_MemoryWatch.hpp>
+
+const char* ShowLogTag[] = {
+	"audio",
+	"timestamp",
+	//"MsgQueue",
+};
+
 #if WIN32
 #include <windows.h>
 int printLog(int level,const char* tag, const char *format, va_list v)
 {
 	if ( tag) {
-		if ( strcmp(tag, "MsgQueue") == 0 ||
-			strcmp(tag, "timestamp") == 0 ) {
+		bool showLog = false;
+		for (int i = 0; i < FFL_ARRAY_ELEMS(ShowLogTag); i++) {
+			if (strcmp(tag, ShowLogTag[i]) == 0) {
+				showLog = true;
+				break;
+			}
+		}
+
+		if (showLog) {
 			char str[1024] = {};
 			vsnprintf(str+2, 1024 - 1, format, v);
 			str[0] = ' ';

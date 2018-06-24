@@ -12,9 +12,6 @@
 *  音画同步帮助函数
 *
 */
-#ifndef _SYNC_UTILS_HPP_
-#define _SYNC_UTILS_HPP_
-
 #include <FFL.h>
 #include <utils/FFL_Clock.hpp>
 #include "reader/Stream.hpp"
@@ -23,18 +20,17 @@
 
 namespace player {
 	//
-	//  丢帧的阈值us，大于5s后进行重新同步
+	//  重新同步的阈值us，大于30s后进行重新同步
 	//
-#define SYNC_RESYNC_THRESHOLD_US 5000000
+#define SYNC_RESYNC_THRESHOLD_US 30000000
 	//
 	//  需要进行同步的阈值，40ms， 25帧的情况下时间值
 	//  如果与主时钟相差大于40ms则需要进行同步
 	//  >SYNC_MIN_THRESHOLD_US 不需要同步
-	//  >SYNC_MAX_THRESHOLD_US 丢帧
-	//  SYNC_MIN_THRESHOLD_US -  SYNC_MAX_THRESHOLD_US 之间使用同步策略
+	//  >SYNC_MAX_THRESHOLD_US 丢帧	
 	//
 #define SYNC_MIN_THRESHOLD_US 40000
-#define SYNC_MAX_THRESHOLD_US 40000*3
+#define SYNC_MAX_THRESHOLD_US 40000*4
 
 	//
 	//  视频同步到master上，调整一下延迟值
@@ -75,30 +71,35 @@ namespace player {
 			return delay;
 		}
 
-		int64_t diff = diffClock(master, slave);
+		if (slave->getClock() == 0 || master->getClock() == 0) {
+			return delay;
+		}
+
+		int64_t diff = diffClock(slave,master);
 		if (diff == 0) {
 			return delay;
 		}
 
 		//
 		//  是否视频变快了
+		//  diff>0 从时钟走的快了，需要延迟一下从时钟
 		//
-		bool isFast = diff < 0;
+		bool isFast = diff > 0;
 		{
 			//
-			//  是否需要丢帧，音视频不同步相差太大了
+			//  是否需要重新同步，音视频不同步相差太大了
 			//
-			bool dropFrame = false;
-			if (isFast && diff <= -SYNC_RESYNC_THRESHOLD_US) {
-				delay = delay * 2;
-				dropFrame = true;
+			bool correct = false;
+			if (isFast && diff >= SYNC_RESYNC_THRESHOLD_US) {
+				delay = delay * 3;
+				correct = true;
 			}
-			else if (!isFast && diff >= SYNC_RESYNC_THRESHOLD_US) {
+			else if (!isFast && diff <= -SYNC_RESYNC_THRESHOLD_US) {
 				delay = 0;
-				dropFrame = true;
+				correct = true;
 			}
 
-			if (dropFrame) {				
+			if (correct) {
 				FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
 					"sync: resync diff=%" lld64 " fast=%d",
 					diff, isFast);
@@ -113,11 +114,11 @@ namespace player {
 		//  不需要同步
 		//
 		int64_t threshold = FFL_MIN(SYNC_MIN_THRESHOLD_US, delay);
-		if ((isFast && diff < -threshold) ||
-			(!isFast && diff > threshold)) {
+		if ((isFast && diff < threshold) ||
+			(!isFast && diff > -threshold)) {
 			FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
-				"sync: not adjust diff=%" lld64 " fast=%d",
-				diff, isFast);
+				"sync: not adjust diff=%" lld64 " threshold=%" lld64 " fast=%d",
+				diff, threshold, isFast);
 			return delay;
 		}
 
@@ -127,11 +128,11 @@ namespace player {
 			//  是否丢帧检测
 			//
 			bool correct = false;
-			if (isFast && diff < -SYNC_MAX_THRESHOLD_US) {
+			if (isFast && diff > SYNC_MAX_THRESHOLD_US) {
 				delay = delay*2;
 				correct = true;
 			}
-			else if (!isFast && diff > SYNC_MAX_THRESHOLD_US) {
+			else if (!isFast && diff < -SYNC_MAX_THRESHOLD_US) {
 				delay = 0;
 				correct = true;
 			}
@@ -147,19 +148,18 @@ namespace player {
 		}
 
 		//
-		//  更具不同步读调整延迟时长
+		//  根据不同步时长diff，调整延迟时长
 		//		
 		if (isFast) {
-			delay = FFL_MIN(delay * 2, delay - diff);			
+			delay = FFL_MIN(delay * 2, delay + diff);			
 		}else{
-			delay = FFL_MIN(delay / 2, delay - diff);
+			delay = FFL_MIN(delay / 2, delay + diff);
 			delay = FFL_MAX(0, delay);			
 		}		
 		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP,
-			"sync: crorect diff=%" lld64 " fast=%d",
-			diff, isFast);
+			"sync: crorect diff=%" lld64 " delay=%" lld64 " fast=%d",
+			diff, delay,isFast);
 		return delay;
 	}
 }
 
-#endif

@@ -74,15 +74,8 @@ namespace player {
 		//
 		void setSpeed(uint32_t speed);
 		uint32_t getSpeed();
-	protected:
-		
-		void onEvent(const FFL::sp<event::PlayerEvent> event);
-		//
-		//  接收系统中发布的事件
-		//
-		class PlayerCoreEventFilter;
-		friend class PlayerCoreEventFilter;
-		//PlayerCoreEventFilter* mEventFilter;
+	protected:		
+		void onEvent(const FFL::sp<event::PlayerEvent> event);		
 	public:
 		//
 		//  获取主线,所有的节点都是由他管理的
@@ -150,12 +143,16 @@ namespace player {
 		//
 		// 设置绘制窗口
 		//
-		void setVideoSurface(FFL::sp<VideoSurface> surface);
+		void setVideoSurface(SurfaceHandle surface);
+		//
+		// 获取绘制中的窗口
+		//
+		FFL::sp<VideoSurface> getVideoSurface();
 	private:
 		//
 		// 创建，删除显示视频设备
 		//
-		FFL::sp<VideoDevice> createVideoDisplay(FFL::sp<VideoStream> stream, FFL::sp<VideoSurface> surface);
+		FFL::sp<VideoDevice> createVideoDisplay(FFL::sp<VideoStream> stream,SurfaceHandle surface);
 		void destroyVideoDisplay(FFL::sp<VideoDevice> dev);
 		//
 		// 创建删除显示音频的设备
@@ -182,7 +179,7 @@ namespace player {
 		VideoComposer* mVideoComposer;
 		AudioComposer* mAudioComposer;
 
-		FFL::sp<VideoSurface> mSurface;
+		SurfaceHandle mSurfaceHandle;
 		FFL::sp<reader::ReaderBase> mFileReader;
 	public:
 		PlayerStatistic mStats;

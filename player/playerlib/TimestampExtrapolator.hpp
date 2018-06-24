@@ -26,7 +26,7 @@ namespace player {
 		//  clock: 依赖这一个时钟，进行时间的推算
 		//  可以改变这个clock的速度，这样计算出来的延迟值就相应的改变了
 		// 
-		TimestampExtrapolator();
+		TimestampExtrapolator(const char* name);
 		~TimestampExtrapolator();
 		//
 		// 重置
@@ -45,7 +45,10 @@ namespace player {
 		//// 获取这个时间戳相对当前需要延迟的时长us
 		////
 		//int64_t getDelay(int64_t timestamp,const FFL::TimeBase& tb);
-		int64_t getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb);
+		//
+		//  lastFrameDuration:返回相对上一桢需要延迟的时间，其实就是上一桢图像的duration
+		//
+		int64_t getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb,int64_t* lastFrameDuration=0);
 	private:	
 		struct Tick{
 			Tick() {
@@ -70,6 +73,9 @@ namespace player {
 		//
 		Tick mRecentTick;	
 		uint32_t mSpeed;
+
+		FFL::String mName;
+		int64_t mFrameIndex;
 	};
 }
 

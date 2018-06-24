@@ -41,7 +41,8 @@ public:
 		printf("onVideoSizeChanged: width=%d height=%d aspectRatio=%d/%d\n",
 			width, height,
 			aspectRatioNum,
-			aspectRatioDen);		
+			aspectRatioDen);	
+		mPlayer->setSurfaceSize(width,height);
 	}	
 	//
 	//  视频播放结束回调
@@ -172,7 +173,7 @@ int playerMain() {
 	url = "d://movic//sintel.ts";       
 	//url = "d://movic//Nocturne.m4a";
 	//url = "d://movic//test.avi";
-	//url = "d://movic//zhuoyaoji.mp4";
+	url = "d://movic//zhuoyaoji.mp4";
 	
 	
 #else

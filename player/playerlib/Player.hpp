@@ -47,6 +47,10 @@ namespace player {
 		//
 		virtual status_t setSurface(void* surface);
 		//
+		// 设置渲染窗口的大小，只有窗口存在的情况下才可以设置大小，否则返回失败
+		//
+		virtual status_t setSurfaceSize(int32_t widht,int32_t height);
+		//
 		//  播放，暂停，停止
 		//
 		virtual status_t prepare();

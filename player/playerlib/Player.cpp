@@ -113,15 +113,25 @@ namespace player {
 	// 设置渲染到的目标
 	//
 	status_t FFLPlayer::setSurface(void* surface){
-		FFL::sp<VideoSurface> wnd;
+		SurfaceHandle wnd;
 #if WIN32
-		wnd->setHandle((HWND)surface);
+		wnd=((HWND)surface);
 #else
-		wnd->setHandle(surface);
+		wnd=surface;
 #endif
 		mCore->setVideoSurface(wnd);
 		FFL_ASSERT_LOG(0, "setSurface not impl.");
-		return FFL_NOT_IMPLEMENT;
+		return FFL_OK;
+	}
+	//
+	// 设置渲染窗口的大小，只有窗口存在的情况下才可以设置大小，否则返回失败
+	//
+	status_t FFLPlayer::setSurfaceSize(int32_t widht, int32_t height) {	
+		FFL::sp<VideoSurface> surface=mCore->getVideoSurface();
+		if (!surface.isEmpty()) {
+			surface->setWindowSize(widht, height);
+		}
+		return FFL_FAILED;
 	}
 	//
 	//  播放，暂停，停止

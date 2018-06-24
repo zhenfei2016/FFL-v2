@@ -3,6 +3,7 @@
 
 #include <ref/FFL_Ref.hpp>
 #include "VideoTexture.hpp"
+#include "VideoSurface.hpp"
 
 namespace player {
 	class VideoRender;
@@ -18,11 +19,11 @@ namespace player {
 		//
 		// 更新绘制的目标窗口
 		//
-		virtual void setSurface(FFL::sp<VideoSurface> surface)=0;
+		virtual void setSurface(SurfaceHandle surface)=0;
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(FFL::sp<VideoSurface> surface,int32_t widht,int32_t height) = 0;
+		virtual bool open(SurfaceHandle surface,int32_t widht,int32_t height) = 0;
 		virtual void close() = 0;
 		//
 		//  写一帧数据

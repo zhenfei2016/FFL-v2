@@ -57,7 +57,7 @@ namespace message {
 		mTexture.mPts = frame->pts;
 
 		if (mTexture.mPts < gLastPts) {
-			//FFL_ASSERT(0);
+			FFL_ASSERT(0);
 		}
 		gLastPts = mTexture.mPts;
 		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "decoder pts=%" lld64 " dts=%" lld64, frame->pts, frame->pkt_dts);

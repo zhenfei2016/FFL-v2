@@ -41,6 +41,13 @@ namespace player {
 		mAudioStream->getFormat(mFormat);		
 		sample->mSamples.setAudioFormat(mFormat);		
 
+		FFL::sp<FFL::PipelineOutput> output=getOutput(mFrameOutput.mId);
+		if (!output.isEmpty()) {
+			if (output->getPendingMessageSize() >= 5) {
+				FFL_sleep(10);
+			}
+		}
+
 		if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
 			msg->consume(this);
 		}	

@@ -253,6 +253,9 @@ namespace player {
 	void SDL2AudioDevice::SDL2_fill(uint8_t *stream, uint32_t len) {
 		SDL_memset(stream, 0, len);
 		uint32_t readed=readData2SwapBuffer(len);		
+		if (readed != len) {
+			FFL_LOG_DEBUG_TAG(TAG_AUDIO, "SDL2AudioDevice::SDL2_fill readed=%d  want=%d", readed , len);
+		}
 		SDL_MixAudio(stream, (Uint8*)mSwapBuffer.data(), readed, SDL_MIX_MAXVOLUME);
 	}	
 	//

@@ -13,7 +13,8 @@
 #include "TimestampUtils.hpp"
 
 namespace player {
-	TimestampExtrapolator::TimestampExtrapolator(){			
+	TimestampExtrapolator::TimestampExtrapolator(const char* name){
+		mName = name ? name : "";
 		reset();
 	}
 
@@ -26,6 +27,7 @@ namespace player {
 		mRecentTick.mWorldClock = 0;
 		mRecentTick.mTimestampClock = 0;
 		mRecentTick.mDelayUs = 0;
+		mFrameIndex = 0;
 		setSpeed(100);
 	}
 	//
@@ -73,31 +75,48 @@ namespace player {
 	//
 	// 获取这个时间戳到现在的相对时间
 	//
-	int64_t TimestampExtrapolator::getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb) {
+	int64_t TimestampExtrapolator::getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb, int64_t* lastFrameDuration) {
 		int64_t timestampUs = timestampToUs(timestamp, tb);
 		int64_t worldUs = FFL_getNowUs();
 
+		mFrameIndex++;
+
+		int64_t duration = 0;
 		int64_t delay = 0;
 		if (mRecentTick.isValid()) {			
-			delay = timestampUs - mRecentTick.mTimestampClock;
+			duration = timestampUs - mRecentTick.mTimestampClock;
+			
 			//
 			// 因为整体速度改变了，world时钟相应的也需要进行调整
 			//
 			//
 			double distance= ((double)((worldUs - mRecentTick.mWorldClock) * mSpeed)) / 100  - mRecentTick.mDelayUs;
-			delay -= (int64_t)distance;
+			delay = duration-(int64_t)distance;
 		}
 
 		mRecentTick.mWorldClock = worldUs;
 		mRecentTick.mTimestampClock = timestampUs;
 		mRecentTick.mDelayUs = delay;
 
-		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "TimestampExtrapolator::getDelayAndUpdate(%p) timestampUs=%" lld64 " worldClock=%" lld64 " delay=%" lld64,
-			this,
+		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "TimestampExtrapolator::getDelayAndUpdate(%s) timestampUs=%" lld64 " worldClock=%" lld64 " delay=%" lld64,
+			mName.c_str(),
 			mRecentTick.mTimestampClock,
 			mRecentTick.mWorldClock,
 			delay);	
-		
+
+		if (lastFrameDuration) {
+			*lastFrameDuration = duration;
+		}
+
+		if (mFrameIndex < 20&& delay<0) {
+			//
+			//开始可能不稳定，出现异常
+			//
+			delay = 0;
+		}
+		else {
+
+		}
 		return delay;
 	}
 

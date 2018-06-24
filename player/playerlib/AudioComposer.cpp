@@ -26,7 +26,7 @@ namespace player {
 		mDstFormat(NULL) {
 		setName("AudioComposer");
 		mResample = new AudioResample();
-		mTimestampExtrapolator = new TimestampExtrapolator();
+		mTimestampExtrapolator = new TimestampExtrapolator("audio");
 #ifdef SAVE_PCM
 		FFL::String file;
 		file = "e://1.pcm";
@@ -59,7 +59,7 @@ namespace player {
 	FFL::sp<FFL::PipelineConnector > AudioComposer::onCreateConnector(
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
-		return new FFL::SyncPipelineConnector();
+		return new FFL::PipelineAsyncConnector();
 	}
 
 	//
@@ -152,11 +152,15 @@ namespace player {
 			//		
 		}
 
-		getDelay(sample);
+		int64_t delay=getDelay(sample);
+		if (delay > 100 * 1000) {
+			delay /= 2;
+		}
+		
 		//
 		// 发送到这个输出接口上
 		//		
-		if (FFL_OK != postMessageDelayToRender(msg, 0)) {
+		if (FFL_OK != postMessageDelayToRender(msg, delay)) {
 			msg->consume(this);
 		}			
 	}

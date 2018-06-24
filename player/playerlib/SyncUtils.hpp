@@ -11,6 +11,9 @@
 *  音画同步帮助函数
 *
 */
+#ifndef _SYNC_UTILS_HPP_
+#define _SYNC_UTILS_HPP_
+
 #include "SyncClock.hpp"
 
 namespace player {
@@ -58,3 +61,5 @@ namespace player {
 	int64_t correctSyncDelay(SyncClock* master, SyncClock* slave, int64_t delay, OptMode* opt);
 
 }
+
+#endif

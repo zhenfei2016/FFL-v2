@@ -16,6 +16,7 @@
 #include "VideoTexture.hpp"
 #include "reader/Stream.hpp"
 #include "Statistic.hpp"
+#include "SyncUtils.hpp"
 
 
 namespace player {	
@@ -45,7 +46,7 @@ namespace player {
 		//
 		//  计算多长时间后播放这一桢
 		//
-		int64_t getDelay(VideoTexture* texture);
+		int64_t getDelay(VideoTexture* texture,OptMode& mode);
 		//
 		//  开始处理收到的纹理数据
 		//

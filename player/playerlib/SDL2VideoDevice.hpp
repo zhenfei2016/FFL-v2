@@ -20,11 +20,11 @@ namespace player {
 		//
 		// 更新绘制的目标窗口
 		//
-		virtual void setSurface(FFL::sp<VideoSurface> surface);
+		virtual void setSurface(SurfaceHandle surface);
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(FFL::sp<VideoSurface> wnd, int32_t widht, int32_t height);
+		virtual bool open(SurfaceHandle wnd, int32_t widht, int32_t height);
 		virtual void close();
 		//
 		//  显示当前文理
