@@ -15,6 +15,18 @@ namespace reader {
 	FFMPegReader::~FFMPegReader() {
 		mMessageCache->clear();
 	}
+	//
+	// 获取播放时长us
+	//
+	int64_t FFMPegReader::getDuration() {
+		return mAVFormatContext->duration;
+	}
+	//
+	// 获取当前的播放位置 us
+	//
+	int64_t FFMPegReader::getCurrentPosition() {
+		return 0;
+	}
 
 	//
 	//  读取一帧数据
@@ -27,7 +39,8 @@ namespace reader {
 		}
 		if (mEOFFlag) {
 			FFL_sleep(10);
-			FFL_LOG_WARNING(" FFMPegReader::onReadFrame eof");			
+			FFL_LOG_WARNING(" FFMPegReader::onReadFrame eof");	
+			return;
 		}
 
 		message::FFMpegPacket* packet = NULL;
@@ -181,13 +194,8 @@ namespace reader {
 			case AVMEDIA_TYPE_VIDEO:
 			{
 				name = "video";
-				streamInfo = new player::FFMpegVideoStream(stream);
-				FFL::sp<event::PlayerEvent> event = new event::PlayerEvent(event::EVENT_VIDEO_SIZE_CAHNGED,0,0);
-				//event->mInt32Parma1 = stream->codecpar->width;
-				//event->mInt32Parma2 = stream->codecpar->height;
-				//event->mInt64Param1 = stream->codecpar->sample_aspect_ratio.num;
-				//event->mInt64Param2 = stream->codecpar->sample_aspect_ratio.den;
-				event::postPlayerEvent(this, event);
+				streamInfo = new player::FFMpegVideoStream(stream);				
+				fillMetaData(streamInfo, stream);
 			}
 			break;
 			case AVMEDIA_TYPE_AUDIO:
@@ -215,6 +223,9 @@ namespace reader {
 
 		getStreamManager()->addStream(this, NULL);
 	}
+	void FFMPegReader::fillMetaData(StreamPtr stream, AVStream* avstream) {
+		FFL::Dictionary* dic = stream->getDictionary();
+	}
 	void FFMPegReader::handleEof() {
 		//
 		//  关闭当前的输入接口
@@ -230,12 +241,9 @@ namespace reader {
 			}
 		}
 
-		////
-		////  关闭当前的输入
-		////
-		//FFL::sp<FFL::PipelineInput> input = getInput(mInput.mId);
-		//if (!input.isEmpty()) {
-		//	input->requestShutdown();
-		//}
+		//
+		//  关闭当前的输入
+		//
+		pauseLooper();
 	}
 }

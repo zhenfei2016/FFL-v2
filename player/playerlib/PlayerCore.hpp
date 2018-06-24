@@ -138,8 +138,10 @@ namespace player {
 		bool onAddVideoStream(FFL::sp<VideoStream> stream);
 		bool onAddAudioStream(FFL::sp<AudioStream> stream);
 		bool onAddOtherStream(StreamPtr stream);
-
-
+		//
+		// 获取视频的metadata
+		//
+		void fetchVideoMetaData(FFL::sp<VideoStream> stream);
 	public:
 		//////////////////////////////////////////////////////////////////////////////
 		//   音视频设备创建，删除系类函数

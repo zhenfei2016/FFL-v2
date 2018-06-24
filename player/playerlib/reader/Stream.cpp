@@ -36,4 +36,10 @@ namespace reader {
 	player::SyncClock* Stream::getSyncClock() {
 		return mSyncClock;
 	}
+	//
+	// 获取这个流的一些属性
+	//
+	FFL::Dictionary* Stream::getDictionary() {
+		return &mDictionary;
+	}
 }

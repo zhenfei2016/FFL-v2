@@ -14,6 +14,7 @@
 
 #include <ref/FFL_Ref.hpp>
 #include <utils/FFL_Clock.hpp>
+#include <utils/FFL_Dictionary.hpp>
 #include "../NodeBase.hpp"
 
 namespace player {
@@ -66,6 +67,10 @@ namespace reader {
 		//  获取同步时钟
 		//
 		player::SyncClock* getSyncClock();
+		//
+		// 获取这个流的一些属性
+		//
+		FFL::Dictionary* getDictionary();
 	protected:
 		//
 		//  进行同步的时钟
@@ -75,6 +80,10 @@ namespace reader {
 		//  这个流数据的输入源
 		//
 		player::OutputInterface mSource;
+		//
+		// 存储这个流的一些属性
+		//
+		FFL::Dictionary mDictionary;
 	public:
 		uint32_t mStreamID;
 	};	

@@ -41,7 +41,7 @@ public:
 		printf("onVideoSizeChanged: width=%d height=%d aspectRatio=%d/%d\n",
 			width, height,
 			aspectRatioNum,
-			aspectRatioDen);
+			aspectRatioDen);		
 	}	
 	//
 	//  视频播放结束回调
@@ -102,15 +102,16 @@ bool keyPressed(void* userdata, int key) {
 		return false;
 	case '.':
 	case '>':
-	{   
-	    //
+	{
+		//
 		//  加速
 		//
 		uint32_t speed = player->getSpeed();
 		speed = FFL_MIN(speed + 5, 300);
 		player->setSpeed(speed);
+		printf("change speed:%d  \n", speed);
+		break; 
 	}
-		break;
 
 	case ',':
 	case '<':
@@ -121,34 +122,37 @@ bool keyPressed(void* userdata, int key) {
 		uint32_t speed = player->getSpeed();
 		speed =FFL_MAX(speed- 5,10);
 		player->setSpeed(speed);
+		printf("change speed:%d  \n",speed);
 	}
 		
 		break;
 	case '1':
 		//
-		//  前跳一点
+		//前跳一点 向前1s
 		//
-	//{
- //       int64_t cur=player->getPositionUs();
-	//	cur += 1000 * 1000;
-	//	if (cur > player->getDurationUs()) {
-	//		cur = player->getDurationUs()-10;
-	//	}
- //       player->setPositionUs(cur);
-	//}
+		{
+			int64_t cur = player->getCurrentPosition();
+			int64_t target=cur + 1000 * 1000;
+			if (target > player->getDuration()) {
+				target = player->getDuration() - 10;
+			}
+			player->seekTo(target);
+			printf("seekTo %" lld64 "-%" lld64 " \n", cur,target);
+		}
 		break;
 	case '2':
 		//
-		//  后跳一点
+		//  后跳一点 向后1s
 		//
-	//{
- //       int64_t cur=player->getPositionUs();
-	//	cur -= 1000 * 1000;
-	//	if (cur < 0) {
-	//		cur = 0;
-	//	}
-	//	player->setPositionUs(cur);
-	//}
+	{
+		int64_t cur = player->getCurrentPosition();
+		int64_t target = cur - 1000 * 1000;
+		if (target < 0) {
+			target = 0;
+		}
+		player->seekTo(target);
+		printf("seekTo %" lld64 "-%" lld64 " \n", cur, target);
+	}
 	break;
 	default:
 		break;

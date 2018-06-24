@@ -43,7 +43,7 @@ int main() {
 
 	FFL::startMemoryWatch();
 
-	FFL_LogHook(printLog);
+	//FFL_LogHook(printLog);
     FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
 	//FFL_LogSetLevel(FFL_LOG_LEVEL_WARNING);
 	if (0) {

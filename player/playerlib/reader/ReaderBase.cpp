@@ -150,7 +150,7 @@ namespace reader {
 			return false;
 		}
 
-		//mInput = input;
+		mInput = input;
 		FFL::sp<FFL::PipelineSourceConnector> conn = 0;
 		if (1) {
 			conn = new FFL::PipelineIdleSourceConnector();
@@ -161,7 +161,15 @@ namespace reader {
 		getOwner()->getPipeline()->connectSource(input.mNodeId, input.mId, conn);
 		return true;
 	}
-		
+	void ReaderBase::pauseLooper() {
+		//
+		//  关闭当前的输入
+		//
+		FFL::sp<FFL::PipelineInput> input = getInput(mInput.mId);
+		if (!input.isEmpty()) {
+			input->requestShutdown();
+		}
+	}
 	//
 	// 读取主循环
 	//

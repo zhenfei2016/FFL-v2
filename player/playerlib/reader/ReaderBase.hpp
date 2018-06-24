@@ -75,8 +75,10 @@ namespace reader {
 		// ÊÇ·ñÔÝÍ£×´Ì¬
 		//
 		bool isPaused() const;
-	private:
-		bool  initLooper();
+	protected:
+		player::InputInterface mInput;
+		bool initLooper();
+		void pauseLooper();
 	protected:
 		friend class FFL::ClassMethodVoidInputHandler<ReaderBase>;
 		//

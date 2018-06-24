@@ -14,6 +14,7 @@
 #include "PlayerCore.hpp"
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
+#include <utils/FFL_Dictionary.hpp>
 
 #include "FFMpeg.hpp"
 #include "NodeBase.hpp"
@@ -33,26 +34,6 @@
 #include "VideoStream.hpp"
 
 namespace player {
-	//class PlayerCore::PlayerCoreEventFilter : public FFL::PipelineEventFilter {
-	//public:
-	//	PlayerCoreEventFilter(PlayerCore* player) :mPlayer(player) {}
-	//	virtual ~PlayerCoreEventFilter() {
-
-	//	}
-	//	//
-	//	// 派发消息前的准备，消息派发前会先到这地方的
-	//	// 返回false表示不要向下派发了
-	//	//
-	//	bool onPrepareDispatch(const FFL::sp<FFL::PipelineEvent> event) {
-
-	//		FFL::sp<event::PlayerEvent> evt =(event::PlayerEvent*) event.get();
-	//		mPlayer->onEvent(evt);
-	//		return true;
-	//	}
-
-	//	PlayerCore* mPlayer;
-	//};
-
 	PlayerCore::PlayerCore(FFL::PipelineEventFilter* eventFilter):mSpeed(100){
 		mNextStreamId=0;
 		mFileReader = NULL;
@@ -118,9 +99,11 @@ namespace player {
 		return FFL_OK;
 	}
 	status_t PlayerCore::pause() {
+		mFileReader->pause();
 		return FFL_OK;
 	}
 	status_t PlayerCore::resume() {
+		mFileReader->resume();
 		return FFL_OK;
 	}
 	status_t PlayerCore::release() {
@@ -137,7 +120,9 @@ namespace player {
 	void PlayerCore::setPositionUs(int64_t pos) {
 		mFileReader->seek(pos);
 	}
-	int64_t PlayerCore::getPositionUs() {
+	int64_t PlayerCore::getPositionUs() {		
+		if(mMasterClock)
+		   return mMasterClock->getClock();
 		return mFileReader->getCurrentPosition();
 	}
 	int64_t PlayerCore::getDurationUs() {
@@ -156,6 +141,9 @@ namespace player {
 
 		mSpeed = speed;
 		if (!mVideoDevice.isEmpty()) {
+			//
+			//  更新绘制的速度
+			//
 			FFL::sp<VideoRender> render = mVideoDevice->getRender(0);
 			if (!render.isEmpty()) {
 				render->getRenderClock()->setSpeed(speed);
@@ -163,6 +151,9 @@ namespace player {
 		}
 
 		if (!mAudioDevice.isEmpty()) {
+			//
+			//  更新音频速度
+			//
 			FFL::sp<AudioRender> render = mAudioDevice->getRender(0);
 			if (!render.isEmpty()) {
 				render->getRenderClock()->setSpeed(speed);
@@ -241,6 +232,9 @@ namespace player {
 				count = mStreamVec.size();
 			}
 
+			if (mMasterClock == NULL) {
+				mMasterClock = getStream(0)->getSyncClock();
+			}
 			event::postPlayerEvent(this, event::EVENT_PREPARED, count>0, 0);
 			return -1;
 		}		
@@ -300,7 +294,7 @@ namespace player {
 	void PlayerCore::getStreamVec(reader::ReaderBase* reader, FFL::Vector < StreamPtr >& streamVec) {
 		FFL_ASSERT(0);
 	}
-	bool PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {
+	bool PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {		
 		//
 		// 视频处理节点
 		//
@@ -322,6 +316,8 @@ namespace player {
 		//
 		FFL::sp<Decoder> decoder = stream->createDecoder(this);		
 		decoder->setOutputComposer(mVideoComposer);
+
+		fetchVideoMetaData(stream);
 		return  true;
 	}
 	bool PlayerCore::onAddAudioStream(FFL::sp<AudioStream> stream) {
@@ -367,6 +363,17 @@ namespace player {
 	}
 	bool PlayerCore::onAddOtherStream(StreamPtr stream) {
 		return false;
+	}
+	//
+	// 获取视频的metadata
+	//
+	void PlayerCore::fetchVideoMetaData(FFL::sp<VideoStream> stream) {		
+		uint32_t width=0;
+		uint32_t height = 0;
+		stream->getSize(width,height);		
+		event::postPlayerEvent(this,event::EVENT_VIDEO_SIZE_CAHNGED,
+			FFL_MAKE_INT64(width, height),0);
+		//stream->getDictionary();
 	}
 	//
 	// 设置绘制窗口

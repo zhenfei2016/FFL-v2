@@ -13,11 +13,11 @@ namespace reader {
 		//
 		// 获取播放时长us
 		//
-		virtual int64_t getDuration() { return 0; }
+		virtual int64_t getDuration();
 		//
 		// 获取当前的播放位置 us
 		//
-		virtual int64_t getCurrentPosition() { return 0; }
+		virtual int64_t getCurrentPosition();
 	protected:
 		//
 		//  读取一帧数据
@@ -48,6 +48,7 @@ namespace reader {
 		//  打开这几个流
 		//
 		void openStream(AVStream** streams, uint32_t count);
+		void fillMetaData(StreamPtr stream, AVStream* avstream);
 		//
 		//  文件结束
 		//
@@ -58,8 +59,7 @@ namespace reader {
 			SUPORT_STREAM_NUM = 4,
 		};
 		struct StreamEntry {
-			StreamPtr mStream;
-			//OutputInterface mOutputInterface;
+			StreamPtr mStream;			
 
 			bool isValid() {
 				return !mStream.isEmpty();
