@@ -112,7 +112,7 @@
 #endif
 
 #ifndef FFL_MAKE_INT64
-#define FFL_MAKE_INT64(high,low) (((low)& 0xFFFFFFFF) | (((high)& 0xFFFFFFFF)<<32))
+#define FFL_MAKE_INT64(high,low) (((int64_t)(low)& 0xFFFFFFFF) | (((int64_t)(high)& 0xFFFFFFFF)<<32))
 #endif
 
 

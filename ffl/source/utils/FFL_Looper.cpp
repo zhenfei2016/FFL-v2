@@ -37,16 +37,17 @@ namespace FFL {
 			return Thread::readyToRun();
 		}
 
-		virtual bool threadLoop() 
-		{
+		virtual bool threadLoop(){
 			mLooper->setIsLooping(true);
 			return mLooper->loop();
 		}
 
 		void threadLoopExit(const Thread* t)
 		{
+			String name = mLooper->mName;
 			mLooper->setIsLooping(false);
 			mLooper->onQuitLooper(0);
+			FFL_LOG_DEBUG("looper(%s) exit", name.c_str());
 		}
 
 		bool isCurrentThread() const 

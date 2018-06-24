@@ -12,5 +12,13 @@ namespace FFL{
 		str.clear();
 		str.append(buf);
 	}
+
+	int64_t String2int64_t(String& str){
+		return 0;
+	}
+
+	int32_t String2int32_t(String& str) {
+		return 0;
+	}
 }
 
