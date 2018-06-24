@@ -16,20 +16,20 @@ namespace reader {
 		mMessageCache->clear();
 	}
 	//
-	// »ñÈ¡²¥·ÅÊ±³¤us
+	// è·å–æ’­æ”¾æ—¶é•¿us
 	//
 	int64_t FFMPegReader::getDuration() {
 		return mAVFormatContext->duration;
 	}
 	//
-	// »ñÈ¡µ±Ç°µÄ²¥·ÅÎ»ÖÃ us
+	// è·å–å½“å‰çš„æ’­æ”¾ä½ç½® us
 	//
 	int64_t FFMPegReader::getCurrentPosition() {
 		return 0;
 	}
 
 	//
-	//  ¶ÁÈ¡Ò»Ö¡Êı¾İ
+	//  è¯»å–ä¸€å¸§æ•°æ®
 	//
 	void FFMPegReader::onReadFrame() {
 		if (mAVFormatContext == NULL) {			
@@ -101,7 +101,7 @@ namespace reader {
 		}
 	}
 	//
-	// openº¯Êı£¬¾ßÌåÊµÏÖ
+	// openå‡½æ•°ï¼Œå…·ä½“å®ç°
 	//
 	void FFMPegReader::onOpen(const char* url) {		
 		if (mAVFormatContext) {
@@ -118,7 +118,7 @@ namespace reader {
 	}
 
 	//
-	// closeº¯Êı£¬¾ßÌåÊµÏÖ
+	// closeå‡½æ•°ï¼Œå…·ä½“å®ç°
 	//
 	void FFMPegReader::onClose() {
 		if (mAVFormatContext) {
@@ -128,7 +128,7 @@ namespace reader {
 	}
 
 	//
-	// pauseº¯Êı£¬resume ¾ßÌåÊµÏÖ
+	// pauseå‡½æ•°ï¼Œresume å…·ä½“å®ç°
 	//
 	void FFMPegReader::onPause() {
 
@@ -138,7 +138,7 @@ namespace reader {
 	}
 
 	//
-	// seekº¯Êı£¬¾ßÌåÊµÏÖ
+	// seekå‡½æ•°ï¼Œå…·ä½“å®ç°
 	//	
 	void FFMPegReader::onSeek(int64_t pos) {
 		int64_t ts = FFMPegUsToSeekfileTimestamp(pos);
@@ -149,7 +149,7 @@ namespace reader {
 		mSerialNumber++;
 
 		//
-		//  ½Úµã¶ªÆúµ±Ç°Ã»ÓĞ´¦ÀíµÄmsg
+		//  èŠ‚ç‚¹ä¸¢å¼ƒå½“å‰æ²¡æœ‰å¤„ç†çš„msg
 		//
 		FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_DISCARD_MSG);
 		msgDiscardCache->setParams(mSerialNumber, 0);
@@ -225,10 +225,11 @@ namespace reader {
 	}
 	void FFMPegReader::fillMetaData(StreamPtr stream, AVStream* avstream) {
 		FFL::Dictionary* dic = stream->getDictionary();
+        dic->setKey("duration", "0");
 	}
 	void FFMPegReader::handleEof() {
 		//
-		//  ¹Ø±Õµ±Ç°µÄÊäÈë½Ó¿Ú
+		//  å…³é—­å½“å‰çš„è¾“å…¥æ¥å£
 		//		
 		mEOFFlag = 1;
 		FFL::sp<FFL::PipelineMessage> msgEof = new FFL::PipelineMessage(MSG_CONTROL_READER_EOF);
@@ -242,7 +243,7 @@ namespace reader {
 		}
 
 		//
-		//  ¹Ø±Õµ±Ç°µÄÊäÈë
+		//  å…³é—­å½“å‰çš„è¾“å…¥
 		//
 		pauseLooper();
 	}

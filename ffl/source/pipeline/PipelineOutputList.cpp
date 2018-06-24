@@ -7,7 +7,7 @@
 *  FFL_PipelineOutputList.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/16
 *
-*  nodeµÄÊä³ö½Ó¿Ú¹ÜÀí
+*  nodeçš„è¾“å‡ºæ¥å£ç®¡ç†
 *
 */
 
@@ -29,7 +29,7 @@ namespace FFL {
 
 
 	//
-	//  ´´½¨Ò»¸öĞÂµÄinput
+	//  åˆ›å»ºä¸€ä¸ªæ–°çš„input
 	//
 	PipelineOutputId PipelineOutputList::createOutput(){
 
@@ -43,7 +43,7 @@ namespace FFL {
 		return id;
 	}
 	//
-	//  É¾³ıÒ»¸öinput
+	//  åˆ é™¤ä¸€ä¸ªinput
 	//
 	void PipelineOutputList::destroyOutput(PipelineOutputId id){
 		if (!isValidId(id)) {
@@ -58,7 +58,7 @@ namespace FFL {
 		} 
 	}
 	//
-	//  Í¨¹ıid²éÕÒÒ»¸öinput
+	//  é€šè¿‡idæŸ¥æ‰¾ä¸€ä¸ªinput
 	//
 	sp<PipelineOutput> PipelineOutputList::getOutput(PipelineOutputId id){
 		if (!isValidId(id)) {
@@ -73,7 +73,7 @@ namespace FFL {
 		return NULL;
 	}
 	//
-	//  »ñÈ¡ËùÓĞµÄÓĞĞ§µÄinput
+	//  è·å–æ‰€æœ‰çš„æœ‰æ•ˆçš„input
 	//
 	void PipelineOutputList::getOutputVector(Vector< sp<PipelineOutput> >& list) {
 		for (Vector<OutputInfo>::iterator it = mOutputs.begin(); it != mOutputs.end(); it++) {

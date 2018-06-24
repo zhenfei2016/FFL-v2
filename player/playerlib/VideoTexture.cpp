@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/13
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ´ıäÖÈ¾Í¼Æ¬µÄ»ù±¾ĞÅÏ¢
+*  å¾…æ¸²æŸ“å›¾ç‰‡çš„åŸºæœ¬ä¿¡æ¯
 */
 
 #include "VideoTexture.hpp"
@@ -16,7 +16,7 @@
 
 VideoTexture::VideoTexture() {
 	//
-	//  ÏÔÊ¾µÄÊ±¼ä£¬³ÖĞøµÄÊ±³¤
+	//  æ˜¾ç¤ºçš„æ—¶é—´ï¼ŒæŒç»­çš„æ—¶é•¿
 	//
 	mPts=-1;
 	mDuration=-1;
@@ -24,13 +24,13 @@ VideoTexture::VideoTexture() {
 
 
 	//
-	//Í¼Æ¬µÄ¿í¶È£¬¸ß¶È£¬¸ñÊ½
+	//å›¾ç‰‡çš„å®½åº¦ï¼Œé«˜åº¦ï¼Œæ ¼å¼
 	//
 	mWidth=0;
 	mHeight=0;
 	mPixFormat=0;
 	//
-	//  ¿í¸ß±È  ,¿ÉÄÜ¸úÊÓÆµ¿í¶È£¬¸ß¶È²»³É±ÈÀı
+	//  å®½é«˜æ¯”  ,å¯èƒ½è·Ÿè§†é¢‘å®½åº¦ï¼Œé«˜åº¦ä¸æˆæ¯”ä¾‹
 	//
 	//av_guess_sample_aspect_ratio
 	mSampleAspectRatioNum=0;
@@ -38,7 +38,7 @@ VideoTexture::VideoTexture() {
 
 
 	//
-	//  Í¼Æ¬Êı¾İ£¬ÓĞ¼¸Æ¬£¬¶ÔÆë´óĞ¡£¬ÆğÊ¼Ö¸Õë
+	//  å›¾ç‰‡æ•°æ®ï¼Œæœ‰å‡ ç‰‡ï¼Œå¯¹é½å¤§å°ï¼Œèµ·å§‹æŒ‡é’ˆ
 	//		
 	mPlanesCount=0;
 	memset(mPitches,0,sizeof(mPitches[0])*4);

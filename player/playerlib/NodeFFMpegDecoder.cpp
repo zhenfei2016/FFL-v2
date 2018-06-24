@@ -7,7 +7,7 @@
 *  NodeFFMpegDecoder.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/10
 *
-*  ½âÂëÆ÷»ùÀà
+*  è§£ç å™¨åŸºç±»
 *
 */
 
@@ -27,7 +27,7 @@ namespace player {
 	{
 	}
 	//
-	// ´¦Àí½ÓÊÕµ½µÄÏûÏ¢£¬
+	// å¤„ç†æ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼Œ
 	//
 	bool NodeFFMpegDecoder::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata) {
 		bool ret = false;
@@ -55,17 +55,17 @@ namespace player {
 		return ret;
 	}	
 	//
-	//  ½âÂëÒ»ÏûÏ¢
+	//  è§£ç ä¸€æ¶ˆæ¯
 	//
 	bool NodeFFMpegDecoder::decodeMessageFFMpegPacket(message::FFMpegPacket* msg) {
 		if (mSerialNumber == 0) {
 			//
-			// µÚÒ»´Î
+			// ç¬¬ä¸€æ¬¡
 			//
 			mSerialNumber = msg->mSerialNumber;
 		}
 		//
-		//  ½âÂëÊı¾İ
+		//  è§£ç æ•°æ®
 		//
 		if (mCodecCtx)
 		{
@@ -109,7 +109,7 @@ namespace player {
 				}
 			}
 			//
-			//  ³É¹¦½âÂë³öÒ»Ö¡Êı¾İ
+			//  æˆåŠŸè§£ç å‡ºä¸€å¸§æ•°æ®
 			//
 			FFL_LOG_INFO("frame=%d pts=%" lld64 " width=%d,height=%d keyframe=%d discard=%d",
 				mCodecCtx->frame_number, frame->pts,

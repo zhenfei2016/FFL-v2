@@ -11,46 +11,46 @@ namespace reader {
 		~FFMPegReader();
 	public:
 		//
-		// »ñÈ¡²¥·ÅÊ±³¤us
+		// è·å–æ’­æ”¾æ—¶é•¿us
 		//
 		virtual int64_t getDuration();
 		//
-		// »ñÈ¡µ±Ç°µÄ²¥·ÅÎ»ÖÃ us
+		// è·å–å½“å‰çš„æ’­æ”¾ä½ç½® us
 		//
 		virtual int64_t getCurrentPosition();
 	protected:
 		//
-		//  ¶ÁÈ¡Ò»Ö¡Êı¾İ
+		//  è¯»å–ä¸€å¸§æ•°æ®
 		//
 		virtual void onReadFrame();
 		//
-		// openº¯Êı£¬¾ßÌåÊµÏÖ
+		// openå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//
 		virtual void onOpen(const char* url);
 
 		//
-		// closeº¯Êı£¬¾ßÌåÊµÏÖ
+		// closeå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//
 		virtual void onClose();
 
 		//
-		// pauseº¯Êı£¬resume ¾ßÌåÊµÏÖ
+		// pauseå‡½æ•°ï¼Œresume å…·ä½“å®ç°
 		//
 		virtual void onPause();
 		virtual void onResume();
 
 		//
-		// seekº¯Êı£¬¾ßÌåÊµÏÖ
+		// seekå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//	
 		virtual void onSeek(int64_t pos);	
 	private:
 		//
-		//  ´ò¿ªÕâ¼¸¸öÁ÷
+		//  æ‰“å¼€è¿™å‡ ä¸ªæµ
 		//
 		void openStream(AVStream** streams, uint32_t count);
 		void fillMetaData(StreamPtr stream, AVStream* avstream);
 		//
-		//  ÎÄ¼ş½áÊø
+		//  æ–‡ä»¶ç»“æŸ
 		//
 		void handleEof();
 	private:
@@ -71,19 +71,19 @@ namespace reader {
 		};
 		StreamEntry mStreamVector[SUPORT_STREAM_NUM];
 		//
-		// Ã¿´Îseekºó»á¸ü¸ÄĞòÁĞºÅ
+		// æ¯æ¬¡seekåä¼šæ›´æ”¹åºåˆ—å·
 		//
 		int64_t mSerialNumber;
 		//
-		//  ÊÇ·ñeof
+		//  æ˜¯å¦eof
 		//
 		uint32_t mEOFFlag;
 		//
-		//  ½â¸´ÓÃFFMpegÉÏÏÂÎÄ
+		//  è§£å¤ç”¨FFMpegä¸Šä¸‹æ–‡
 		//
 		AVFormatContext* mAVFormatContext;
 		//
-		// »º´æµÄÊı¾İ°ü
+		// ç¼“å­˜çš„æ•°æ®åŒ…
 		//
 		FFL::sp<FFL::PipelineMessageCache> mMessageCache;
 	};

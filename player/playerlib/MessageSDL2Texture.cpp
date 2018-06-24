@@ -7,7 +7,7 @@
 *  MessageFFMpegPacket.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/16
 *
-*  sdl2µÄtexture
+*  sdl2çš„texture
 *
 */
 

@@ -7,7 +7,7 @@
 *  VideoComposer.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/19
 *
-*  ÊÓÆµºÏ³É
+*  è§†é¢‘åˆæˆ
 *
 */
 
@@ -29,29 +29,29 @@ namespace player {
 	protected:
 		void onCreate();
 		//
-		//   Íâ²¿setDataInputÊ±ºòµ÷ÓÃ´Ëº¯Êı£¬´´½¨¶ÔÓ¦conn
+		//   å¤–éƒ¨setDataInputæ—¶å€™è°ƒç”¨æ­¤å‡½æ•°ï¼Œåˆ›å»ºå¯¹åº”conn
 		//
 		virtual FFL::sp<FFL::PipelineConnector > onCreateConnector(
 			const OutputInterface& output,
 			const InputInterface& input,void* userdata);
 
 		//
-		// ´¦Àí½ÓÊÕµ½µÄÏûÏ¢£¬Èç¹û·µ»Øfalse±íÊ¾Õâ¸öÏûÏ¢Ã»ÓĞ´¦Àí£¬
-		// ·µ»Øtrue±íÊ¾Õâ¸öÏûÏ¢´¦ÀíÁË£¬ÏûÏ¢´¦Àí½áÊøºó±ØĞëmsg->consume();
+		// å¤„ç†æ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼Œå¦‚æœè¿”å›falseè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯æ²¡æœ‰å¤„ç†ï¼Œ
+		// è¿”å›trueè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯å¤„ç†äº†ï¼Œæ¶ˆæ¯å¤„ç†ç»“æŸåå¿…é¡»msg->consume();
 		//
 		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);
 
 	private:
 		//
-		//  ¼ÆËã¶à³¤Ê±¼äºó²¥·ÅÕâÒ»èå
+		//  è®¡ç®—å¤šé•¿æ—¶é—´åæ’­æ”¾è¿™ä¸€æ¡¢
 		//
 		int64_t getDelay(VideoTexture* texture);
 		//
-		//  ¿ªÊ¼´¦ÀíÊÕµ½µÄÎÆÀíÊı¾İ
+		//  å¼€å§‹å¤„ç†æ”¶åˆ°çš„çº¹ç†æ•°æ®
 		//
 		void handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture);
 		//
-		//  ½ÓÊÕµ½eofÏûÏ¢
+		//  æ¥æ”¶åˆ°eofæ¶ˆæ¯
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
 	

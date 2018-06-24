@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/13
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ÒôÆµ²É¼¯µÄ¸ñÊ½ĞÅÏ¢
+*  éŸ³é¢‘é‡‡é›†çš„æ ¼å¼ä¿¡æ¯
 *
 */
 
@@ -38,19 +38,19 @@ namespace player {
 		return *this;
 	}
 	//
-	//  »ñÈ¡ÉùµÀ²¼¾Ö
+	//  è·å–å£°é“å¸ƒå±€
 	//
 	int64_t AudioFormat::getChannelLayout() {		
 		return av_get_default_channel_layout(mChannelNum);
 	}
 	//
-	// »ñÈ¡Ò»¸ö²ÉÑùµãµÄ´óĞ¡
+	// è·å–ä¸€ä¸ªé‡‡æ ·ç‚¹çš„å¤§å°
 	//
 	uint32_t AudioFormat::getPerFrameSize() {
 		return av_get_bytes_per_sample(mFormat) * mChannelNum;
 	}
 	//
-	//  Êä³öµ±Ç°µÄËùÓĞĞÅÏ¢
+	//  è¾“å‡ºå½“å‰çš„æ‰€æœ‰ä¿¡æ¯
 	//
 	const char* AudioFormat::dump() {
 #if DEBUG_AUDIO		
@@ -63,9 +63,9 @@ namespace player {
 
 
 	//
-	//  »ñÈ¡²¥·ÅËÙ¶È¸Ä±äºóĞèÒª²¹³¥µÄ²ÉÑùÊı£¬¿ÉÄÜ±ä´ó±äĞ¡
-	//  sampleNum:Ô­Ê¼Õı³£Çé¿öÏÂµÄ²ÉÑùÊı
-	//  speed :²¥·ÅËÙ¶È£¬ Õı³£ËÙ¶ÈÎª100 , <100±äÂı , >100±ä¿ì
+	//  è·å–æ’­æ”¾é€Ÿåº¦æ”¹å˜åéœ€è¦è¡¥å¿çš„é‡‡æ ·æ•°ï¼Œå¯èƒ½å˜å¤§å˜å°
+	//  sampleNum:åŸå§‹æ­£å¸¸æƒ…å†µä¸‹çš„é‡‡æ ·æ•°
+	//  speed :æ’­æ”¾é€Ÿåº¦ï¼Œ æ­£å¸¸é€Ÿåº¦ä¸º100 , <100å˜æ…¢ , >100å˜å¿«
 	//
 	int32_t getCompensationSampleNum(uint32_t sampleNum,uint32_t speed){
 		if (speed == SPEED_NORAML || speed  ==0 || sampleNum == 0) {
@@ -73,7 +73,7 @@ namespace player {
 		}
 
 		//
-		//  ¼ÆËãÕâ¸öËÙ¶ÈÇé¿öÏÂĞèÒªµÄ²ÉÑùµã
+		//  è®¡ç®—è¿™ä¸ªé€Ÿåº¦æƒ…å†µä¸‹éœ€è¦çš„é‡‡æ ·ç‚¹
 		//
 		int32_t wantSampleNum=(int32_t)((double)(sampleNum * SPEED_NORAML) / speed);
 		

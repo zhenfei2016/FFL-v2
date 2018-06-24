@@ -7,7 +7,7 @@
 *  testCmd.cpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/20 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÃüÁîĞĞ²âÊÔ
+*  å‘½ä»¤è¡Œæµ‹è¯•
 *
 */
 #include <stdio.h>
@@ -38,7 +38,7 @@ int mainTestCmd() {
 		cmd[0] = '-';
 		cmd[1] = '-';
 
-		char *argv[] = {
+		const char *argv[] = {
 			"",
 			cmd,
 		};

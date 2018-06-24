@@ -6,7 +6,7 @@
 *
 *  FFL_ByteBuffer   
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/06 
-*  ÄÚ´æ¹ÜÀíÀà
+*  å†…å­˜ç®¡ç†ç±»
 *
 */
 #ifndef _FFL_BYTE_BUFFER_HPP_
@@ -23,11 +23,11 @@ namespace FFL{
 		~ByteBuffer();
 		
 		//
-		// ÖØĞÂÉêÇëÒ»ÏÂ¿Õ¼ä
+		// é‡æ–°ç”³è¯·ä¸€ä¸‹ç©ºé—´
 		//
 		uint32_t alloc(uint32_t size);
 		//
-		//  À©´óÒ»ÏÂÄÚ´æ¿Õ¼ä,Èç¹ûsizeĞ¡ÓÚÒÑ¾­ÉêÇëµÄÔò·µ»ØÒÔÇ°µÄ´óĞ¡
+		//  æ‰©å¤§ä¸€ä¸‹å†…å­˜ç©ºé—´,å¦‚æœsizeå°äºå·²ç»ç”³è¯·çš„åˆ™è¿”å›ä»¥å‰çš„å¤§å°
 		//
 		uint32_t realloc(uint32_t size);
 		
@@ -36,7 +36,7 @@ namespace FFL{
 		uint32_t size() const;
 		
 		//
-		//  »ñÈ¡Õâ¸öÄÚ´æµÄ²Ù×÷Á÷
+		//  è·å–è¿™ä¸ªå†…å­˜çš„æ“ä½œæµ
 		//
 		ByteStream* getByteStream();
 	private:

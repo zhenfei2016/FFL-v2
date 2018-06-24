@@ -4,7 +4,7 @@
 
 #if defined(FFL_ATOMIC_STDCPP)
 /*
-*  优先使用std库的
+*  浼樺厛浣跨敤std搴撶殑
 */
 #include "atomic_stdcplus11.cpp"
 #elif defined (WIN32)

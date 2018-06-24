@@ -6,7 +6,7 @@
 *
 *  FFL_Thread.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
-*  基予Android Open Source Project，修改的线程封装
+*  鍩轰簣Android Open Source Project锛屼慨鏀圭殑绾跨▼灏佽
 *
 */
 

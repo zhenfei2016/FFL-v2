@@ -99,6 +99,7 @@ bool keyPressed(void* userdata, int key) {
 		// 停止播放
 		//
 		player->stop();
+        FFL_LOG_DEBUG("player stop.");
 		return false;
 	case '.':
 	case '>':

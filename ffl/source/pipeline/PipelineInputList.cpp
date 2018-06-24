@@ -7,7 +7,7 @@
  *  FFL_PipelineInputList.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2017/12/16 
  *  
- *  ��������һ��ӿڵİ�װ����
+ *  保存输入一组接口的包装类型
  *
 */
 #include <pipeline/FFL_PipelineNode.hpp>
@@ -27,7 +27,7 @@ namespace FFL {
 
 
 	//
-	//  ����һ���µ�input
+	//  创建一个新的input
 	//
 	PipelineInputId PipelineInputList::createInput(const char* name, sp<PipelineInputHandler> handler){
 
@@ -42,7 +42,7 @@ namespace FFL {
 		return input->getId();
 	}
 	//
-	//  ɾ��һ��input
+	//  删除一个input
 	//
 	void PipelineInputList::destroyInput(PipelineInputId id) {
 		if (!isValidId(id)) {
@@ -61,7 +61,7 @@ namespace FFL {
 		}	
 	}
 	//
-	//  ͨ��id����һ��input
+	//  通过id查找一个input
 	//
 	sp<PipelineInput> PipelineInputList::getInput(PipelineInputId id){
 		if (!isValidId(id)) {
@@ -77,7 +77,7 @@ namespace FFL {
 		return info.input;
 	}
 	//
-	//  ��ȡ���е���Ч��input
+	//  获取所有的有效的input
 	//
 	void PipelineInputList::getInputVector(Vector< sp<PipelineInput> >& list, InutStatus status ) {
 		for (Vector<InputInfo>::iterator it = mInputs.begin(); it != mInputs.end(); it++) {

@@ -7,7 +7,7 @@
 *  FFL_ByteReader   
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/01 
 *
-*  字节流读接口
+*  瀛楄妭娴佽鎺ュ彛
 */
 #ifndef _FFL_BYTE_READER_HPP_
 #define _FFL_BYTE_READER_HPP_
@@ -19,7 +19,7 @@ namespace FFL{
 	class ByteReader {	
 	public:
 		//
-		//  字节流读接口
+		//  瀛楄妭娴佽鎺ュ彛
 		//
 		virtual bool read1Bytes(int8_t& val)=0;
 		virtual bool read2Bytes(int16_t& val) = 0;

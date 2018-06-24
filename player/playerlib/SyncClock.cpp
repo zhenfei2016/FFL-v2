@@ -9,14 +9,14 @@ namespace player {
 
 	}
 	//
-	//  ÖØÖÃÒ»ÏÂÍ¬²½Ê±ÖÓ
+	//  é‡ç½®ä¸€ä¸‹åŒæ­¥æ—¶é’Ÿ
 	//
 	void SyncClock::reset() {
 		mClock = 0;
 		mWorldClock = 0;
 	}
 	//
-	// ¸üĞÂÊ±ÖÓ
+	// æ›´æ–°æ—¶é’Ÿ
 	//
 	void SyncClock::updateClock(int64_t us) {
 		mClock = us;
@@ -26,7 +26,7 @@ namespace player {
 		updateClock(timestampToUs(timestamp, tb));
 	}
 	//
-	// »ñÈ¡µ±Ç°Ê±ÖÓ
+	// è·å–å½“å‰æ—¶é’Ÿ
 	//
 	int64_t SyncClock::getClock() {
 		if (mClock == 0 || mWorldClock == 0) {
@@ -36,7 +36,7 @@ namespace player {
 	}
 
 	//
-	//  ¼ÆËã2¸öÊ±ÖÓµÄ²îÖµ us
+	//  è®¡ç®—2ä¸ªæ—¶é’Ÿçš„å·®å€¼ us
 	//
 	int64_t diffClock(SyncClock* c1, SyncClock* c2) {
 		if (c1 == c2) {

@@ -27,6 +27,6 @@ extern "C"
 
 
 //
-//  毫秒转化为ffmpeg的seekfile单位下的位置
+//  姣杞寲涓篺fmpeg鐨剆eekfile鍗曚綅涓嬬殑浣嶇疆
 //
 int64_t FFMPegUsToSeekfileTimestamp(int64_t us);

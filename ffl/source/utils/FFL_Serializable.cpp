@@ -7,7 +7,7 @@
 *  FFL_Serializable.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/10
 *
-*  用于序列换的接口
+*  鐢ㄤ簬搴忓垪鎹㈢殑鎺ュ彛
 */
 
 #include <utils/FFL_Serializable.hpp>

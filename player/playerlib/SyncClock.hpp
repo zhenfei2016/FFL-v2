@@ -11,31 +11,31 @@ namespace player {
 		SyncClock();
 		~SyncClock();
 		//
-		//  ÖØÖÃÒ»ÏÂÍ¬²½Ê±ÖÓ
+		//  é‡ç½®ä¸€ä¸‹åŒæ­¥æ—¶é’Ÿ
 		//
 		void reset();
 		//
-		// ¸üĞÂÊ±ÖÓ
+		// æ›´æ–°æ—¶é’Ÿ
 		//
 		void updateClock(int64_t us);
 		void updateClock(int64_t timestamp, const FFL::TimeBase& tb);
 		//
-		// »ñÈ¡µ±Ç°Ê±ÖÓ
+		// è·å–å½“å‰æ—¶é’Ÿ
 		//
 		int64_t getClock();
 	private:
 		//
-		//  Íâ²¿updateClock¸üĞÂµÄÊ±ÖÓus
+		//  å¤–éƒ¨updateClockæ›´æ–°çš„æ—¶é’Ÿus
 		//
 		int64_t mClock;
 		//
-		//  ¿ÉÒÔÀí½âÎªÊÀ½çÊ±ÖÓ£¬Õâ¸öÊ¹ÓÃµÄFFL_getNowus()»ñÈ¡Ê±¼ä
+		//  å¯ä»¥ç†è§£ä¸ºä¸–ç•Œæ—¶é’Ÿï¼Œè¿™ä¸ªä½¿ç”¨çš„FFL_getNowus()è·å–æ—¶é—´
 		//
 		int64_t mWorldClock;
 	};
 
 	//
-	//  ¼ÆËã2¸öÊ±ÖÓµÄ²îÖµ us
+	//  è®¡ç®—2ä¸ªæ—¶é’Ÿçš„å·®å€¼ us
 	//   c1-c2;
 	//
 	int64_t diffClock(SyncClock* c1, SyncClock* c2);

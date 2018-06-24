@@ -138,13 +138,13 @@ namespace player {
 			targetSample.setAudioFormat(*mDstFormat);			
 			mResample->resample(sample, &targetSample, getOwner()->getSpeed());
 			sample->moveData(targetSample);
-
-			size_t writed = 0;
+			
 #ifdef SAVE_PCM
+            size_t writed = 0;
 			mTestFile.write((*sample->mData), sample->mLinesize, &writed);
 #endif 		
 			if (gFrameCOunt++ > 100) {
-				int i = 0;
+				
 			}
 		}else {
 			//
@@ -152,7 +152,7 @@ namespace player {
 			//		
 		}
 
-		int64_t delay=getDelay(sample);
+		getDelay(sample);
 		//
 		// 发送到这个输出接口上
 		//		

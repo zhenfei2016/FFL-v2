@@ -7,7 +7,7 @@
 *  AudioStream.cpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/22 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÒôÆµÁ÷
+*  éŸ³é¢‘æµ
 *
 */
 #include "AudioStream.hpp"
@@ -18,7 +18,7 @@ namespace player {
 	AudioStream::~AudioStream() {
 	}
 	////
-	//// »ñÈ¡Õâ¸öÁ÷µÄ¸ñÊ½
+	//// è·å–è¿™ä¸ªæµçš„æ ¼å¼
 	////
 	//void AudioStream::getFormat(AudioFormat& fmt) {	
 	//}

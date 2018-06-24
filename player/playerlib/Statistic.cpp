@@ -7,7 +7,7 @@
  *  Statistic.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/05/01 
  *  
- *  Í³¼Æ½Ó¿Ú
+ *  ç»Ÿè®¡æ¥å£
  *
 */
 #include "Statistic.hpp"
@@ -68,15 +68,15 @@ namespace player {
 
 
 	//
-	//  ¿ªÊ¼äÖÈ¾timestamp¶ÔÓ¦µÄÒ»Ö¡Êı¾İ
-	//  now:µ±Ç°µÄ±¾µØÊ±¼ä
+	//  å¼€å§‹æ¸²æŸ“timestampå¯¹åº”çš„ä¸€å¸§æ•°æ®
+	//  now:å½“å‰çš„æœ¬åœ°æ—¶é—´
 	//
 	void PlayerStatistic::renderAudioFrame(int64_t timestamp, int64_t now) {
 		
 	}
 	//
-	//  ¿ªÊ¼äÖÈ¾timestamp¶ÔÓ¦µÄÒ»Ö¡Êı¾İ
-	//  now:µ±Ç°µÄ±¾µØÊ±¼ä
+	//  å¼€å§‹æ¸²æŸ“timestampå¯¹åº”çš„ä¸€å¸§æ•°æ®
+	//  now:å½“å‰çš„æœ¬åœ°æ—¶é—´
 	//
 	void PlayerStatistic::renderVideoFrame(int64_t timestamp, int64_t now) {
 		

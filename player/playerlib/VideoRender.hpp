@@ -7,7 +7,7 @@
 *  VideoRender.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/25
 *
-*  ÊÓÆµäÖÈ¾
+*  è§†é¢‘æ¸²æŸ“
 *
 */
 
@@ -27,28 +27,28 @@ namespace player {
 		~VideoRender();
 
 		//
-		//  ³É¹¦´´½¨ÁËnode
+		//  æˆåŠŸåˆ›å»ºäº†node
 		//
 		virtual void onCreate();
 		//
-		//  »ñÈ¡äÖÈ¾Ê±ÖÓ£¬¿ÉÒÔ¸Ä±äÊ±ÖÓËÙ¶È
+		//  è·å–æ¸²æŸ“æ—¶é’Ÿï¼Œå¯ä»¥æ”¹å˜æ—¶é’Ÿé€Ÿåº¦
 		//
 		FFL::sp<FFL::Clock> getRenderClock();
 		//
-		//   Íâ²¿setDataInputÊ±ºòµ÷ÓÃ´Ëº¯Êı£¬´´½¨¶ÔÓ¦conn
+		//   å¤–éƒ¨setDataInputæ—¶å€™è°ƒç”¨æ­¤å‡½æ•°ï¼Œåˆ›å»ºå¯¹åº”conn
 		//
 		FFL::sp<FFL::PipelineConnector > onCreateConnector(
 			const OutputInterface& output,
 			const InputInterface& input, void* userdata);
 	protected:
 		//
-		// ´¦Àí½ÓÊÕµ½µÄÏûÏ¢£¬Èç¹û·µ»Øfalse±íÊ¾Õâ¸öÏûÏ¢Ã»ÓĞ´¦Àí£¬
-		// ·µ»Øtrue±íÊ¾Õâ¸öÏûÏ¢´¦ÀíÁË£¬ÏûÏ¢´¦Àí½áÊøºó±ØĞëmsg->consume();
+		// å¤„ç†æ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼Œå¦‚æœè¿”å›falseè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯æ²¡æœ‰å¤„ç†ï¼Œ
+		// è¿”å›trueè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯å¤„ç†äº†ï¼Œæ¶ˆæ¯å¤„ç†ç»“æŸåå¿…é¡»msg->consume();
 		//
 		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);
 	protected:
 		//
-		//  ¿ªÊ¼ÏÔÊ¾
+		//  å¼€å§‹æ˜¾ç¤º
 		//
 		virtual void onShowTexture(VideoTexture* texture);
 	protected:

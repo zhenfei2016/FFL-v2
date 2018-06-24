@@ -7,7 +7,7 @@
 *  FFL_List.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/03
 *
-*  Vector封装，先直接继承std库， 换一个名称方便以后的替换
+*  Vector灏佽锛屽厛鐩存帴缁ф壙std搴擄紝 鎹竴涓悕绉版柟渚夸互鍚庣殑鏇挎崲
 *
 */
 #ifndef _FFL_VECTOR_HPP_

@@ -1,3 +1,5 @@
+#ifndef _READER_FACTORY_HPP_
+#define _READER_FACTORY_HPP_
 #include "ReaderBase.hpp"
 #include <utils/FFL_Singleton.hpp>
 namespace reader {
@@ -9,11 +11,11 @@ namespace reader {
 
 	public:
 		//
-		//  根据url创建一个合适的ReaderInterface，如果不支持会返回NULL
+		//  鏍规嵁url鍒涘缓涓�涓悎閫傜殑ReaderInterface锛屽鏋滀笉鏀寔浼氳繑鍥濶ULL
 		//
 		FFL::sp<ReaderBase> createReader(const char* url,void* userdata);
 		//
-		// 释放这个reader
+		// 閲婃斁杩欎釜reader
 		//
 		void destroyReader(FFL::sp<ReaderBase> reader);
 	private:
@@ -22,3 +24,4 @@ namespace reader {
 		DISABLE_COPY_CONSTRUCTORS(ReaderFactory);
 	};
 }
+#endif

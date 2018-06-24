@@ -7,7 +7,7 @@
 *  FFL_Io.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/20
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  io¶ÁĞ´½Ó¿Ú
+*  ioè¯»å†™æ¥å£
 *
 */
 
@@ -17,7 +17,7 @@
 #include <FFL.h>
 namespace FFL {
 	//
-	//  »º³åÇøbuffer
+	//  ç¼“å†²åŒºbuffer
 	//
 	struct BufferVec {
 		void  *data;
@@ -27,11 +27,11 @@ namespace FFL {
 	class IOReader {
 	public:
 		//
-		//  ¶ÁÊı¾İµ½»º³åÇø
-		//  buf:»º³åÇøµØÖ·
-		//  count:ĞèÒª¶ÁµÄ´óĞ¡
-		//  pReaded:ÊµÖÊÉÏ¶ÁÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  è¯»æ•°æ®åˆ°ç¼“å†²åŒº
+		//  buf:ç¼“å†²åŒºåœ°å€
+		//  count:éœ€è¦è¯»çš„å¤§å°
+		//  pReaded:å®è´¨ä¸Šè¯»äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t read(uint8_t* buf, size_t count, size_t* pReaded)=0;
 	};
@@ -39,19 +39,19 @@ namespace FFL {
 	class IOWriter {
 	public:
 		//
-		//  Ğ´Êı¾İµ½ÎÄ¼şÖĞ
-		//  buf:»º³åÇøµØÖ·
-		//  count:»º³åÇø´óĞ¡
-		//  pWrite:ÊµÖÊÉÏĞ´ÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  å†™æ•°æ®åˆ°æ–‡ä»¶ä¸­
+		//  buf:ç¼“å†²åŒºåœ°å€
+		//  count:ç¼“å†²åŒºå¤§å°
+		//  pWrite:å®è´¨ä¸Šå†™äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t write(void* buf, size_t count, size_t* pWrite)=0;
 		//
-		//  Ğ´Êı¾İµ½ÎÄ¼şÖĞ
-		//  bufVec:»º³åÇøµØÖ·,Êı×é
-		//  count:Êı×é´óĞ¡
-		//  pWrite:ÊµÖÊÉÏĞ´ÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  å†™æ•°æ®åˆ°æ–‡ä»¶ä¸­
+		//  bufVec:ç¼“å†²åŒºåœ°å€,æ•°ç»„
+		//  count:æ•°ç»„å¤§å°
+		//  pWrite:å®è´¨ä¸Šå†™äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t writeVec(const BufferVec* bufVec, int count, size_t* pWrite)=0;		
 	};

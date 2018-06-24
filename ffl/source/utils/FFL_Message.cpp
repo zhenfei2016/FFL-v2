@@ -6,8 +6,8 @@
 *
 *  FFL_Message
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
-*  ²Î¿¼ Android Open Source Project ½øĞĞĞŞ¸ÄµÄ
-*  Looper£¬Handler´¦ÀíµÄMessage
+*  å‚è€ƒ Android Open Source Project è¿›è¡Œä¿®æ”¹çš„
+*  Looperï¼ŒHandlerå¤„ç†çš„Message
 *
 */
 #include <utils/FFL_Message.hpp>
@@ -37,7 +37,7 @@ namespace FFL {
 		return mUniqueId ;
 	}
 	//
-	//  ¸üĞÂÒ»ÏÂÎ¨Ò»id
+	//  æ›´æ–°ä¸€ä¸‹å”¯ä¸€id
 	//
 	void Message::updateUniqueId()
 	{

@@ -7,10 +7,9 @@
 *  FFL_Player.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/03
 *
-*  ²¥·ÅÆ÷
+*  æ’­æ”¾å™¨
 *
 */
-
 #include "PlayerCore.hpp"
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
@@ -53,20 +52,20 @@ namespace player {
 	status_t PlayerCore::init() {
 		mDeviceCreator = new SDL2Module();
 		//
-		//  ´ò¿ªÎÄ¼ş£¬¶ÁĞ´ÎÄ¼ş½Úµã
+		//  æ‰“å¼€æ–‡ä»¶ï¼Œè¯»å†™æ–‡ä»¶èŠ‚ç‚¹
 		//			
 		mFileReader = reader::ReaderFactory::getInstance().createReader(NULL, NULL);
 		mFileReader->setStreamManager(this);
 		mFileReader->create(this);
 		//
-		// ´´½¨ÏÔÊ¾´°Ìå
+		// åˆ›å»ºæ˜¾ç¤ºçª—ä½“
 		//
 		mVideoDevice = createVideoDisplay(NULL, mSurface);
 		return FFL_OK;
 	}
 
 	//
-	//  Ã»ÓĞ±£Ö¤Í¬Ê±½øĞĞ¶à´ÎµÄprepare,Íâ²¿µ÷ÓÃ±£Ö¤
+	//  æ²¡æœ‰ä¿è¯åŒæ—¶è¿›è¡Œå¤šæ¬¡çš„prepare,å¤–éƒ¨è°ƒç”¨ä¿è¯
 	//
 	status_t PlayerCore::syncPrepare(const char* url) {
 		mUrl = url;
@@ -115,7 +114,7 @@ namespace player {
 		return FFL_OK;
 	}
 	//
-	//»ñÈ¡£¬ÉèÖÃ²¥·ÅµÄÎ»ÖÃ,×ÜÊ±³¤
+	//è·å–ï¼Œè®¾ç½®æ’­æ”¾çš„ä½ç½®,æ€»æ—¶é•¿
 	//
 	void PlayerCore::setPositionUs(int64_t pos) {
 		mFileReader->seek(pos);
@@ -129,7 +128,7 @@ namespace player {
 		return mFileReader->getDuration();
 	}	
 	//
-	//  ÉèÖÃ£¬»ñÈ¡²¥·ÅËÙ¶È
+	//  è®¾ç½®ï¼Œè·å–æ’­æ”¾é€Ÿåº¦
 	//
 	void PlayerCore::setSpeed(uint32_t speed) {
 		if (speed > 300) {
@@ -142,7 +141,7 @@ namespace player {
 		mSpeed = speed;
 		if (!mVideoDevice.isEmpty()) {
 			//
-			//  ¸üĞÂ»æÖÆµÄËÙ¶È
+			//  æ›´æ–°ç»˜åˆ¶çš„é€Ÿåº¦
 			//
 			FFL::sp<VideoRender> render = mVideoDevice->getRender(0);
 			if (!render.isEmpty()) {
@@ -152,7 +151,7 @@ namespace player {
 
 		if (!mAudioDevice.isEmpty()) {
 			//
-			//  ¸üĞÂÒôÆµËÙ¶È
+			//  æ›´æ–°éŸ³é¢‘é€Ÿåº¦
 			//
 			FFL::sp<AudioRender> render = mAudioDevice->getRender(0);
 			if (!render.isEmpty()) {
@@ -175,9 +174,7 @@ namespace player {
 			break;
 		case event::EVENT_VIDEO_SIZE_CAHNGED:
 		{
-			int32_t width = FFL_INT64_HIGHT_32( event->getParam1());
-			int32_t height= FFL_INT64_LOW_32( event->getParam1());
-			//mWindow->setWindowSize(width,height);
+
 		}
 		break;
 
@@ -219,12 +216,12 @@ namespace player {
 
 	//  IStreamManager
 	//
-	//  Ìí¼ÓreaderÏÂµÄÒ»¸östreamµ½¹ÜÀíÖĞ£¬·µ»Øµ±Ç°Õâ¸östreamµÄid
+	//  æ·»åŠ readerä¸‹çš„ä¸€ä¸ªstreamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›å½“å‰è¿™ä¸ªstreamçš„id
 	//
 	int32_t  PlayerCore::addStream(reader::ReaderBase* reader,StreamPtr stream) {
 		if (stream.isEmpty()) {
 			//
-			// ×îºóÒ»Ìõ
+			// æœ€åä¸€æ¡
 			//
 			int count = 0;
 			{
@@ -269,7 +266,7 @@ namespace player {
 		return -1;
 	}
 	//
-	//  Ìí¼ÓreaderÏÂµÄËùÓĞstreamµ½¹ÜÀíÖĞ£¬·µ»Ø³É¹¦Ìí¼ÓÁË¼¸¸öÁ÷
+	//  æ·»åŠ readerä¸‹çš„æ‰€æœ‰streamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›æˆåŠŸæ·»åŠ äº†å‡ ä¸ªæµ
 	//  
 	//
 	uint32_t PlayerCore::addStreamVec(reader::ReaderBase* reader, FFL::Vector < StreamPtr > streamVec) {
@@ -277,7 +274,7 @@ namespace player {
 		return 0;
 	}
 	//
-	//  ¸ù¾İÁ÷id»ñÈ¡Ò»¸öÁ÷ÊµÀı
+	//  æ ¹æ®æµidè·å–ä¸€ä¸ªæµå®ä¾‹
 	//
 	StreamPtr PlayerCore::getStream(int32_t id) {
 		FFL::CMutex::Autolock l(mStreamLock);
@@ -289,21 +286,21 @@ namespace player {
 		return NULL;
 	}
 	//
-	//  »ñÈ¡Õâ¸öreaderÏÂµÄËùÓĞÁ÷
+	//  è·å–è¿™ä¸ªreaderä¸‹çš„æ‰€æœ‰æµ
 	//
 	void PlayerCore::getStreamVec(reader::ReaderBase* reader, FFL::Vector < StreamPtr >& streamVec) {
 		FFL_ASSERT(0);
 	}
 	bool PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {		
 		//
-		// ÊÓÆµ´¦Àí½Úµã
+		// è§†é¢‘å¤„ç†èŠ‚ç‚¹
 		//
 		if (!mVideoComposer) {
 			mVideoComposer = new VideoComposer();			
 			mVideoComposer->create(this);
 		}	
 		//
-		//  Í¨¹ıÊÓÆµÉè±¸´´½¨ÊÓÆµäÖÈ¾½Úµã
+		//  é€šè¿‡è§†é¢‘è®¾å¤‡åˆ›å»ºè§†é¢‘æ¸²æŸ“èŠ‚ç‚¹
 		//
 		FFL::sp<VideoRender> render = mVideoDevice->getRender(NULL);
 		if (!render->isCreated()) {
@@ -312,7 +309,7 @@ namespace player {
 			mVideoComposer->setOutputRender(render);
 		}
 		//
-		//  ½âÂëÆ÷½âÂë³öÀ´µÄÊı¾İÊä³öµ½composerÖĞ
+		//  è§£ç å™¨è§£ç å‡ºæ¥çš„æ•°æ®è¾“å‡ºåˆ°composerä¸­
 		//
 		FFL::sp<Decoder> decoder = stream->createDecoder(this);		
 		decoder->setOutputComposer(mVideoComposer);
@@ -322,7 +319,7 @@ namespace player {
 	}
 	bool PlayerCore::onAddAudioStream(FFL::sp<AudioStream> stream) {
 		//
-		// Èç¹ûÒôÆµÉè±¸Î´´ò¿ª£¬Ôò´ò¿ªÒôÆµÊä³öÉè±¸
+		// å¦‚æœéŸ³é¢‘è®¾å¤‡æœªæ‰“å¼€ï¼Œåˆ™æ‰“å¼€éŸ³é¢‘è¾“å‡ºè®¾å¤‡
 		//
 		if (mAudioDevice.isEmpty()) {
 			mAudioDevice = createAudioDisplay(stream);
@@ -333,7 +330,7 @@ namespace player {
 		}
 
 		//
-		//  Í¨¹ıÒôÆµÉè±¸´´½¨ÒôÆµäÖÈ¾½Úµã
+		//  é€šè¿‡éŸ³é¢‘è®¾å¤‡åˆ›å»ºéŸ³é¢‘æ¸²æŸ“èŠ‚ç‚¹
 		//
 		FFL::sp<AudioRender> render = mAudioDevice->getRender(NULL);
 		if (!render.isEmpty() && !render->isCreated()) {			
@@ -342,7 +339,7 @@ namespace player {
 			render->create(this);
 		}
 		//
-		// ÒôÆµ´¦ÀíºóµÄÊı¾İÊä³öµ½renderÖĞ
+		// éŸ³é¢‘å¤„ç†åçš„æ•°æ®è¾“å‡ºåˆ°renderä¸­
 		//
 		if (!mAudioComposer) {
 			mAudioComposer = new AudioComposer();			
@@ -351,12 +348,12 @@ namespace player {
 			mAudioComposer->setOutputRender(render);
 		}
 		//
-		//  ½âÂëÆ÷½âÂë³öÀ´µÄÊı¾İÊä³öµ½composerÖĞ
+		//  è§£ç å™¨è§£ç å‡ºæ¥çš„æ•°æ®è¾“å‡ºåˆ°composerä¸­
 		//
 		FFL::sp<Decoder> decoder = stream->createDecoder(this);
 		decoder->setOutputComposer(mAudioComposer);
 		//
-		//  ÉèÖÃÕâ¸öÁ÷ÎªÍ¬²½µÄÖ÷Ê±ÖÓ
+		//  è®¾ç½®è¿™ä¸ªæµä¸ºåŒæ­¥çš„ä¸»æ—¶é’Ÿ
 		//
 		mMasterClock = stream->getSyncClock();	
 		return true;
@@ -365,7 +362,7 @@ namespace player {
 		return false;
 	}
 	//
-	// »ñÈ¡ÊÓÆµµÄmetadata
+	// è·å–è§†é¢‘çš„metadata
 	//
 	void PlayerCore::fetchVideoMetaData(FFL::sp<VideoStream> stream) {		
 		uint32_t width=0;
@@ -376,7 +373,7 @@ namespace player {
 		//stream->getDictionary();
 	}
 	//
-	// ÉèÖÃ»æÖÆ´°¿Ú
+	// è®¾ç½®ç»˜åˆ¶çª—å£
 	//
 	void PlayerCore::setVideoSurface(FFL::sp<VideoSurface> surface) {
 		if (mSurface.get() != surface.get()) {
@@ -403,7 +400,7 @@ namespace player {
 		}
 	}
 	//
-	// ´´½¨É¾³ıÏÔÊ¾ÒôÆµµÄÉè±¸
+	// åˆ›å»ºåˆ é™¤æ˜¾ç¤ºéŸ³é¢‘çš„è®¾å¤‡
 	//
 	FFL::sp<AudioDevice> PlayerCore::createAudioDisplay(FFL::sp<AudioStream> stream) {		
 		if (stream.isEmpty()) {
@@ -415,7 +412,7 @@ namespace player {
 		stream->getFormat(fmt);
 
 		//
-		// Æô¶¯ÒôÆµÉè±¸
+		// å¯åŠ¨éŸ³é¢‘è®¾å¤‡
 		//
 		AudioFormat obtainedFmt;
 		if (!dev->open(fmt, 4096, obtainedFmt)) {

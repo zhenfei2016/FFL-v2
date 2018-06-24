@@ -6,7 +6,7 @@
 *
 *  FFL_RefBase
 *  Created by zhufeifei(34008081@qq.com) on 2017/08/12
-*   基于android中的引用计数类修改的
+*   鍩轰簬android涓殑寮曠敤璁℃暟绫讳慨鏀圭殑
 *
 */
 

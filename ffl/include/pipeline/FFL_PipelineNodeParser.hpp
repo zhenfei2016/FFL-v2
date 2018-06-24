@@ -7,7 +7,7 @@
 *  FFL_PipelineNodeParser.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/02/11
 *
-*  Pipelin系统中通过脚本创建node的parser
+*  Pipelin绯荤粺涓�氳繃鑴氭湰鍒涘缓node鐨刾arser
 *
 */
 

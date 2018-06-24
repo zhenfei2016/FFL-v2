@@ -6,7 +6,7 @@
 *
 *  FFL_ByteWriter
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/01
-*  字节流写接口
+*  瀛楄妭娴佸啓鎺ュ彛
 *
 */
 #ifndef _FFL_BYTE_WRITER_HPP_
@@ -18,7 +18,7 @@ namespace FFL{
 	class ByteWriter {
 	public:
 		//
-		//  字节流写接口
+		//  瀛楄妭娴佸啓鎺ュ彛
 		//
 		virtual bool write1Bytes(int8_t val)=0;
 		virtual bool write2Bytes(int16_t val) = 0;

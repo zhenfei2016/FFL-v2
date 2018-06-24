@@ -14,11 +14,11 @@ namespace reader {
 		//    player::NodeBase
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		//
-		//  ³É¹¦´´½¨ÁËnode
+		//  æˆåŠŸåˆ›å»ºäº†node
 		//
 		virtual void onCreate();
 		//
-		//  ³É¹¦É¾³ıÁËnode
+		//  æˆåŠŸåˆ é™¤äº†node
 		//
 		virtual void onDestroy();
 	public:
@@ -26,36 +26,36 @@ namespace reader {
 		//    ReaderInterface
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		//
-		//  ´ò¿ª
+		//  æ‰“å¼€
 		//
 		virtual void open(const char* url) ;
 		//
-		//  ÔİÍ£¶Á£¬µ«ÊÇ²»¹Ø±Õ
+		//  æš‚åœè¯»ï¼Œä½†æ˜¯ä¸å…³é—­
 		//
 		virtual void pause() ;
 		//
-		//  »Ö¸´¶Á
+		//  æ¢å¤è¯»
 		//
 		virtual void resume() ;
 		//
-		// ÉèÖÃ¿ªÊ¼¶ÁÎ»ÖÃ
+		// è®¾ç½®å¼€å§‹è¯»ä½ç½®
 		//
 		virtual void seek(int64_t pos) ;
 		//
-		// ¹Ø±Õ
+		// å…³é—­
 		//
 		virtual void close() ;
 		//
-		// »ñÈ¡²¥·ÅÊ±³¤us
+		// è·å–æ’­æ”¾æ—¶é•¿us
 		//
 		virtual int64_t getDuration() = 0;
 		//
-		// »ñÈ¡µ±Ç°µÄ²¥·ÅÎ»ÖÃ us
+		// è·å–å½“å‰çš„æ’­æ”¾ä½ç½® us
 		//
 		virtual int64_t getCurrentPosition() = 0;
 	public:
 		//
-		//  ÉèÖÃÁ÷¹ÜÀíÆ÷,µ±open³É¹¦ºó£¬¶ÁÈ¡µ½ËùÓĞÁ÷»ù±¾ĞÅÏ¢£¬È»ºó»áÍ¨ÖªIStreamManager
+		//  è®¾ç½®æµç®¡ç†å™¨,å½“openæˆåŠŸåï¼Œè¯»å–åˆ°æ‰€æœ‰æµåŸºæœ¬ä¿¡æ¯ï¼Œç„¶åä¼šé€šçŸ¥IStreamManager
 		//
 		void setStreamManager(ReaderStreamManager* streamMgr) {
 			if (streamMgr) {
@@ -63,7 +63,7 @@ namespace reader {
 			}
 		}
 		//
-		//  »ñÈ¡Á÷¹ÜÀí,²»»á·µ»ØnullµÄ
+		//  è·å–æµç®¡ç†,ä¸ä¼šè¿”å›nullçš„
 		//
 		ReaderStreamManager* getStreamManager() const{
 			return mStreamMgr;
@@ -72,7 +72,7 @@ namespace reader {
 		ReaderStreamManager* mStreamMgr;
 	public:
 		//
-		// ÊÇ·ñÔİÍ£×´Ì¬
+		// æ˜¯å¦æš‚åœçŠ¶æ€
 		//
 		bool isPaused() const;
 	protected:
@@ -82,18 +82,18 @@ namespace reader {
 	protected:
 		friend class FFL::ClassMethodVoidInputHandler<ReaderBase>;
 		//
-		// ¶ÁÈ¡Ö÷Ñ­»·
+		// è¯»å–ä¸»å¾ªç¯
 		//
 		void onReadOnce();
 		//
-		//  ¶ÁÈ¡Ò»Ö¡Êı¾İ
+		//  è¯»å–ä¸€å¸§æ•°æ®
 		//
 		virtual void onReadFrame()=0;
 	protected:
 		friend class FFL::ClassMethodCallback<ReaderBase>;
 		FFL::CMutex mRequestLock;
 		//
-		// openº¯Êı£¬¾ßÌåÊµÏÖ
+		// openå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//
 		volatile bool mEventOpenPending;
 		FFL::String mUrl;
@@ -102,7 +102,7 @@ namespace reader {
 		virtual void onOpen(const char* url)=0;
 
 		//
-		// closeº¯Êı£¬¾ßÌåÊµÏÖ
+		// closeå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//
 		volatile bool mEventClosePending;
 		FFL::sp<FFL::PipelineEvent> mEventClose;
@@ -110,7 +110,7 @@ namespace reader {
 		virtual void onClose()=0;
 
 		//
-		// pauseº¯Êı£¬resume ¾ßÌåÊµÏÖ
+		// pauseå‡½æ•°ï¼Œresume å…·ä½“å®ç°
 		//
 		volatile bool mEventPausePending;
 		volatile bool mEventResumePending;
@@ -123,7 +123,7 @@ namespace reader {
 		virtual void onResume()=0;
 
 		//
-		// seekº¯Êı£¬¾ßÌåÊµÏÖ
+		// seekå‡½æ•°ï¼Œå…·ä½“å®ç°
 		//
 		volatile bool mEventSeekPending;		
 		FFL::sp<FFL::PipelineEvent> mEventSeek;

@@ -6,14 +6,14 @@
 *
 *  FFL_Time.c
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/10
-*  Ê±¼ä»ñÈ¡Ïà¹ØµÄ·â×°º¯Êı
+*  æ—¶é—´è·å–ç›¸å…³çš„å°è£…å‡½æ•°
 *
 */
 
 #include "FFL_Time.h"
 //
-//  ÊÇ·ñÊ¹ÓÃ¶ÌÀàĞÍµÄÊ±¼ä×Ö·û´®
-//  ¶ÌÀàĞÍday hour min second ms us
+//  æ˜¯å¦ä½¿ç”¨çŸ­ç±»å‹çš„æ—¶é—´å­—ç¬¦ä¸²
+//  çŸ­ç±»å‹day hour min second ms us
 //
 #define FFL_TIME_USE_SHORT_STRING 1
 #if defined( WIN32)

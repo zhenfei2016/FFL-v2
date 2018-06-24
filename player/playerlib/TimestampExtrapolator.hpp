@@ -7,10 +7,10 @@
 *  TimestampExtrapolator   
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/26 
 *
-*  ÒôÊÓÆµÍ¬²½µÄÊ±¼ä´ÁÍÆËãÆ÷£¬ÍÆËãÕâ¸ötimestampĞèÒªÑÓ³Ù¶à³¤Ê±¼ä¿ªÊ¼²¥·Å
+*  éŸ³è§†é¢‘åŒæ­¥çš„æ—¶é—´æˆ³æ¨ç®—å™¨ï¼Œæ¨ç®—è¿™ä¸ªtimestampéœ€è¦å»¶è¿Ÿå¤šé•¿æ—¶é—´å¼€å§‹æ’­æ”¾
 *  
-*  Ö÷Ê±ÖÓĞèÒªÒ»Ö± update();
-*  ĞèÒª¼ÆËãÑÓ³ÙÊ±³¤µÄ  getDelayUsRelativeNow(),·µ»ØÏà¶ÔÏÖÔÚĞèÒªÑÓ³Ù¶à³¤Ê±¼ä
+*  ä¸»æ—¶é’Ÿéœ€è¦ä¸€ç›´ update();
+*  éœ€è¦è®¡ç®—å»¶è¿Ÿæ—¶é•¿çš„  getDelayUsRelativeNow(),è¿”å›ç›¸å¯¹ç°åœ¨éœ€è¦å»¶è¿Ÿå¤šé•¿æ—¶é—´
 */
 #ifndef _TIMESTAMPEXTRAPOLATOR_HPP_
 #define _TIMESTAMPEXTRAPOLATOR_HPP_
@@ -23,26 +23,26 @@ namespace player {
 	class TimestampExtrapolator {
 	public:
 		//
-		//  clock: ÒÀÀµÕâÒ»¸öÊ±ÖÓ£¬½øĞĞÊ±¼äµÄÍÆËã
-		//  ¿ÉÒÔ¸Ä±äÕâ¸öclockµÄËÙ¶È£¬ÕâÑù¼ÆËã³öÀ´µÄÑÓ³ÙÖµ¾ÍÏàÓ¦µÄ¸Ä±äÁË
+		//  clock: ä¾èµ–è¿™ä¸€ä¸ªæ—¶é’Ÿï¼Œè¿›è¡Œæ—¶é—´çš„æ¨ç®—
+		//  å¯ä»¥æ”¹å˜è¿™ä¸ªclockçš„é€Ÿåº¦ï¼Œè¿™æ ·è®¡ç®—å‡ºæ¥çš„å»¶è¿Ÿå€¼å°±ç›¸åº”çš„æ”¹å˜äº†
 		// 
 		TimestampExtrapolator();
 		~TimestampExtrapolator();
 		//
-		// ÖØÖÃ
+		// é‡ç½®
 		//
 		void reset();
 		//
-		//  ÉèÖÃÊ±ÖÓµÄËÙ¶È
+		//  è®¾ç½®æ—¶é’Ÿçš„é€Ÿåº¦
 		//
 		void setSpeed(uint32_t speed);
 		uint32_t getSpeed() const;
 		////
-		////  ¸üĞÂÕâ¸öÍÆËãÆ÷µÄÒÀÀµÊ±¼äµã£¬
+		////  æ›´æ–°è¿™ä¸ªæ¨ç®—å™¨çš„ä¾èµ–æ—¶é—´ç‚¹ï¼Œ
 		////
 		//void update(int64_t timestamp, const FFL::TimeBase& tb);
 		////
-		//// »ñÈ¡Õâ¸öÊ±¼ä´ÁÏà¶Ôµ±Ç°ĞèÒªÑÓ³ÙµÄÊ±³¤us
+		//// è·å–è¿™ä¸ªæ—¶é—´æˆ³ç›¸å¯¹å½“å‰éœ€è¦å»¶è¿Ÿçš„æ—¶é•¿us
 		////
 		//int64_t getDelay(int64_t timestamp,const FFL::TimeBase& tb);
 		int64_t getDelayAndUpdate(int64_t timestamp, const FFL::TimeBase& tb);
@@ -56,17 +56,17 @@ namespace player {
 				return mTimestampClock != 0 && mWorldClock != 0;
 			}
 			//
-			//  Ê±¼ä´Á¶ÔÓ¦µÄÊ±¼äµã£¬Í¨¹ıÊ±¼ä´ÁÖ±½Ó¼ÆËãµÄ
+			//  æ—¶é—´æˆ³å¯¹åº”çš„æ—¶é—´ç‚¹ï¼Œé€šè¿‡æ—¶é—´æˆ³ç›´æ¥è®¡ç®—çš„
 			//
 			int64_t mTimestampClock;
 			//
-			//  µ±Ç°mClock¶ÔÓ¦µÄÊ±¼äµã
+			//  å½“å‰mClockå¯¹åº”çš„æ—¶é—´ç‚¹
 			//
 			int64_t mWorldClock;
 			int64_t mDelayUs;
 		};
 		//
-		//  ×î½üµÄÊ±ÖÓµÎ´ğ£¬ÓÉupdate½øĞĞ¸üĞÂ
+		//  æœ€è¿‘çš„æ—¶é’Ÿæ»´ç­”ï¼Œç”±updateè¿›è¡Œæ›´æ–°
 		//
 		Tick mRecentTick;	
 		uint32_t mSpeed;

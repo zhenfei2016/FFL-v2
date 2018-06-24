@@ -7,7 +7,7 @@
  *  MessageFFMpegPacket.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/03/10 
  *  
- *  Î´½âÂë°ü
+ *  æœªè§£ç åŒ…
  *
 */
 #include "MessageFFMpegPacket.hpp"
@@ -26,13 +26,13 @@ namespace message {
         av_packet_free(&mPacket);
     } 
 	//
-	//  ÊÇ·ñièå
+	//  æ˜¯å¦iæ¡¢
 	//
 	bool FFMpegPacket::isIFrame() const {
 		return mIFrame!=0;
 	}
 	//
-	//  ÊÇ·ñÊÓÆµ£¬ÒôÆµèå
+	//  æ˜¯å¦è§†é¢‘ï¼ŒéŸ³é¢‘æ¡¢
 	//
 	bool FFMpegPacket::isVideo() const {
 		return mPacketType ==  STREAM_TYPE_VIDEO;
@@ -42,7 +42,7 @@ namespace message {
 		return mPacketType == STREAM_TYPE_AUDIO;
 	}
 	//
-	//  ÒÑ¾­´¦ÀíÍê³ÉÁË£¬¿ÉÒÔ»ØÊÕÁË		
+	//  å·²ç»å¤„ç†å®Œæˆäº†ï¼Œå¯ä»¥å›æ”¶äº†		
 	//
 	void FFMpegPacket::consume() {
 		av_packet_unref(mPacket);

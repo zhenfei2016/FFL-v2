@@ -7,7 +7,7 @@
 *  FFL_Singleton.cpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/23 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  µ¥Àı 
+*  å•ä¾‹ 
 *
 */
 #include <utils/FFL_Singleton.hpp>

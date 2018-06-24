@@ -7,7 +7,7 @@
 *  FFL_PlayerEvent.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/11
 *
-*  ²¥·ÅÆ÷ÊÂ¼ş
+*  æ’­æ”¾å™¨äº‹ä»¶
 *
 */
 #pragma once
@@ -22,37 +22,37 @@ namespace player {
 namespace event{
    enum EventId{
 	   //
-	   //  Î´ÖªµÄ´íÎó
+	   //  æœªçŸ¥çš„é”™è¯¯
 	   //
 	   EVENT_ERROR =1,
 
 	   //
-	   //  prepare½á¹û£¬  
-	   //  getParam1() = 1  :³É¹¦
-	   //  getParam1() = 0  :Òì³££¬Ê§°ÜÁË
+	   //  prepareç»“æœï¼Œ  
+	   //  getParam1() = 1  :æˆåŠŸ
+	   //  getParam1() = 0  :å¼‚å¸¸ï¼Œå¤±è´¥äº†
 	   //
 	   EVENT_PREPARED,
 	   //
-	   //  ÊÓÆµ´óĞ¡¸Ä±äÁË
+	   //  è§†é¢‘å¤§å°æ”¹å˜äº†
 	   //
 	   EVENT_VIDEO_SIZE_CAHNGED,
 	   //
-	   // ¶¨Î»µ½Ö¸¶¨Î»ÖÃ
+	   // å®šä½åˆ°æŒ‡å®šä½ç½®
 	   //
 	   EVENT_SEEK_START,
 	   EVENT_SEEK_END,
 	   //
-	   // ¿ªÊ¼£¬½áÊø»º³åÖĞ
+	   // å¼€å§‹ï¼Œç»“æŸç¼“å†²ä¸­
 	   //
 	   EVENT_BUFFERING_START,
 	   EVENT_BUFFERING_END,
 	   //
-	   //  ¿ªÊ¼äÖÈ¾ÊÓÆµµÚÒ»£¬×îºóÒ»Ö¡
+	   //  å¼€å§‹æ¸²æŸ“è§†é¢‘ç¬¬ä¸€ï¼Œæœ€åä¸€å¸§
 	   //
 	   EVENT_VIDEO_RENDER_FIRST_FRAME,
 	   EVENT_VIDEO_RENDER_LAST_FRAME,
 	   //
-	   //  ¿ªÊ¼äÖÈ¾ÒôÆµµÚÒ»£¬×îºóÒ»Ö¡
+	   //  å¼€å§‹æ¸²æŸ“éŸ³é¢‘ç¬¬ä¸€ï¼Œæœ€åä¸€å¸§
 	   //
 	   EVENT_AUDIO_RENDER_FIRST_FRAME,
 	   EVENT_AUDIO_RENDER_LAST_FRAME,
@@ -78,13 +78,13 @@ namespace event{
 
    };
    //
-   //  ·¢ËÍÒ»Ğ©²¥·ÅÆ÷ÊÂ¼ş
+   //  å‘é€ä¸€äº›æ’­æ”¾å™¨äº‹ä»¶
    //   
    void postPlayerEvent(FFL::sp<player::NodeBase> node, EventId eventid);
    void postPlayerEvent(FFL::sp<player::NodeBase> node, const FFL::sp<PlayerEvent>& event);
 
    //
-   //  ·¢ËÍ²¥·ÅÆ÷ÊÂ¼ş
+   //  å‘é€æ’­æ”¾å™¨äº‹ä»¶
    //
    void postPlayerEvent(player::PlayerCore* core, EventId eventid, int64_t param1, int64_t param2);
 }

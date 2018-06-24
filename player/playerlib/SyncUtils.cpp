@@ -9,7 +9,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/21
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  Òô»­Í¬²½°ïÖúº¯Êı
+*  éŸ³ç”»åŒæ­¥å¸®åŠ©å‡½æ•°
 *
 */
 #ifndef _SYNC_UTILS_HPP_
@@ -23,48 +23,48 @@
 
 namespace player {
 	//
-	//  ¶ªÖ¡µÄãĞÖµus£¬´óÓÚ5sºó½øĞĞÖØĞÂÍ¬²½
+	//  ä¸¢å¸§çš„é˜ˆå€¼usï¼Œå¤§äº5såè¿›è¡Œé‡æ–°åŒæ­¥
 	//
 #define SYNC_RESYNC_THRESHOLD_US 5000000
 	//
-	//  ĞèÒª½øĞĞÍ¬²½µÄãĞÖµ£¬40ms£¬ 25Ö¡µÄÇé¿öÏÂÊ±¼äÖµ
-	//  Èç¹ûÓëÖ÷Ê±ÖÓÏà²î´óÓÚ40msÔòĞèÒª½øĞĞÍ¬²½
-	//  >SYNC_MIN_THRESHOLD_US ²»ĞèÒªÍ¬²½
-	//  >SYNC_MAX_THRESHOLD_US ¶ªÖ¡
-	//  SYNC_MIN_THRESHOLD_US -  SYNC_MAX_THRESHOLD_US Ö®¼äÊ¹ÓÃÍ¬²½²ßÂÔ
+	//  éœ€è¦è¿›è¡ŒåŒæ­¥çš„é˜ˆå€¼ï¼Œ40msï¼Œ 25å¸§çš„æƒ…å†µä¸‹æ—¶é—´å€¼
+	//  å¦‚æœä¸ä¸»æ—¶é’Ÿç›¸å·®å¤§äº40msåˆ™éœ€è¦è¿›è¡ŒåŒæ­¥
+	//  >SYNC_MIN_THRESHOLD_US ä¸éœ€è¦åŒæ­¥
+	//  >SYNC_MAX_THRESHOLD_US ä¸¢å¸§
+	//  SYNC_MIN_THRESHOLD_US -  SYNC_MAX_THRESHOLD_US ä¹‹é—´ä½¿ç”¨åŒæ­¥ç­–ç•¥
 	//
 #define SYNC_MIN_THRESHOLD_US 40000
 #define SYNC_MAX_THRESHOLD_US 40000*3
 
 	//
-	//  ÊÓÆµÍ¬²½µ½masterÉÏ£¬µ÷ÕûÒ»ÏÂÑÓ³ÙÖµ
-	//  master:Í¬²½Ö÷Ê±ÖÓ
-	//  slave :´ÓÊ±ÖÓ£¬ ÊÓÆµÊ±ÖÓ
-	//  delay :Ô­Ê¼ÑÓ³ÙÖµ
-	//  opt :·µ»Ø½¨ÒéµÄ´¦ÀíÄ£Ê½£¬
-	//  ·µ»ØĞŞÕıºóµÄÑÓ³ÙÖµ
+	//  è§†é¢‘åŒæ­¥åˆ°masterä¸Šï¼Œè°ƒæ•´ä¸€ä¸‹å»¶è¿Ÿå€¼
+	//  master:åŒæ­¥ä¸»æ—¶é’Ÿ
+	//  slave :ä»æ—¶é’Ÿï¼Œ è§†é¢‘æ—¶é’Ÿ
+	//  delay :åŸå§‹å»¶è¿Ÿå€¼
+	//  opt :è¿”å›å»ºè®®çš„å¤„ç†æ¨¡å¼ï¼Œ
+	//  è¿”å›ä¿®æ­£åçš„å»¶è¿Ÿå€¼
 	//
 	int64_t correctVideoDelay(SyncClock* master, SyncClock* slave, int64_t delay, OptMode* opt) {
 		return correctSyncDelay(master,slave,delay,opt);
 	}
 	//
-	//  ÒôÆµÍ¬²½µ½masterÉÏ£¬µ÷ÕûÒ»ÏÂÑÓ³ÙÖµ
-	//  master:Í¬²½Ö÷Ê±ÖÓ
-	//  slave :´ÓÊ±ÖÓ£¬ ÒôÆµÊ±ÖÓ
-	//  delay :Ô­Ê¼ÑÓ³ÙÖµ
-	//  opt :·µ»Ø½¨ÒéµÄ´¦ÀíÄ£Ê½£¬
-	//  ·µ»ØĞŞÕıºóµÄÑÓ³ÙÖµ
+	//  éŸ³é¢‘åŒæ­¥åˆ°masterä¸Šï¼Œè°ƒæ•´ä¸€ä¸‹å»¶è¿Ÿå€¼
+	//  master:åŒæ­¥ä¸»æ—¶é’Ÿ
+	//  slave :ä»æ—¶é’Ÿï¼Œ éŸ³é¢‘æ—¶é’Ÿ
+	//  delay :åŸå§‹å»¶è¿Ÿå€¼
+	//  opt :è¿”å›å»ºè®®çš„å¤„ç†æ¨¡å¼ï¼Œ
+	//  è¿”å›ä¿®æ­£åçš„å»¶è¿Ÿå€¼
 	//
 	int64_t correctAudioDelay(SyncClock* master, SyncClock* slave, int64_t delay, OptMode* opt) {
 		return delay;
 	}
 	//
-	//  Í¬²½µ½masterÉÏ£¬µ÷ÕûÒ»ÏÂÑÓ³ÙÖµ
-	//  master:Í¬²½Ö÷Ê±ÖÓ
-	//  slave :´ÓÊ±ÖÓ£¬
-	//  delay :Ô­Ê¼ÑÓ³ÙÖµ
-	//  opt :·µ»Ø½¨ÒéµÄ´¦ÀíÄ£Ê½£¬
-	//  ·µ»ØĞŞÕıºóµÄÑÓ³ÙÖµ
+	//  åŒæ­¥åˆ°masterä¸Šï¼Œè°ƒæ•´ä¸€ä¸‹å»¶è¿Ÿå€¼
+	//  master:åŒæ­¥ä¸»æ—¶é’Ÿ
+	//  slave :ä»æ—¶é’Ÿï¼Œ
+	//  delay :åŸå§‹å»¶è¿Ÿå€¼
+	//  opt :è¿”å›å»ºè®®çš„å¤„ç†æ¨¡å¼ï¼Œ
+	//  è¿”å›ä¿®æ­£åçš„å»¶è¿Ÿå€¼
 	//
 	int64_t correctSyncDelay(SyncClock* master, SyncClock* slave, int64_t delay, OptMode* opt) {
 		if (opt) {
@@ -81,12 +81,12 @@ namespace player {
 		}
 
 		//
-		//  ÊÇ·ñÊÓÆµ±ä¿ìÁË
+		//  æ˜¯å¦è§†é¢‘å˜å¿«äº†
 		//
 		bool isFast = diff < 0;
 		{
 			//
-			//  ÊÇ·ñĞèÒª¶ªÖ¡£¬ÒôÊÓÆµ²»Í¬²½Ïà²îÌ«´óÁË
+			//  æ˜¯å¦éœ€è¦ä¸¢å¸§ï¼ŒéŸ³è§†é¢‘ä¸åŒæ­¥ç›¸å·®å¤ªå¤§äº†
 			//
 			bool dropFrame = false;
 			if (isFast && diff <= -SYNC_RESYNC_THRESHOLD_US) {
@@ -110,7 +110,7 @@ namespace player {
 		}
 
 		//
-		//  ²»ĞèÒªÍ¬²½
+		//  ä¸éœ€è¦åŒæ­¥
 		//
 		int64_t threshold = FFL_MIN(SYNC_MIN_THRESHOLD_US, delay);
 		if ((isFast && diff < -threshold) ||
@@ -124,7 +124,7 @@ namespace player {
 
 		{
 			//
-			//  ÊÇ·ñ¶ªÖ¡¼ì²â
+			//  æ˜¯å¦ä¸¢å¸§æ£€æµ‹
 			//
 			bool correct = false;
 			if (isFast && diff < -SYNC_MAX_THRESHOLD_US) {
@@ -147,7 +147,7 @@ namespace player {
 		}
 
 		//
-		//  ¸ü¾ß²»Í¬²½¶Áµ÷ÕûÑÓ³ÙÊ±³¤
+		//  æ›´å…·ä¸åŒæ­¥è¯»è°ƒæ•´å»¶è¿Ÿæ—¶é•¿
 		//		
 		if (isFast) {
 			delay = FFL_MIN(delay * 2, delay - diff);			

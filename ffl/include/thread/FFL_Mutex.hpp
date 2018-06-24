@@ -7,7 +7,7 @@
 *  FFL_Mutex   
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25 
 *
-*  锁，条件变量包装
+*  閿侊紝鏉′欢鍙橀噺鍖呰
 */
 #ifndef _FFL_MUTEX_HPP_
 #define _FFL_MUTEX_HPP_

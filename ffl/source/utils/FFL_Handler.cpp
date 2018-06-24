@@ -6,8 +6,8 @@
 *
 *  FFL_Handler.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
-*  ²Î¿¼ Android Open Source Project ½øĞĞĞŞ¸ÄµÄ
-*  ´¦ÀíÏûÏ¢µÄ»Øµ÷º¯Êı
+*  å‚è€ƒ Android Open Source Project è¿›è¡Œä¿®æ”¹çš„
+*  å¤„ç†æ¶ˆæ¯çš„å›è°ƒå‡½æ•°
 *
 */
 

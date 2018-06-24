@@ -6,7 +6,7 @@
 *
 *  FFL_Ref
 *  Created by zhufeifei(34008081@qq.com) on 2017/07/10
-*  引用计数内部用的atomic系列函数
+*  寮曠敤璁℃暟鍐呴儴鐢ㄧ殑atomic绯诲垪鍑芥暟
 *
 */
 #ifndef _FFL_REF_ATOMIC_H_

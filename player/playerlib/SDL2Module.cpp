@@ -44,7 +44,7 @@ namespace player {
 		bool bQuit=false;
 		SDL_Event event;
 		//while (SDL_WaitEventTimeout(&event,40) && !bQuit) {
-		while (SDL_WaitEvent(&event) && !bQuit) {
+		while (!bQuit && SDL_WaitEvent(&event) ) {
 			switch (event.type) {
 			case SDL_KEYUP:
 				if (fun && !fun(userdata, event.key.keysym.sym))

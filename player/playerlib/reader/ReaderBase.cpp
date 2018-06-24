@@ -5,26 +5,26 @@ namespace reader {
 	class DefaultStreamMgr : public ReaderStreamManager {
 	public:
 		//
-		//  Ìí¼ÓreaderÏÂµÄÒ»¸östreamµ½¹ÜÀíÖĞ£¬·µ»Øµ±Ç°Õâ¸östreamµÄid
+		//  æ·»åŠ readerä¸‹çš„ä¸€ä¸ªstreamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›å½“å‰è¿™ä¸ªstreamçš„id
 		//
 		virtual int32_t  addStream(ReaderBase* reader, StreamPtr stream) {
 			return -1;
 		}
 		//
-		//  Ìí¼ÓreaderÏÂµÄËùÓĞstreamµ½¹ÜÀíÖĞ£¬·µ»Ø³É¹¦Ìí¼ÓÁË¼¸¸öÁ÷
+		//  æ·»åŠ readerä¸‹çš„æ‰€æœ‰streamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›æˆåŠŸæ·»åŠ äº†å‡ ä¸ªæµ
 		//  
 		//
 		virtual uint32_t addStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr > streamVec) {
 			return 0;
 		}
 		//
-		//  ¸ù¾İÁ÷id»ñÈ¡Ò»¸öÁ÷ÊµÀı
+		//  æ ¹æ®æµidè·å–ä¸€ä¸ªæµå®ä¾‹
 		//
 		virtual StreamPtr getStream(int32_t id) {
 			return NULL;
 		}
 		//
-		//  »ñÈ¡Õâ¸öreaderÏÂµÄËùÓĞÁ÷
+		//  è·å–è¿™ä¸ªreaderä¸‹çš„æ‰€æœ‰æµ
 		//
 		virtual void getStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr >& streamVec) {
 			streamVec.clear();
@@ -59,13 +59,13 @@ namespace reader {
 	//    player::NodeBase
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-	//  ³É¹¦´´½¨ÁËnode
+	//  æˆåŠŸåˆ›å»ºäº†node
 	//
 	void ReaderBase::onCreate() {
 		initLooper();
 	}
 	//
-	//  ³É¹¦É¾³ıÁËnode
+	//  æˆåŠŸåˆ é™¤äº†node
 	//
 	void ReaderBase::onDestroy() {
 
@@ -74,7 +74,7 @@ namespace reader {
 	//    ReaderInterface
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-	//  ´ò¿ª
+	//  æ‰“å¼€
 	//
 	void ReaderBase::open(const char* url){		
 		FFL::CMutex::Autolock l(&mRequestLock);
@@ -87,7 +87,7 @@ namespace reader {
 		postEvent(mEventOpen);
 	}
 	//
-	//  ÔİÍ£¶Á£¬µ«ÊÇ²»¹Ø±Õ
+	//  æš‚åœè¯»ï¼Œä½†æ˜¯ä¸å…³é—­
 	//
 	void ReaderBase::pause(){
 		FFL::CMutex::Autolock l(&mRequestLock);
@@ -99,7 +99,7 @@ namespace reader {
 		postEvent(mEventPause);
 	}
 	//
-	//  »Ö¸´¶Á
+	//  æ¢å¤è¯»
 	//
 	void ReaderBase::resume(){
 		FFL::CMutex::Autolock l(&mRequestLock);
@@ -112,7 +112,7 @@ namespace reader {
 		mPauseCond.signal();
 	}
 	//
-	// ÉèÖÃ¿ªÊ¼¶ÁÎ»ÖÃ
+	// è®¾ç½®å¼€å§‹è¯»ä½ç½®
 	//
 	void ReaderBase::seek(int64_t pos){
 		FFL::CMutex::Autolock l(&mRequestLock);
@@ -125,7 +125,7 @@ namespace reader {
 		postEvent(mEventSeek);		
 	}
 	//
-	// ¹Ø±Õ
+	// å…³é—­
 	//
 	void ReaderBase::close(){
 		FFL::CMutex::Autolock l(&mRequestLock);
@@ -136,7 +136,7 @@ namespace reader {
 		mPauseCond.signal();
 	}
 	//
-	// ÊÇ·ñÔİÍ£×´Ì¬
+	// æ˜¯å¦æš‚åœçŠ¶æ€
 	//
 	bool ReaderBase::isPaused() const {
 		return mIsPaused;
@@ -163,7 +163,7 @@ namespace reader {
 	}
 	void ReaderBase::pauseLooper() {
 		//
-		//  ¹Ø±Õµ±Ç°µÄÊäÈë
+		//  å…³é—­å½“å‰çš„è¾“å…¥
 		//
 		FFL::sp<FFL::PipelineInput> input = getInput(mInput.mId);
 		if (!input.isEmpty()) {
@@ -171,7 +171,7 @@ namespace reader {
 		}
 	}
 	//
-	// ¶ÁÈ¡Ö÷Ñ­»·
+	// è¯»å–ä¸»å¾ªç¯
 	//
 	void ReaderBase::onReadOnce(){
 		if (mIsPaused) {
@@ -188,7 +188,7 @@ namespace reader {
 		}
 	}	
 	//
-	// closeº¯Êı£¬¾ßÌåÊµÏÖ
+	// closeå‡½æ•°ï¼Œå…·ä½“å®ç°
 	//
 	void ReaderBase::onCloseStub(const FFL::sp<FFL::PipelineEvent>& event) {
 		onClose();
@@ -200,7 +200,7 @@ namespace reader {
 
 
 	//
-	// pauseº¯Êı£¬resume ¾ßÌåÊµÏÖ
+	// pauseå‡½æ•°ï¼Œresume å…·ä½“å®ç°
 	//
 	void ReaderBase::onPauseStub(const FFL::sp<FFL::PipelineEvent>& event) {
 		if (event->getParam1() == 0) {
@@ -221,7 +221,7 @@ namespace reader {
 		}
 	}
 	//
-	// seekº¯Êı£¬¾ßÌåÊµÏÖ
+	// seekå‡½æ•°ï¼Œå…·ä½“å®ç°
 	//
 	void ReaderBase::onSeekStub(const FFL::sp<FFL::PipelineEvent>& event) {
 		onSeek(event->getParam1());

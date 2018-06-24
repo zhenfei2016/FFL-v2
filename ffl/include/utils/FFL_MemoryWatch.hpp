@@ -7,7 +7,7 @@
 *  FFL_MemoryWatch   
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/18 
 *
-*  启用内存监控，可以监控new,deletec 操作
+*  鍚敤鍐呭瓨鐩戞帶锛屽彲浠ョ洃鎺ew,deletec 鎿嶄綔
 */
 #ifndef _FFL_MEMORY_WATCH_HPP_
 #define _FFL_MEMORY_WATCH_HPP_

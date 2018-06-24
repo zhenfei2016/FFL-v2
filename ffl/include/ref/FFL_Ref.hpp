@@ -6,7 +6,7 @@
 *
 *  FFL_Ref   
 *  Created by zhufeifei(34008081@qq.com) on 2017/08/12
-*  强弱引用计数定义
+*  寮哄急寮曠敤璁℃暟瀹氫箟
 *  class xxx : public ref::RefBase{
 *  }
 */

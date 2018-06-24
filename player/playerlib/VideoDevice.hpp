@@ -12,24 +12,24 @@ namespace player {
 		VideoDevice();
 		virtual ~VideoDevice();	
 		//
-		// »ñÈ¡»æÖÆ´°¿Ú
+		// è·å–ç»˜åˆ¶çª—å£
 		//		
 		virtual FFL::sp<VideoSurface> getSurface()=0;
 		//
-		// ¸üĞÂ»æÖÆµÄÄ¿±ê´°¿Ú
+		// æ›´æ–°ç»˜åˆ¶çš„ç›®æ ‡çª—å£
 		//
 		virtual void setSurface(FFL::sp<VideoSurface> surface)=0;
 		//
-		//  ´ò¿ª¹Ø±ÕÊÓÆµÉè±¸
+		//  æ‰“å¼€å…³é—­è§†é¢‘è®¾å¤‡
 		//
 		virtual bool open(FFL::sp<VideoSurface> surface,int32_t widht,int32_t height) = 0;
 		virtual void close() = 0;
 		//
-		//  Ğ´Ò»Ö¡Êı¾İ
+		//  å†™ä¸€å¸§æ•°æ®
 		//		
 		virtual bool showTexture(VideoTexture* texture)=0;
 		//
-		// »ñÈ¡render
+		// è·å–render
 		//
 		virtual FFL::sp<VideoRender> getRender(void* userdata) ;		
 	private:

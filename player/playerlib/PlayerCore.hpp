@@ -46,7 +46,7 @@ namespace player {
 		friend class FFLPlayer;
 	public:
 		PlayerCore(FFL::PipelineEventFilter* eventFilter);
-		~PlayerCore();	
+		virtual ~PlayerCore();
 	protected:
 		status_t init();
 	public:

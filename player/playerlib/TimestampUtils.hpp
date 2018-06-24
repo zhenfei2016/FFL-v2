@@ -5,15 +5,15 @@
 
 namespace player {	
 	//
-	//  Ê±¼ä´Áµ¥Î»×ªµ½usÖµ
+	//  æ—¶é—´æˆ³å•ä½è½¬åˆ°uså€¼
 	//
 	int64_t timestampToUs(int64_t timestamp,const FFL::TimeBase& tb);
 	//
-	//  Ê±¼ä´Áµ¥Î»×ªµ½usÖµ
+	//  æ—¶é—´æˆ³å•ä½è½¬åˆ°uså€¼
 	//
 	int64_t timestampToUs(int64_t timestamp, const FFL::TimeBase& tb,FFL::Clock* clock);
 	//
-	//  us×ªÊ±¼ä´Áµ¥Î»
+	//  usè½¬æ—¶é—´æˆ³å•ä½
 	//
 	int64_t usToTimestamp(int64_t us, const FFL::TimeBase& tb);
 }

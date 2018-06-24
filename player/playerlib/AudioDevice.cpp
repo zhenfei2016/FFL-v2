@@ -7,7 +7,7 @@
 *  AudioDevice.cpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/22 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÒôÆµÉè±¸µÄ»ùÀà
+*  éŸ³é¢‘è®¾å¤‡çš„åŸºç±»
 *
 */
 #include "AudioDevice.hpp"
@@ -18,7 +18,7 @@ namespace player {
 	AudioDevice::~AudioDevice(){
 	}
 	//
-	// »ñÈ¡render
+	// è·å–render
 	//
 	FFL::sp<AudioRender> AudioDevice::getRender(void* userdata) {
 		if (mAudioRender.isEmpty()) {

@@ -7,7 +7,7 @@
 *  FFL_Serializable   
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/10 
 *
-*  ÓÃÓÚĞòÁĞ»»µÄ½Ó¿Ú
+*  ç”¨äºåºåˆ—æ¢çš„æ¥å£
 */
 #ifndef _FFL_SERILIZABLE_HPP_
 #define _FFL_SERILIZABLE_HPP_
@@ -29,11 +29,11 @@ namespace FFL{
 	   ~Serializable();
 
 	   //
-	   //  ¶ÔÏóĞòÁĞ»¯µ½streamÖĞ
+	   //  å¯¹è±¡åºåˆ—åŒ–åˆ°streamä¸­
 	   //
 	   virtual void serialization(ByteStream& stream);
 	   //
-	   //  streamÖĞ·´ĞòÁĞµ½µ±Ç°¶ÔÏóÊµÀıÖĞ
+	   //  streamä¸­ååºåˆ—åˆ°å½“å‰å¯¹è±¡å®ä¾‹ä¸­
 	   //
 	   virtual status_t deserialization(ByteStream& stream);
    };

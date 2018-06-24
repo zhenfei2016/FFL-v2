@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/19 
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ·ÖÎöÃüÁîĞĞ°ïÖúº¯Êı
+*  åˆ†æå‘½ä»¤è¡Œå¸®åŠ©å‡½æ•°
 *
 */
 #ifndef _FFL_COMMANDLINE_HPP_
@@ -20,24 +20,24 @@ extern "C" {
 #endif
 
 /*
-* ÃüÁîĞĞ²ÎÊıÑ¡Ïî
+* å‘½ä»¤è¡Œå‚æ•°é€‰é¡¹
 */
 typedef struct CmdOption {
-	char* mName;		
+	const char* mName;
 	void(*fun)(const char* value);
-	char* nHelp;	
+	const char* nHelp;
 }CmdOption;
 
 /*
-*   ·ÖÎöÃüÁîĞĞ
-*   argc£º²ÎÊı¸öÊı
-*   argv£º²ÎÊıÊı×é
-*   opts£ºÖ§³ÖµÄÃüÁîÊı×é£¬ÒÔnull½áÎ²
-*   size£ºoptsÊı×éµÄ´óÉÙ
-*   ÃüÁîĞĞ¸ñÊ½  --cmd=12344
-*   ·µ»ØÃüÁîÔÚoptsÖĞµÄÎ»ÖÃ£¬Ã»ÕÒµ½·µ»Ø-1
+*   åˆ†æå‘½ä»¤è¡Œ
+*   argcï¼šå‚æ•°ä¸ªæ•°
+*   argvï¼šå‚æ•°æ•°ç»„
+*   optsï¼šæ”¯æŒçš„å‘½ä»¤æ•°ç»„ï¼Œä»¥nullç»“å°¾
+*   sizeï¼šoptsæ•°ç»„çš„å¤§å°‘
+*   å‘½ä»¤è¡Œæ ¼å¼  --cmd=12344
+*   è¿”å›å‘½ä»¤åœ¨optsä¸­çš„ä½ç½®ï¼Œæ²¡æ‰¾åˆ°è¿”å›-1
 */
-int FFL_parseCommnadline(int argc, char** argv, CmdOption* opts,int size);
+int FFL_parseCommnadline(int argc,const char** argv, CmdOption* opts,int size);
 
 #ifdef  __cplusplus
 }

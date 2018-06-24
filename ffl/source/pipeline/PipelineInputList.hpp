@@ -7,7 +7,7 @@
 *  FFL_PipelineInputList.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/16
 *
-*  ��������һ��ӿڵİ�װ����
+*  保存输入一组接口的包装类型
 *
 */
 
@@ -30,19 +30,19 @@ namespace FFL
 
 	public:
 		//
-		//  ����һ���µ�input
+		//  创建一个新的input
 		//
 		PipelineInputId createInput(const char* name, sp<PipelineInputHandler> handler);
 		//
-		//  ɾ��һ��input
+		//  删除一个input
 		//
 		void destroyInput(PipelineInputId id);
 		//
-		//  ͨ��id����һ��input
+		//  通过id查找一个input
 		//
 		sp<PipelineInput> getInput(PipelineInputId id);
 		//
-		//  ��ȡ���е���Ч��input
+		//  获取所有的有效的input
 		//
 		enum InutStatus {			
 			STARTED=0x1,

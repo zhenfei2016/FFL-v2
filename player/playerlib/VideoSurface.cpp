@@ -7,7 +7,7 @@
 *  FFL_Window.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/10
 *
-*  渲染窗口
+*  娓叉煋绐楀彛
 *
 */
 
@@ -28,7 +28,7 @@ namespace player {
 		return mHandle;
 	}
 	//
-	//  设置窗口的宽度，高度
+	//  璁剧疆绐楀彛鐨勫搴︼紝楂樺害
 	//
 	void VideoSurface::setWindowSize(int32_t widht, int32_t height) {
 	}

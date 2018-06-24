@@ -22,7 +22,7 @@ namespace player {
 		AudioStream();		
 		virtual ~AudioStream();	
 		//
-		// 获取这个流的格式
+		// 鑾峰彇杩欎釜娴佺殑鏍煎紡
 		//
 		virtual void getFormat(AudioFormat& fmt)=0;
 	};

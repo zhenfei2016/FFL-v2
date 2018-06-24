@@ -33,7 +33,7 @@ namespace FFL{
 	}
 
 	//
-	//  Ð´Ò»Ìõkey/value
+	//  å†™ä¸€æ¡key/value
 	//
 	void Dictionary::setKey(const String& key, const String& value){	
 		mImpl->mDic[key] = value;
@@ -42,7 +42,7 @@ namespace FFL{
 		mImpl->mDic[key] = value;
 	}
 	//
-	// Í¨¹ýkey»ñÈ¡Öµ,·µ»ØÊÇ·ñÕÒµ½ÁËÕâ¸ökey
+	// é€šè¿‡keyèŽ·å–å€¼,è¿”å›žæ˜¯å¦æ‰¾åˆ°äº†è¿™ä¸ªkey
 	//
 	bool Dictionary::getKey(const String& key, String& value) {
 		PDIC_MAP pos = mImpl->mDic.find(key);
@@ -61,7 +61,7 @@ namespace FFL{
 		return false;
 	}
 	//
-	// ÒÆ³ýÒ»Ìõ
+	// ç§»é™¤ä¸€æ¡
 	//
 	bool Dictionary::removeKey(const char* key) {
 		PDIC_MAP pos = mImpl->mDic.find(key);

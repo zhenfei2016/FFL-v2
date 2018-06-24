@@ -7,7 +7,7 @@
  *  VideoScale.hpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/06/12 
  *  
- *  ÊÓÆµËõ·Å£¬×ªÂëµÈ
+ *  è§†é¢‘ç¼©æ”¾ï¼Œè½¬ç ç­‰
  *
 */
 
@@ -39,18 +39,18 @@ namespace player {
 		~VideoScale();
 	protected:
 		//
-		//  ´´½¨Í¼Æ¬Ëõ·ÅÉÏÏÂÎÄ
-		//  src: Ô´¸ñÊ½
-		//  dst: Ä¿±ê¸ñÊ½
+		//  åˆ›å»ºå›¾ç‰‡ç¼©æ”¾ä¸Šä¸‹æ–‡
+		//  src: æºæ ¼å¼
+		//  dst: ç›®æ ‡æ ¼å¼
 		//
 		bool createSws(TextureFormat* src, TextureFormat* dst);
 		//
-		//  É¾³ıËõ·ÅÉÏÏÂÎÄ
+		//  åˆ é™¤ç¼©æ”¾ä¸Šä¸‹æ–‡
 		//
 		void destroySws();
 	public:
 		//
-		//  ¿ªÊ¼Ëõ·ÅÍ¼Æ¬
+		//  å¼€å§‹ç¼©æ”¾å›¾ç‰‡
 		//
 		bool scaleVideo(
 			const uint8_t** srcPix, int* srcLinesize, int height,
@@ -58,26 +58,26 @@ namespace player {
 		
 	public:
 		//
-		//  ³É¹¦´´½¨ÁËnode
+		//  æˆåŠŸåˆ›å»ºäº†node
 		//
 		virtual void onCreate();
 
 		//
-		//   Íâ²¿setDataInputÊ±ºòµ÷ÓÃ´Ëº¯Êı£¬´´½¨¶ÔÓ¦conn
+		//   å¤–éƒ¨setDataInputæ—¶å€™è°ƒç”¨æ­¤å‡½æ•°ï¼Œåˆ›å»ºå¯¹åº”conn
 		//
 		FFL::sp<FFL::PipelineConnector > onCreateConnector(
 			const OutputInterface& output,
 			const InputInterface& input, void* userdata);
 	protected:
 		//
-		// ´¦Àí½ÓÊÕµ½µÄÏûÏ¢£¬Èç¹û·µ»Øfalse±íÊ¾Õâ¸öÏûÏ¢Ã»ÓĞ´¦Àí£¬
-		// ·µ»Øtrue±íÊ¾Õâ¸öÏûÏ¢´¦ÀíÁË£¬ÏûÏ¢´¦Àí½áÊøºó±ØĞëmsg->consume();
+		// å¤„ç†æ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼Œå¦‚æœè¿”å›falseè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯æ²¡æœ‰å¤„ç†ï¼Œ
+		// è¿”å›trueè¡¨ç¤ºè¿™ä¸ªæ¶ˆæ¯å¤„ç†äº†ï¼Œæ¶ˆæ¯å¤„ç†ç»“æŸåå¿…é¡»msg->consume();
 		//
 		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);	
 	private:	
 
 		//
-		//  µ±Ç°µÄsws¸ö¸ñÊ½
+		//  å½“å‰çš„swsä¸ªæ ¼å¼
 		//
 		TextureFormat mSourceFormat;
 		TextureFormat mDestFormat;

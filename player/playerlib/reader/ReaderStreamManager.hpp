@@ -8,20 +8,20 @@ namespace reader{
 	class ReaderStreamManager {
 	public:
 		//
-		//  Ìí¼ÓreaderÏÂµÄÒ»¸östreamµ½¹ÜÀíÖĞ£¬·µ»Øµ±Ç°Õâ¸östreamµÄid
+		//  æ·»åŠ readerä¸‹çš„ä¸€ä¸ªstreamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›å½“å‰è¿™ä¸ªstreamçš„id
 		//
 		virtual int32_t  addStream(ReaderBase* reader, StreamPtr stream) = 0;
 		//
-		//  Ìí¼ÓreaderÏÂµÄËùÓĞstreamµ½¹ÜÀíÖĞ£¬·µ»Ø³É¹¦Ìí¼ÓÁË¼¸¸öÁ÷
+		//  æ·»åŠ readerä¸‹çš„æ‰€æœ‰streamåˆ°ç®¡ç†ä¸­ï¼Œè¿”å›æˆåŠŸæ·»åŠ äº†å‡ ä¸ªæµ
 		//  
 		//
 		virtual uint32_t addStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr > streamVec) = 0;
 		//
-		//  ¸ù¾İÁ÷id»ñÈ¡Ò»¸öÁ÷ÊµÀı
+		//  æ ¹æ®æµidè·å–ä¸€ä¸ªæµå®ä¾‹
 		//
 		virtual StreamPtr getStream(int32_t id) = 0;
 		//
-		//  »ñÈ¡Õâ¸öreaderÏÂµÄËùÓĞÁ÷
+		//  è·å–è¿™ä¸ªreaderä¸‹çš„æ‰€æœ‰æµ
 		//
 		virtual void getStreamVec(ReaderBase* reader, FFL::Vector < StreamPtr >& streamVec) = 0;
 	};

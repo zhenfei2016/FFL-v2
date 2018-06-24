@@ -91,7 +91,7 @@ namespace player {
 	//  设置播放url
 	//
 	status_t FFLPlayer::setUrl(const char *url){
-		if (url == NULL || url[0] == NULL) {
+		if (url == NULL || url[0] == 0) {
 			return FFL_FAILED;
 		}
 

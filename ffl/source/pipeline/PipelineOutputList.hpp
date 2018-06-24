@@ -7,7 +7,7 @@
 *  FFL_PipelineOutputList.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/16
 *
-*  nodeµÄÊä³ö½Ó¿Ú¹ÜÀí
+*  nodeçš„è¾“å‡ºæ¥å£ç®¡ç†
 *
 */
 #ifndef _FFL_PIPELINE_OUTPUT_LIST_HPP_
@@ -29,15 +29,15 @@ namespace FFL
 
 	public:
 		//
-		//  ´´½¨Ò»¸öĞÂµÄoutput
+		//  åˆ›å»ºä¸€ä¸ªæ–°çš„output
 		//
 		PipelineOutputId createOutput();
 		//
-		//  É¾³ıÒ»¸öoutput
+		//  åˆ é™¤ä¸€ä¸ªoutput
 		//
 		void destroyOutput(PipelineOutputId id);
 		//
-		//  Í¨¹ıid²éÕÒÒ»¸öinput
+		//  é€šè¿‡idæŸ¥æ‰¾ä¸€ä¸ªinput
 		//
 		sp<PipelineOutput> getOutput(PipelineOutputId id);
 		

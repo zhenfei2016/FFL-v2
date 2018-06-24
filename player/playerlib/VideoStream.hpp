@@ -8,7 +8,7 @@ namespace player {
 		VideoStream();
 		virtual ~VideoStream();
 		//
-		// »ñÈ¡¿í¶È£¬¸ß¶È
+		// è·å–å®½åº¦ï¼Œé«˜åº¦
 		//
 		virtual void getSize(uint32_t& width, uint32_t& height)=0;
 	};

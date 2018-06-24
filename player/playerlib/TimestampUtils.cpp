@@ -2,7 +2,7 @@
 
 namespace player {	
 	//
-	//  Ê±¼ä´Áµ¥Î»×ªµ½usÖµ
+	//  æ—¶é—´æˆ³å•ä½è½¬åˆ°uså€¼
 	//
 	int64_t timestampToUs(int64_t timestamp, const FFL::TimeBase& tb) {
 		if (tb.mDen == 0) {
@@ -12,13 +12,13 @@ namespace player {
 
 		//av_rescale_q()
 		//
-		//  Ê±¼ä´ÁÒ»¸ö¿Ì¶È¶ÔÓ¦¶àÉÙºÁÃë
+		//  æ—¶é—´æˆ³ä¸€ä¸ªåˆ»åº¦å¯¹åº”å¤šå°‘æ¯«ç§’
 		//		
 		double us = ((double)(1000 * 1000 * tb.mNum)) / tb.mDen;
 		return (int64_t)(timestamp* us);
 	}
 	//
-	//  Ê±¼ä´Áµ¥Î»×ªµ½usÖµ
+	//  æ—¶é—´æˆ³å•ä½è½¬åˆ°uså€¼
 	//
 	int64_t timestampToUs(int64_t timestamp, const FFL::TimeBase& tb, FFL::Clock* clock) {
 		if (tb.mDen == 0) {
@@ -28,13 +28,13 @@ namespace player {
 
 		//av_rescale_q()
 		//
-		//  Ê±¼ä´ÁÒ»¸ö¿Ì¶È¶ÔÓ¦¶àÉÙºÁÃë
+		//  æ—¶é—´æˆ³ä¸€ä¸ªåˆ»åº¦å¯¹åº”å¤šå°‘æ¯«ç§’
 		//		
 		double us = ((double)(1000 * 1000 * tb.mNum)) / tb.mDen;
 		return (int64_t)(timestamp* us);
 	}
 	//
-	//  us×ªÊ±¼ä´Áµ¥Î»
+	//  usè½¬æ—¶é—´æˆ³å•ä½
 	//
 	int64_t usToTimestamp(int64_t us, const FFL::TimeBase& tb) {
 		if (tb.mDen == 0|| tb.mNum==0) {
@@ -43,7 +43,7 @@ namespace player {
 		}
 
 		//
-		//  Ê±¼ä´ÁÒ»¸ö¿Ì¶È¶ÔÓ¦¶àÉÙºÁÃë
+		//  æ—¶é—´æˆ³ä¸€ä¸ªåˆ»åº¦å¯¹åº”å¤šå°‘æ¯«ç§’
 		//		
 		double units = ((double)(1000 * 1000 * tb.mNum)) / tb.mDen;
 		return (int64_t)(us/units);

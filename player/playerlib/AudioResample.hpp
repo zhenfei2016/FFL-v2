@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ÉùÒôµÄÖØ²ÉÑù
+*  å£°éŸ³çš„é‡é‡‡æ ·
 *
 */
 #ifndef _AUDIO_RESAMPLE_HPP_
@@ -25,33 +25,33 @@ namespace player {
 		~AudioResample();
 	protected:
 		//
-		//  ´´½¨ÖØ²ÉÑùÉÏÏÂÎÄ
+		//  åˆ›å»ºé‡é‡‡æ ·ä¸Šä¸‹æ–‡
 		//
 		bool createSwr(const AudioFormat* src,const AudioFormat* dst,uint32_t speed);
 		//
-		//  É¾³ıÖØ²ÉÑùÉÏÏÂÎÄ
+		//  åˆ é™¤é‡é‡‡æ ·ä¸Šä¸‹æ–‡
 		//
 		void destroySwr();
 	public:
 		//
-		//  speed  :µ±Ç°ÒôÆµµÄ²¥·ÅËÙ¶È100Õı³£ËÙ¶È
-		//   in:    ÊäÈëµÄ²ÉÑùÊı¾İ
-		//   out:   Êä³öµÄÖØ²ÉÑùÊı¾İ
+		//  speed  :å½“å‰éŸ³é¢‘çš„æ’­æ”¾é€Ÿåº¦100æ­£å¸¸é€Ÿåº¦
+		//   in:    è¾“å…¥çš„é‡‡æ ·æ•°æ®
+		//   out:   è¾“å‡ºçš„é‡é‡‡æ ·æ•°æ®
 		//
 		bool resample(const AudioSample* in , AudioSample* out,uint32_t speed);		
 	protected:
 		//
-		//  ffmpegÖĞÖØ²ÉÑùµÄ
+		//  ffmpegä¸­é‡é‡‡æ ·çš„
 		//
 		SwrContext *mSwrCtx;		
 		//
-		//  µ±Ç°µÄÔ´¸ñÊ½£¬Ä¿±ê¸ñÊ½
+		//  å½“å‰çš„æºæ ¼å¼ï¼Œç›®æ ‡æ ¼å¼
 		//
 		AudioFormat mSrc;
 		AudioFormat mDst;
 		//
-		// ²¥·ÅËÙ¶È,
-		// ËÙ¶È¸Ä±äÇé¿öÏÂ mSampleNum¸ö²ÉÑù £¬¶ÔÓ¦CompensationNum¸ö²¹³¥
+		// æ’­æ”¾é€Ÿåº¦,
+		// é€Ÿåº¦æ”¹å˜æƒ…å†µä¸‹ mSampleNumä¸ªé‡‡æ · ï¼Œå¯¹åº”CompensationNumä¸ªè¡¥å¿
 		//
 		uint32_t mSpeed;
 

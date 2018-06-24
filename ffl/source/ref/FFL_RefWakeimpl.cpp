@@ -19,7 +19,7 @@ namespace FFL
 		FFL_atomicInit(&mStrong,INITIAL_STRONG_VALUE);
 		FFL_atomicInit(&mWeak, 0);
 		//
-		//  Ä¬ÈÏ0Ç¿ÒıÓÃ¿ØÖÆ¶ÔÏóÉúÃü
+		//  é»˜è®¤0å¼ºå¼•ç”¨æ§åˆ¶å¯¹è±¡ç”Ÿå‘½
 		//
 		FFL_atomicInit(&mFlags, 0);
 	}

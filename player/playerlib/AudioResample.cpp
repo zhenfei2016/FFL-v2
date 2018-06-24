@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ÉùÒôµÄÖØ²ÉÑù
+*  å£°éŸ³çš„é‡é‡‡æ ·
 *
 */
 
@@ -27,7 +27,7 @@ namespace player {
 		destroySwr();
 	}
 	//
-	//  ´´½¨ÖØ²ÉÑùÉÏÏÂÎÄ
+	//  åˆ›å»ºé‡é‡‡æ ·ä¸Šä¸‹æ–‡
 	//
 	bool AudioResample::createSwr(const AudioFormat* src, const AudioFormat* dst, uint32_t speed){
 		if (!src || !dst) {
@@ -49,14 +49,14 @@ namespace player {
 		mSpeed = speed;
 
 		//
-		//  ÊäÈëÊý¾ÝµÄÉùµÀ²¼¾Ö£¬²ÉÑùÂÊ£¬²ÉÑù¸ñÊ½
+		//  è¾“å…¥æ•°æ®çš„å£°é“å¸ƒå±€ï¼Œé‡‡æ ·çŽ‡ï¼Œé‡‡æ ·æ ¼å¼
 		//
 		av_opt_set_int(mSwrCtx, "in_channel_layout", mSrc.getChannelLayout(), 0);
 		av_opt_set_int(mSwrCtx, "in_sample_rate", mSrc.mFreq, 0);
 		av_opt_set_sample_fmt(mSwrCtx, "in_sample_fmt", (AVSampleFormat)mSrc.mFormat, 0);
 
 		//
-		//  Êä³öÊý¾ÝµÄÉùµÀ²¼¾Ö£¬²ÉÑùÂÊ£¬²ÉÑù¸ñÊ½
+		//  è¾“å‡ºæ•°æ®çš„å£°é“å¸ƒå±€ï¼Œé‡‡æ ·çŽ‡ï¼Œé‡‡æ ·æ ¼å¼
 		//	
 		av_opt_set_int(mSwrCtx, "out_channel_layout", mDst.getChannelLayout(), 0);
 		av_opt_set_int(mSwrCtx, "out_sample_rate", mDst.mFreq, 0);
@@ -74,7 +74,7 @@ namespace player {
 		return false;
 	}
 	//
-	//  É¾³ýÖØ²ÉÑùÉÏÏÂÎÄ
+	//  åˆ é™¤é‡é‡‡æ ·ä¸Šä¸‹æ–‡
 	//
 	void AudioResample::destroySwr() {
 		if (mSwrCtx) {
@@ -99,13 +99,13 @@ namespace player {
 		
 		//uint32_t wantSampleNum=
 		//
-		//  ¼ÆËãÖØ²ÉÑùºóµÄ²ÉÑùÊý,
-		//  ¸ù¾ÝÔ´£¬Ä¿±ê²ÉÑùÂÊ ºÍÉÏ´ÎÖØ²ÉÑù»º´æÃ»´¦ÀíÁËµÄ
+		//  è®¡ç®—é‡é‡‡æ ·åŽçš„é‡‡æ ·æ•°,
+		//  æ ¹æ®æºï¼Œç›®æ ‡é‡‡æ ·çŽ‡ å’Œä¸Šæ¬¡é‡é‡‡æ ·ç¼“å­˜æ²¡å¤„ç†äº†çš„
 		//
 		uint32_t dstSampleNum =(uint32_t) av_rescale_rnd(src->mSampleNum ,dst->mFreq,src->mFreq, AV_ROUND_UP) ;
 
 		//
-		//  Èç¹ûËÙ¶È¸Ä±äÁË£¬ÔòÐèÒª²åÖµ¶àÉÙ¸ö²ÉÑùµã
+		//  å¦‚æžœé€Ÿåº¦æ”¹å˜äº†ï¼Œåˆ™éœ€è¦æ’å€¼å¤šå°‘ä¸ªé‡‡æ ·ç‚¹
 		//
 		if (mSpeed == SPEED_NORAML) {
 			mCompensationNum = 0;
@@ -124,7 +124,7 @@ namespace player {
 		}
 
      	//
-		//  ÉêÇëÄÚ´æ´æ´¢ÖØ²ÉÑùÊý¾Ý
+		//  ç”³è¯·å†…å­˜å­˜å‚¨é‡é‡‡æ ·æ•°æ®
 		//		
 		dstSampleNum += mCompensationNum;
 		dst->allocData(dstFormat.getChannelNum(), dstSampleNum);		

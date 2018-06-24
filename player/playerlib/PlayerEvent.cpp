@@ -7,7 +7,7 @@
 *  FFL_PlayerEvent.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/11
 *
-*  ²¥·ÅÆ÷ÊÂ¼þ
+*  æ’­æ”¾å™¨äº‹ä»¶
 *
 */
 #include "PlayerEvent.hpp"
@@ -24,7 +24,7 @@ namespace event{
 	}
 
 	//
-	//  ·¢ËÍ²¥·ÅÆ÷ÊÂ¼þ
+	//  å‘é€æ’­æ”¾å™¨äº‹ä»¶
 	//
 	void postPlayerEvent(player::PlayerCore* core, EventId eventid, int64_t param1, int64_t param2) {
 		core->getPipeline()->postEvent(new PlayerEvent(eventid, param1, param2));

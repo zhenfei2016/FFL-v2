@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/07
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ÒôÆµ²ÉÑù½á¹¹
+*  éŸ³é¢‘é‡‡æ ·ç»“æ„
 *
 */
 #include "AudioSample.hpp"
@@ -17,13 +17,13 @@ namespace player {
 
 	AudioSample::AudioSample() :mAuotoDelete(false) {
 		//
-		//  ÏÔÊ¾µÄÊ±¼ä£¬³ÖĞøµÄÊ±³¤
+		//  æ˜¾ç¤ºçš„æ—¶é—´ï¼ŒæŒç»­çš„æ—¶é•¿
 		//
 		mPts = -1;
 		mDuration = -1;
 		//
 		//
-		// ²ÉÑù¸ñÊ½£¬Í¨µÀÊı£¬²ÉÑù¸öÊı,²ÉÑùÂÊ
+		// é‡‡æ ·æ ¼å¼ï¼Œé€šé“æ•°ï¼Œé‡‡æ ·ä¸ªæ•°,é‡‡æ ·ç‡
 		//
 		mFormat = AV_SAMPLE_FMT_NONE;
 		mChannel = 0;		
@@ -39,9 +39,9 @@ namespace player {
 	}
 
 	//
-	//  ÉêÇëÄÚ´æ£¬
-	//  channelNum£ºÍ¨µÀÊı
-	//  sampleNum:²ÉÑùÊı
+	//  ç”³è¯·å†…å­˜ï¼Œ
+	//  channelNumï¼šé€šé“æ•°
+	//  sampleNum:é‡‡æ ·æ•°
 	//
 	void AudioSample::allocData(uint32_t channelNum, uint32_t sampleNum) {
 		av_samples_alloc_array_and_samples(
@@ -53,7 +53,7 @@ namespace player {
 		mAuotoDelete = true;
 	}
 	//
-	//  É¾³ıÉêÇëµÄÄÚ´æ
+	//  åˆ é™¤ç”³è¯·çš„å†…å­˜
 	//
 	void AudioSample::freeData() {
 		if (mAuotoDelete) {
@@ -62,7 +62,7 @@ namespace player {
 		}
 	}
 	//
-	//  Ìî³äÊı¾İ£¬¸úallocData²»Ò»ÑùµÄÄ£Ê½£¬Õâ¸öÌî³äµÄÊı¾İ²»ĞèÒªÊÍ·Å
+	//  å¡«å……æ•°æ®ï¼Œè·ŸallocDataä¸ä¸€æ ·çš„æ¨¡å¼ï¼Œè¿™ä¸ªå¡«å……çš„æ•°æ®ä¸éœ€è¦é‡Šæ”¾
 	//
 	void AudioSample::fillData(uint8_t **data, int32_t linesize, uint32_t sampleNum) {
 		freeData();
@@ -73,7 +73,7 @@ namespace player {
 		mAuotoDelete = false;
 	}
 	//
-	//  °ÑrÖĞµÄÊı¾İÒÆ¶¯¹ıÀ´
+	//  æŠŠrä¸­çš„æ•°æ®ç§»åŠ¨è¿‡æ¥
 	//
 	void AudioSample::moveData(AudioSample& r) {
 		freeData();
@@ -91,7 +91,7 @@ namespace player {
 		r.mAuotoDelete = false;
 	}
 	//
-	//  ²ÉÑùµÄ¸ñÊ½
+	//  é‡‡æ ·çš„æ ¼å¼
 	//
 	void AudioSample::setAudioFormat(const AudioFormat& fmt) {
 		mChannel=fmt.mChannelNum ;

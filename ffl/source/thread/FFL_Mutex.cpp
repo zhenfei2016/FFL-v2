@@ -7,7 +7,7 @@
 *  FFL_Mutex
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/10
 *
-*  锁，条件变量包装
+*  閿侊紝鏉′欢鍙橀噺鍖呰
 */
 
 #include <thread/FFL_Mutex.hpp>

@@ -14,7 +14,7 @@
 
 #include "FFL_Platform.h"
 
-
+#ifndef DECLSPEC
 /*  函数导出方式  */
 #if defined(WIN32)
 #define DECLSPEC __declspec(dllexport)
@@ -23,7 +23,7 @@
 #else
 #define DECLSPEC __attribute__((visibility("default")))
 #endif
-
+#endif
 /*
  *打印64位整形
  * print("hi%"lld64, 123445 );

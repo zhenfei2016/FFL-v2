@@ -7,7 +7,7 @@
  *  FFL_File.hpp
  *  Created by zhufeifei(34008081@qq.com) on 2018/06/20 
  *  https://github.com/zhenfei2016/FFL-v2.git
- *  ÎÄ¼ş²Ù×÷Àà
+ *  æ–‡ä»¶æ“ä½œç±»
  *
 */
 #ifndef _FFL_FILE_HPP_
@@ -24,65 +24,65 @@ namespace FFL {
 		virtual ~File();
 	public:
 		//
-		//  ´ò¿ªÎÄ¼ş£¬FFL_OK³É¹¦
-		//  path:ÎÄ¼ş¾ø¶ÔÂ·¾¶
+		//  æ‰“å¼€æ–‡ä»¶ï¼ŒFFL_OKæˆåŠŸ
+		//  path:æ–‡ä»¶ç»å¯¹è·¯å¾„
 		//
 		status_t open(const String& path);
 		//
-		//  ×·¼ÓÄ£Ê½´ò¿ªÎÄ¼ş£¬FFL_OK³É¹¦
-		//  path:ÎÄ¼ş¾ø¶ÔÂ·¾¶
+		//  è¿½åŠ æ¨¡å¼æ‰“å¼€æ–‡ä»¶ï¼ŒFFL_OKæˆåŠŸ
+		//  path:æ–‡ä»¶ç»å¯¹è·¯å¾„
 		//
 		status_t openAppend(const String& path);
 		//
-		// ´´½¨ÎÄ¼ş,ÎÄ¼şÒÑ¾­´æÔÚµÄÇé¿öÏÂ¸²¸ÇÔ­ÎÄ¼ş
+		// åˆ›å»ºæ–‡ä»¶,æ–‡ä»¶å·²ç»å­˜åœ¨çš„æƒ…å†µä¸‹è¦†ç›–åŸæ–‡ä»¶
 		//
 		status_t create(const String& path);
 		//
-		// ¹Ø±ÕÎÄ¼ş
+		// å…³é—­æ–‡ä»¶
 		//
 		void close();	
 		bool isOpened() const;		
 	private:
 		//
-		//  ´ò¿ªÎÄ¼ş£¬FFL_OK³É¹¦
-		//  path:ÎÄ¼ş¾ø¶ÔÂ·¾¶
+		//  æ‰“å¼€æ–‡ä»¶ï¼ŒFFL_OKæˆåŠŸ
+		//  path:æ–‡ä»¶ç»å¯¹è·¯å¾„
 		//
 		status_t open(const char* path,int mode);
 	public:
 		//
-		//  Ğ´Êı¾İµ½ÎÄ¼şÖĞ
-		//  buf:»º³åÇøµØÖ·
-		//  count:»º³åÇø´óĞ¡
-		//  pWrite:ÊµÖÊÉÏĞ´ÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  å†™æ•°æ®åˆ°æ–‡ä»¶ä¸­
+		//  buf:ç¼“å†²åŒºåœ°å€
+		//  count:ç¼“å†²åŒºå¤§å°
+		//  pWrite:å®è´¨ä¸Šå†™äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t write(void* buf, size_t count, size_t* pWrite);
 		//
-		//  Ğ´Êı¾İµ½ÎÄ¼şÖĞ
-		//  bufVec:»º³åÇøµØÖ·,Êı×é
-		//  count:Êı×é´óĞ¡
-		//  pWrite:ÊµÖÊÉÏĞ´ÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  å†™æ•°æ®åˆ°æ–‡ä»¶ä¸­
+		//  bufVec:ç¼“å†²åŒºåœ°å€,æ•°ç»„
+		//  count:æ•°ç»„å¤§å°
+		//  pWrite:å®è´¨ä¸Šå†™äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t writeVec(const BufferVec* bufVec, int count, size_t* pWrite);
 		//
-		//  ¶ÁÊı¾İµ½»º³åÇø
-		//  buf:»º³åÇøµØÖ·
-		//  count:ĞèÒª¶ÁµÄ´óĞ¡
-		//  pReaded:ÊµÖÊÉÏ¶ÁÁË¶àÉÙÊı¾İ
-		//  ·µ»Ø´íÎóÂë  £º FFL_OK±íÊ¾³É¹¦
+		//  è¯»æ•°æ®åˆ°ç¼“å†²åŒº
+		//  buf:ç¼“å†²åŒºåœ°å€
+		//  count:éœ€è¦è¯»çš„å¤§å°
+		//  pReaded:å®è´¨ä¸Šè¯»äº†å¤šå°‘æ•°æ®
+		//  è¿”å›é”™è¯¯ç   ï¼š FFL_OKè¡¨ç¤ºæˆåŠŸ
 		//
 		virtual status_t read(uint8_t* buf, size_t count, size_t* pReaded);
 	private:
 		//
-		//  ÎÄ¼şÂ·¾¶£¬ÎÄ¼ş¾ä±ú
+		//  æ–‡ä»¶è·¯å¾„ï¼Œæ–‡ä»¶å¥æŸ„
 		//
 		String mPath;	
 		void* mFd;
 	};
 
 	//
-	//  ÎÄ¼şÊÇ·ñ´´½¨ÁË
+	//  æ–‡ä»¶æ˜¯å¦åˆ›å»ºäº†
 	//
 	bool fileIsExist(const char* path);
 }

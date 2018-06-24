@@ -8,7 +8,7 @@
  *  Created by zhufeifei(34008081@qq.com) on 2018/06/13 
  *  https://github.com/zhenfei2016/FFL-v2.git
  *
- *  ÒôÆµ²É¼¯µÄ¸ñÊ½ĞÅÏ¢
+ *  éŸ³é¢‘é‡‡é›†çš„æ ¼å¼ä¿¡æ¯
  *
 */
 #ifndef _AUDIOSAMPLEFORMAT_HPP_
@@ -21,46 +21,46 @@
 #endif
 namespace player {
 	//
-	//  ÒôÆµ²ÉÑù¸ñÊ½ĞÅÏ¢
+	//  éŸ³é¢‘é‡‡æ ·æ ¼å¼ä¿¡æ¯
 	//
 	class AudioFormat {
 	public:
 		AudioFormat();
 		//
-		// ÖØÖÃÒ»ÏÂËùÓĞµÄÊıÖµ
+		// é‡ç½®ä¸€ä¸‹æ‰€æœ‰çš„æ•°å€¼
 		//
 		void reset();
 		//
-		//  ±È½ÏÊÇ·ñÏàµÈ
+		//  æ¯”è¾ƒæ˜¯å¦ç›¸ç­‰
 		//
 		bool equal(const AudioFormat& r) const;	
 		bool operator==(const AudioFormat& r) const;
 		//
-		// ¸³Öµ²Ù×÷
+		// èµ‹å€¼æ“ä½œ
 		//
 		AudioFormat& operator=(const AudioFormat& r);
 	public:
 		//
-		//  »ñÈ¡Í¨µÀÊı
+		//  è·å–é€šé“æ•°
 		//
 		uint32_t getChannelNum() const {
 			return mChannelNum;
 		}
 		//
-		//  »ñÈ¡ÉùµÀ²¼¾Ö
+		//  è·å–å£°é“å¸ƒå±€
 		//
 		int64_t getChannelLayout();
 		//
-		// »ñÈ¡Ò»¸ö²ÉÑùµãµÄ´óĞ¡
+		// è·å–ä¸€ä¸ªé‡‡æ ·ç‚¹çš„å¤§å°
 		//
 		uint32_t getPerFrameSize();
 		//
-		//  Êä³öµ±Ç°µÄËùÓĞĞÅÏ¢
+		//  è¾“å‡ºå½“å‰çš„æ‰€æœ‰ä¿¡æ¯
 		//
 		const char* dump();
 	public:
 		//
-		// ²ÉÑùÂÊ£¬²ÉÑùÉî¶È£¬ÉùµÀÊı£¬ËÙ¶È
+		// é‡‡æ ·ç‡ï¼Œé‡‡æ ·æ·±åº¦ï¼Œå£°é“æ•°ï¼Œé€Ÿåº¦
 		//
 		uint32_t mFreq;			
 		AVSampleFormat mFormat;
@@ -72,12 +72,12 @@ namespace player {
 	};
 
 	//
-	//  »ñÈ¡²¥·ÅËÙ¶È¸Ä±äºóĞèÒª²¹³¥µÄ²ÉÑùÊı£¬¿ÉÄÜ±ä´ó±äĞ¡
-	//  sampleNum:Ô­Ê¼Õı³£Çé¿öÏÂµÄ²ÉÑùÊı
-	//  speed :²¥·ÅËÙ¶È£¬ Õı³£ËÙ¶ÈÎª100 , <100±äÂı , >100±ä¿ì
+	//  è·å–æ’­æ”¾é€Ÿåº¦æ”¹å˜åéœ€è¦è¡¥å¿çš„é‡‡æ ·æ•°ï¼Œå¯èƒ½å˜å¤§å˜å°
+	//  sampleNum:åŸå§‹æ­£å¸¸æƒ…å†µä¸‹çš„é‡‡æ ·æ•°
+	//  speed :æ’­æ”¾é€Ÿåº¦ï¼Œ æ­£å¸¸é€Ÿåº¦ä¸º100 , <100å˜æ…¢ , >100å˜å¿«
 	//
 	//
-	//  Õı³£µÄ²¥·ÅËÙ¶È
+	//  æ­£å¸¸çš„æ’­æ”¾é€Ÿåº¦
 	//
     #define SPEED_NORAML 100
 	int32_t getCompensationSampleNum(uint32_t sampleNum, uint32_t speed);

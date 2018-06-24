@@ -7,7 +7,7 @@ namespace player {
 	VideoDevice::~VideoDevice(){
 	}
 	//
-	// ªÒ»°render
+	// Ëé∑Âèñrender
 	//
 	FFL::sp<VideoRender> VideoDevice::getRender(void* userdata) {
 		if (mVideoRender.isEmpty()) {

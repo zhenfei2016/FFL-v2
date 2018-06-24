@@ -7,7 +7,7 @@
 *  FFL_ref_weakimpl
 *  Created by zhufeifei(34008081@qq.com) on 2017/08/12
 *
-*  ÒıÓÃ¼ÆÊıÀà£¬ÄÚ²¿Ôö¼ÓµÄÒıÓÃ¼ÆÊıÏà¹Ø½á¹¹
+*  å¼•ç”¨è®¡æ•°ç±»ï¼Œå†…éƒ¨å¢åŠ çš„å¼•ç”¨è®¡æ•°ç›¸å…³ç»“æ„
 */
 
 #ifndef _FFL_REF_WEAK_REF_IMPL_H_

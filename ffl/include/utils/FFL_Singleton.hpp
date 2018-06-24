@@ -8,7 +8,7 @@
  *  Created by zhufeifei(34008081@qq.com) on 2018/06/22 
  *  https://github.com/zhenfei2016/FFL-v2.git
  *  
- *  µ¥ÀıÄ£°å
+ *  å•ä¾‹æ¨¡æ¿
  *  example:
  *  .hpp
  *  class A : public Singleton<A>{
@@ -33,7 +33,7 @@
 
 namespace FFL{	
 	//
-	//  ËùÓĞµ¥ÀıÀà¹«ÓÃµÄÒ»¸öËø
+	//  æ‰€æœ‰å•ä¾‹ç±»å…¬ç”¨çš„ä¸€ä¸ªé”
 	//
 	CMutex& getSingletonLock();
 
@@ -45,7 +45,7 @@ namespace FFL{
 			~Singleton() {}
 		public:
 			//
-			//  »ñÈ¡µ¥Àı
+			//  è·å–å•ä¾‹
 			//
 			static T &getInstance(){
 				if (sInstance != NULL) {
@@ -60,8 +60,8 @@ namespace FFL{
 				return *sInstance;
 			}
 			//
-			//  ÊÍ·Åµ¥Àı¶ÔÏó£¬²»½¨Òéµ÷ÓÃÕâ¸ö£¬
-			//  Èç¹ûÒ»¶¨Òªµ÷ÓÃËû£¬ÄãĞèÒªÈ·¶¨ getInstance()»ñµÃµÄµ¥Àı¶ÔÏóÃ»ÓĞÔÚÊ¹ÓÃÖĞ£¬getInstance()Ã»ÓĞÕıÔÚµ÷ÓÃÖĞ
+			//  é‡Šæ”¾å•ä¾‹å¯¹è±¡ï¼Œä¸å»ºè®®è°ƒç”¨è¿™ä¸ªï¼Œ
+			//  å¦‚æœä¸€å®šè¦è°ƒç”¨ä»–ï¼Œä½ éœ€è¦ç¡®å®š getInstance()è·å¾—çš„å•ä¾‹å¯¹è±¡æ²¡æœ‰åœ¨ä½¿ç”¨ä¸­ï¼ŒgetInstance()æ²¡æœ‰æ­£åœ¨è°ƒç”¨ä¸­
 			//  
 			//
 			static void deleteInstance() {				
@@ -74,8 +74,13 @@ namespace FFL{
 		protected:
 			static T* sInstance;				
 			DISABLE_COPY_CONSTRUCTORS(Singleton);
-	};	
+	};
+#ifdef WIN32
    #define FFL_IMPLEMENT_SINGLETON(ClassName) ClassName* FFL::Singleton< ClassName >::sInstance=0
+#else
+   #define FFL_IMPLEMENT_SINGLETON(ClassName) template<> ClassName* FFL::Singleton< ClassName >::sInstance=0
+#endif
+  
 	
 }
 #endif
