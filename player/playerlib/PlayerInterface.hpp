@@ -19,7 +19,10 @@ namespace player {
 		//
 		virtual status_t prepare() = 0;
 		virtual status_t start() = 0;
-		virtual status_t pause() = 0;
+		//
+		//  pau:1 暂停， 0：恢复
+		//
+		virtual status_t pause(int32_t pau) = 0;
 		virtual status_t stop() = 0;
 		//
 		//  定位到指定us处
@@ -33,12 +36,13 @@ namespace player {
 		//  获取，设置播放速度，正常速度=100
 		//
 		virtual uint32_t getSpeed() = 0;
-		virtual void setSpeed(uint32_t speed) = 0;
+		virtual void setSpeed(uint32_t speed) = 0;	
 		//
 		// 获取，设置音量
+		//    0-255
 		//
-		virtual void setVolume(float left, float right) = 0;
-		virtual void getVolume(float* left, float* right) = 0;
+		virtual void setVolume(int32_t volume)=0;
+		virtual void getVolume(int32_t& volume)=0;
 		//
 		// 获取，设置循环播放次数
 		// 如果<0 : 一直循环播放

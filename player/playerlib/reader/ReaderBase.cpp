@@ -42,14 +42,14 @@ namespace reader {
 		mEventSeekPending(false){
 		mUrl = "";
 
+		mLoopCount = 0;
 		mEventOpen = new FFL::PipelineEvent(
 			new  FFL::ClassMethodCallback<ReaderBase>(this,&ReaderBase::onOpenStub));
 		mEventClose = new FFL::PipelineEvent(
 			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onCloseStub));
 		mEventPause = new FFL::PipelineEvent(
 			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onPauseStub));
-		mEventSeek = new FFL::PipelineEvent(
-			new  FFL::ClassMethodCallback<ReaderBase>(this, &ReaderBase::onSeekStub));
+		mMsgSeek = new FFL::PipelineMessage();
 
 	}
 	ReaderBase::~ReaderBase() {
@@ -121,8 +121,9 @@ namespace reader {
 		}
 
 		mEventSeekPending = true;
-		mEventSeek->setParams(pos, 0);		
-		postEvent(mEventSeek);		
+		mMsgSeek->setParams(pos, 0);
+		mSourceConn->tranport(mMsgSeek, 0);
+		mPauseCond.signal();
 	}
 	//
 	// 关闭
@@ -136,6 +137,15 @@ namespace reader {
 		mPauseCond.signal();
 	}
 	//
+	// 获取，设置循环播放次数
+	// 如果<0 : 一直循环播放
+	//     =0 : 播放一次
+	//     >0 : 播放num+1次
+	//
+	void ReaderBase::setLoop(int32_t count) {
+		mLoopCount = count;
+	}
+	//
 	// 是否暂停状态
 	//
 	bool ReaderBase::isPaused() const {
@@ -143,7 +153,7 @@ namespace reader {
 	}
 	bool  ReaderBase::initLooper(){
 		FFL::sp<FFL::PipelineInputHandler> callback =
-			new FFL::ClassMethodVoidInputHandler<ReaderBase>(this, &ReaderBase::onReadOnce);
+			new FFL::ClassMethodInputHandler<ReaderBase,void*>(this, &ReaderBase::onReadOnce,0);
 		player::InputInterface input = createInputInterface(callback, "reader-stream");
 		if (!input.isValid()) {
 			FFL_LOG_ERROR("invalid input id");
@@ -158,6 +168,8 @@ namespace reader {
 		else {
 			conn = new FFL::PipelineTimerSourceConnector(3000);
 		}		
+		
+		mSourceConn = conn;
 		getOwner()->getPipeline()->connectSource(input.mNodeId, input.mId, conn);
 		return true;
 	}
@@ -173,7 +185,14 @@ namespace reader {
 	//
 	// 读取主循环
 	//
-	void ReaderBase::onReadOnce(){
+	void ReaderBase::onReadOnce(const FFL::sp<FFL::PipelineMessage>& msg, void* arg){
+		if (!msg.isEmpty()) {
+			if (mMsgSeek.get() == msg.get()) {
+				onSeekStub(mMsgSeek);
+				return;
+			}
+		}
+
 		if (mIsPaused) {
 			mPauseCond.waitRelative(mPauseLock, 100);
 			return;
@@ -210,6 +229,7 @@ namespace reader {
 				mIsPaused = true;
 				mEventPausePending = false;				
 			}
+			event::postPlayerEvent(getOwner(), event::EVENT_PAUSE, 0,0);
 		}
 		else {
 			onResume();
@@ -218,12 +238,14 @@ namespace reader {
 				mIsPaused = false;
 				mEventResumePending = false;
 			}
+
+			event::postPlayerEvent(getOwner(), event::EVENT_RESUME, 0,0);
 		}
 	}
 	//
 	// seek函数，具体实现
 	//
-	void ReaderBase::onSeekStub(const FFL::sp<FFL::PipelineEvent>& event) {
+	void ReaderBase::onSeekStub(const FFL::sp<FFL::PipelineMessage>& event) {
 		onSeek(event->getParam1());
 		{
 			FFL::CMutex::Autolock l(&mRequestLock);

@@ -59,7 +59,9 @@ namespace player {
 	FFL::sp<FFL::PipelineConnector > AudioComposer::onCreateConnector(
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
-		return new FFL::PipelineAsyncConnector();
+		FFL::PipelineAsyncConnector * conn=new FFL::PipelineAsyncConnector();
+		conn->setName("audioComposer");
+		return conn;
 	}
 
 	//
@@ -79,6 +81,19 @@ namespace player {
 			handleSamples(msg, &(frame->mSamples));
 		}
 			break;
+		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		{			
+			FFL::sp<FFL::PipelineOutput > output = getOutput(mOutputToRenderInterface.mId);
+			if (!output.isEmpty()) {
+				output->clearMessage();
+			}
+
+			mTimestampExtrapolator->reset();
+			if (FFL_OK != postMessage(mOutputToRenderInterface.mId, msg)) {
+				msg->consume(this);
+			}
+			break;
+		}
 		case MSG_CONTROL_READER_EOF:
 			handleEOF(msg);
 			break;

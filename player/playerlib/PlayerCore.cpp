@@ -24,7 +24,7 @@
 #include "VideoRender.hpp"
 #include "AudioRender.hpp"
 
-#include "SDL2Module.hpp"
+
 #include "PlayerEvent.hpp"
 
 #include "Decoder.hpp"
@@ -34,8 +34,9 @@
 
 namespace player {
 	PlayerCore::PlayerCore(FFL::PipelineEventFilter* eventFilter):mSpeed(100){
+		mDeviceManager = NULL;
 		mNextStreamId=0;
-		mSurfaceHandle = NULL;
+		
 		mFileReader = NULL;
 		mMasterClock = NULL;
 		mVideoComposer = NULL;
@@ -48,20 +49,15 @@ namespace player {
 	}
 	PlayerCore::~PlayerCore()
 	{
-		FFL_SafeFree(mDeviceCreator);				
+		
 	}
-	status_t PlayerCore::init() {
-		mDeviceCreator = new SDL2Module();
+	status_t PlayerCore::init() {		
 		//
 		//  打开文件，读写文件节点
 		//			
 		mFileReader = reader::ReaderFactory::getInstance().createReader(NULL, NULL);
 		mFileReader->setStreamManager(this);
-		mFileReader->create(this);
-		//
-		// 创建显示窗体
-		//
-		mVideoDevice = createVideoDisplay(NULL, mSurfaceHandle);
+		mFileReader->create(this);		
 		return FFL_OK;
 	}
 
@@ -81,18 +77,8 @@ namespace player {
 		return FFL_FAILED;
 	}
 
-	status_t PlayerCore::stop()
-	{
-		if (!mPipeline.isEmpty())
-		{
-			if (!mAudioDevice.isEmpty()) {
-				mAudioDevice->close();
-			}
-
-			if (!mVideoDevice.isEmpty()) {
-				mVideoDevice->close();
-			}			
-
+	status_t PlayerCore::stop(){
+		if (!mPipeline.isEmpty()){			
 			mPipeline->shutdownAndWait();
 			mPipeline->setEventFilter(NULL);
 		}
@@ -131,37 +117,20 @@ namespace player {
 	//
 	//  设置，获取播放速度
 	//
-	void PlayerCore::setSpeed(uint32_t speed) {
-		if (speed > 300) {
-			speed = 300;
-		}
-		else if (speed <= 10) {
-			speed = 10;
-		}
-
+	void PlayerCore::setSpeed(uint32_t speed) {	
 		mSpeed = speed;
-		if (!mVideoDevice.isEmpty()) {
-			//
-			//  更新绘制的速度
-			//
-			FFL::sp<VideoRender> render = mVideoDevice->getRender(0);
-			if (!render.isEmpty()) {
-				render->getRenderClock()->setSpeed(speed);
-			}
-		}
-
-		if (!mAudioDevice.isEmpty()) {
-			//
-			//  更新音频速度
-			//
-			FFL::sp<AudioRender> render = mAudioDevice->getRender(0);
-			if (!render.isEmpty()) {
-				render->getRenderClock()->setSpeed(speed);
-			}
-		}
 	}
 	uint32_t PlayerCore::getSpeed() {
 		return mSpeed;
+	}
+	//
+	// 获取，设置循环播放次数
+	// 如果<0 : 一直循环播放
+	//     =0 : 播放一次
+	//     >0 : 播放num+1次
+	//
+	void PlayerCore::setLoop(int32_t num) {
+		mFileReader->setLoop(num);
 	}
 	void PlayerCore::onEvent(const FFL::sp<event::PlayerEvent> event)
 	{
@@ -293,6 +262,11 @@ namespace player {
 		FFL_ASSERT(0);
 	}
 	bool PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {		
+		FFL::sp<VideoDevice> videoDevice = mDeviceManager->getVideoDisplay(stream);
+		if (videoDevice.isEmpty()) {
+			FFL_LOG_WARNING("Failed to create video device.");
+			return false;
+		}
 		//
 		// 视频处理节点
 		//
@@ -303,7 +277,7 @@ namespace player {
 		//
 		//  通过视频设备创建视频渲染节点
 		//
-		FFL::sp<VideoRender> render = mVideoDevice->getRender(NULL);
+		FFL::sp<VideoRender> render = videoDevice->getRender(NULL);
 		if (!render->isCreated()) {
 			render->create(this);
 			render->setSpeed(getSpeed());
@@ -318,14 +292,12 @@ namespace player {
 		fetchVideoMetaData(stream);
 		return  true;
 	}
-	bool PlayerCore::onAddAudioStream(FFL::sp<AudioStream> stream) {
+	bool PlayerCore::onAddAudioStream(FFL::sp<AudioStream> stream) {		
 		//
 		// 如果音频设备未打开，则打开音频输出设备
 		//
-		if (mAudioDevice.isEmpty()) {
-			mAudioDevice = createAudioDisplay(stream);
-		}
-		if (mAudioDevice.isEmpty()) {
+		FFL::sp<AudioDevice> audioDevice= mDeviceManager->getAudioDisplay(stream);
+		if (audioDevice.isEmpty()) {
 			FFL_LOG_WARNING("Failed to create audio device.");
 			return false;
 		}
@@ -333,7 +305,7 @@ namespace player {
 		//
 		//  通过音频设备创建音频渲染节点
 		//
-		FFL::sp<AudioRender> render = mAudioDevice->getRender(NULL);
+		FFL::sp<AudioRender> render = audioDevice->getRender(NULL);
 		if (!render.isEmpty() && !render->isCreated()) {			
 			stream->getTimebase(mAudioTb);			
 			render->setSpeed(getSpeed());
@@ -344,7 +316,7 @@ namespace player {
 		//
 		if (!mAudioComposer) {
 			mAudioComposer = new AudioComposer();			
-			mAudioComposer->setOutputFormat(mAudioDevice->getOpenFormat());
+			mAudioComposer->setOutputFormat(audioDevice->getOpenFormat());
 			mAudioComposer->create(this);
 			mAudioComposer->setOutputRender(render);
 		}
@@ -353,7 +325,7 @@ namespace player {
 		//
 		FFL::sp<Decoder> decoder = stream->createDecoder(this);
 		decoder->setOutputComposer(mAudioComposer);
-		//
+		
 		//  设置这个流为同步的主时钟
 		//
 		mMasterClock = stream->getSyncClock();	
@@ -372,66 +344,5 @@ namespace player {
 		event::postPlayerEvent(this,event::EVENT_VIDEO_SIZE_CAHNGED,
 			FFL_MAKE_INT64(width, height),0);
 		//stream->getDictionary();
-	}
-	//
-	// 设置绘制窗口
-	//
-	void PlayerCore::setVideoSurface(SurfaceHandle surface) {
-		if (surface != NULL && surface!=mSurfaceHandle) {
-			mSurfaceHandle = surface;
-			if (!mVideoDevice.isEmpty()) {
-				mVideoDevice->setSurface(surface);
-			}
-		}
-	}
-	FFL::sp<VideoSurface> PlayerCore::getVideoSurface() {
-		if (!mVideoDevice.isEmpty()) {
-			return mVideoDevice->getSurface();
-		}
-		return NULL;
-	}
-	FFL::sp<VideoDevice> PlayerCore::createVideoDisplay(FFL::sp<VideoStream> stream, SurfaceHandle surface) {
-		FFL::sp<VideoDevice> dev = mDeviceCreator->createVideoDevice(this);
-		uint32_t width = 400;
-		uint32_t height = 300;
-		if (!stream.isEmpty()) {
-			stream->getSize(width, height);
-		}
-		dev->open(surface, width, height);
-		return dev;
-	}
-	void PlayerCore::destroyVideoDisplay(FFL::sp<VideoDevice> dev) {
-		if (!dev.isEmpty()) {
-			dev->close();
-			dev = NULL;
-		}
-	}
-	//
-	// 创建删除显示音频的设备
-	//
-	FFL::sp<AudioDevice> PlayerCore::createAudioDisplay(FFL::sp<AudioStream> stream) {		
-		if (stream.isEmpty()) {
-			return NULL;
-		}
-
-		FFL::sp<AudioDevice> dev = mDeviceCreator->createAudioDevice(this);
-		AudioFormat fmt;
-		stream->getFormat(fmt);
-
-		//
-		// 启动音频设备
-		//
-		AudioFormat obtainedFmt;
-		if (!dev->open(fmt, 1024, obtainedFmt)) {
-			return NULL;
-		}
-
-		return dev;
-	}
-	void PlayerCore::destroyAudioDisplay(FFL::sp<AudioDevice> dev) {
-		if (!dev.isEmpty()) {
-			dev->close();
-			dev = NULL;
-		}
 	}
 }

@@ -20,9 +20,17 @@
 
 #include <pipeline/FFL_PipelineEventFilter.hpp>
 #include "PlayerInterface.hpp"
+#include "VideoSurface.hpp"
+#include "VideoStream.hpp"
+#include "AudioStream.hpp"
+
 
 namespace player {
 	class PlayerCore;
+	class AudioDevice;
+	class VideoDevice;
+	class DeviceFactory;
+
 	class FFLPlayer : public IPlayer,
 		 public FFL::PipelineEventFilter{
 	public:
@@ -55,7 +63,10 @@ namespace player {
 		//
 		virtual status_t prepare();
 		virtual status_t start();
-		virtual status_t pause();
+		//
+		//  pause:1 进行暂停， 0：恢复
+		//
+		virtual status_t pause(int32_t pause);
 		virtual status_t stop();
 		//
 		//  定位到指定us处
@@ -72,9 +83,10 @@ namespace player {
 		virtual void setSpeed(uint32_t speed);
 		//
 		// 获取，设置音量
+		//  0-255
 		//
-		virtual void setVolume(float left, float right);
-		virtual void getVolume(float* left, float* right);
+		virtual void setVolume(int32_t volume);
+		virtual void getVolume(int32_t& volume);
 		//
 		// 获取，设置循环播放次数
 		// 如果<0 : 一直循环播放
@@ -146,7 +158,14 @@ namespace player {
 			FLAG_PAUSED = 0x40,
 		};
 		FFL::CMutex mMutex;
-		mutable FFL::Flags32b mFlag;
+		mutable FFL::Flags32b mFlag;	
+	private:
+		class FFLPlayerDeviceManager;
+		friend class FFLPlayerDeviceManager;
+		FFLPlayerDeviceManager* mDevManager;
+
+		uint32_t mSpeed;		
+		SurfaceHandle mSurfaceHandle;		
 	};
 }
 #endif

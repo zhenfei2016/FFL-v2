@@ -37,10 +37,14 @@ namespace player {
 			ret= decodeMessageFFMpegPacket((message::FFMpegPacket*) (msg->getPayload()));
             msg->consume(this);
 			break;
-		case MSG_CONTROL_DISCARD_MSG:			
-			mSerialNumber=(int32_t)msg->getParam1();
+		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		{
+			mSerialNumber = msg->getParam1();
 			mWaitIFrame = true;
-			msg->consume(this);
+			if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
+				msg->consume(this);
+			}
+		}
 			break;
 		case MSG_CONTROL_READER_EOF:
 			decode(NULL,false);
@@ -75,8 +79,7 @@ namespace player {
 		}
 		return false;
 	}	
-	bool NodeFFMpegDecoder::decode(AVPacket *pkt, bool discard)
-	{
+	bool NodeFFMpegDecoder::decode(AVPacket *pkt, bool discard){
 		if (mCodecCtx == NULL) {
 			return false;
 		}
@@ -93,8 +96,10 @@ namespace player {
 			AVFrame* frame = av_frame_alloc();
 			err = avcodec_receive_frame(mCodecCtx, frame);
 			if (err == AVERROR(EAGAIN) || err == AVERROR_EOF) {
+				av_frame_free(&frame);
 				return false;
 			}else if (err < 0){
+				av_frame_free(&frame);
 				FFL_LOG_WARNING("Error during decoding\n");
 				return false;
 			}
@@ -116,6 +121,9 @@ namespace player {
 				frame->width, frame->height, frame->key_frame,discard);
 			if (!discard) {
 				handleDecodedFrame(frame);
+			}else {
+				av_frame_unref(frame);
+				av_frame_free(&frame);
 			}
 		}
 
@@ -124,9 +132,6 @@ namespace player {
 
 	void NodeFFMpegDecoder::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 
-	}
-    
-    void NodeFFMpegDecoder::handleDiscardCache(const FFL::sp<FFL::PipelineMessage>& eof) {
-        
-    }
+	}  
+
 }

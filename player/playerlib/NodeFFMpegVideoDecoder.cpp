@@ -16,6 +16,7 @@
 #include "FFMpegStream.hpp"
 #include "PlayerCore.hpp"
 #include "VideoTexture.hpp"
+#include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
 	NodeFFMpegVideoDecoder::NodeFFMpegVideoDecoder(VideoStream* stream, AVCodecContext* ctx) :
@@ -27,7 +28,16 @@ namespace player {
 	NodeFFMpegVideoDecoder::~NodeFFMpegVideoDecoder()
 	{
 	}
-
+	//
+	//   外部setDataInput时候调用此函数，创建对应conn
+	//
+	FFL::sp<FFL::PipelineConnector > NodeFFMpegVideoDecoder::onCreateConnector(
+		const OutputInterface& output,
+		const InputInterface& input, void* userdata) {
+		FFL::PipelineAsyncConnectorFixSize* conn= new FFL::PipelineAsyncConnectorFixSize(5);
+		conn->setName("videoDecoder");
+		return conn;
+	}
 	void NodeFFMpegVideoDecoder::handleDecodedFrame(AVFrame* frame)
 	{
 		message::FFMpegVideoFrame* texture = 0;

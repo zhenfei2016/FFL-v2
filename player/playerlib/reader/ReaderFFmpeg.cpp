@@ -8,7 +8,8 @@
 namespace reader {
 	FFMPegReader::FFMPegReader() :mAVFormatContext(NULL){
 		setName("reader");
-		mSerialNumber = 1;
+		mSeekSerialNumber = 1;
+		mPacketSerialNumber = 1;
 		mEOFFlag = 0;
 		mMessageCache = new FFL::PipelineMessageCache(MSG_FFMPEG_AVPACKET);
 	}
@@ -19,7 +20,9 @@ namespace reader {
 	// 获取播放时长us
 	//
 	int64_t FFMPegReader::getDuration() {
-		return mAVFormatContext->duration;
+		if(mAVFormatContext)
+		   return mAVFormatContext->duration;
+		return 0;
 	}
 	//
 	// 获取当前的播放位置 us
@@ -38,8 +41,12 @@ namespace reader {
 			return;
 		}
 		if (mEOFFlag) {
-			FFL_sleep(10);
-			FFL_LOG_WARNING(" FFMPegReader::onReadFrame eof");	
+			FFL_sleep(100);
+			if (seekPos(0)) {
+				mEOFFlag = false;
+			} else {
+				FFL_LOG_WARNING(" FFMPegReader::onReadFrame eof");				
+			}
 			return;
 		}
 
@@ -53,6 +60,7 @@ namespace reader {
 			if (err == AVERROR_EOF) {
 				msg->consume(this);
 				handleEof();
+				return;
 			}
 			FFL_LOG_WARNING("Failed to read frame.");
 		}
@@ -67,7 +75,10 @@ namespace reader {
 			return;
 		}
 
-		packet->mSerialNumber = mSerialNumber;
+		if (mPacketSerialNumber != mSeekSerialNumber) {
+			mPacketSerialNumber = mSeekSerialNumber;
+		}
+		packet->mSerialNumber = mPacketSerialNumber;
 		packet->mPacketType = stream.mStream->getStreamType();
 		switch (packet->mPacketType)
 		{
@@ -141,18 +152,14 @@ namespace reader {
 	// seek函数，具体实现
 	//	
 	void FFMPegReader::onSeek(int64_t pos) {
-		int64_t ts = FFMPegUsToSeekfileTimestamp(pos);
-		int err = avformat_seek_file(mAVFormatContext, -1, INT64_MIN, ts, INT64_MAX, 0);
-		if (err < 0) {
-			FFL_LOG_WARNING("Failed to seek %" lld64, ts);
-		}
-		mSerialNumber++;
+		seekPos(pos);
+		mSeekSerialNumber++;
 
 		//
 		//  节点丢弃当前没有处理的msg
 		//
-		FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_DISCARD_MSG);
-		msgDiscardCache->setParams(mSerialNumber, 0);
+		FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_SERIAL_NUM_CHANGED);
+		msgDiscardCache->setParams(mSeekSerialNumber, 0);
 
 		for (int i = 0; i < SUPORT_STREAM_NUM; i++) {
 			StreamEntry& entry = mStreamVector[i];
@@ -169,10 +176,25 @@ namespace reader {
 			}
 		}	
 
-		event::postPlayerEvent(this, event::EVENT_SEEK_END);
+		event::postPlayerEvent(getOwner(), event::EVENT_SEEK_END,
+			getCurrentPosition(),
+			getDuration());
 		event::postPlayerEvent(this, event::EVENT_BUFFERING_START);		
 	}
+	bool FFMPegReader::seekPos(int64_t pos) {
+		int64_t ts = FFMPegUsToSeekfileTimestamp(pos);
+		if (mAVFormatContext->start_time != -1) {
+			ts += mAVFormatContext->start_time;
+		}
 
+		int err = avformat_seek_file(mAVFormatContext, -1, INT64_MIN, ts, INT64_MAX, 0);
+		if (err < 0) {
+			FFL_LOG_WARNING("Failed to seek %" lld64, ts);
+			return false;
+		}
+
+		return true;
+	}
 	void FFMPegReader::openStream(AVStream** streams, uint32_t count) {
 		FFL::sp<FFL::Pipeline> pipeline = getPipeline();
 		AVStream* stream = 0;
@@ -242,9 +264,18 @@ namespace reader {
 			}
 		}
 
-		//
-		//  关闭当前的输入
-		//
-		pauseLooper();
+		if (mLoopCount < 0) {
+			return;
+		}
+
+		if (mLoopCount == 0) {
+			//
+			//  关闭当前的输入
+			//
+			pauseLooper();
+		}
+		else {
+			mLoopCount--;
+		}
 	}
 }

@@ -224,6 +224,14 @@ namespace player {
 		void* userdata) {
 		return new FFL::SyncPipelineConnector();
 	}
+	FFL::sp<FFL::PipelineConnector> NodeBase::getConnector(const OutputInterface& output) {
+		FFL_ASSERT(0);
+		return NULL;
+	}
+	FFL::sp<FFL::PipelineConnector> NodeBase::getConnector(const InputInterface& input) {
+		FFL_ASSERT(0);
+		return NULL;
+	}
 	//
 	// 处理接收到的消息，
 	//

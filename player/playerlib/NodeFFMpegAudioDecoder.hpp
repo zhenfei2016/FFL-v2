@@ -21,6 +21,14 @@ namespace player {
 		NodeFFMpegAudioDecoder(AudioStream* stream, AVCodecContext* ctx);
 		~NodeFFMpegAudioDecoder();
 	protected:
+		//
+		//   外部setDataInput时候调用此函数，创建对应conn
+		//
+		virtual FFL::sp<FFL::PipelineConnector > onCreateConnector(
+			const OutputInterface& output,
+			const InputInterface& input,
+			void* userdata);
+	protected:
 		void correctTimestamp(message::FFMpegAudioFrame* audioFrame, AVFrame* frame);
 	private:
 		//

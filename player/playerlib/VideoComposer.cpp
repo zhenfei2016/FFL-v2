@@ -64,6 +64,19 @@ namespace player {
 			handleTexture(msg, &(frame->mTexture));
 		}
 			break;
+		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		{
+			FFL::sp<FFL::PipelineOutput > output = getOutput(mOutputToRenderInterface.mId);
+			if (!output.isEmpty()) {
+				output->clearMessage();
+			}
+			if (FFL_OK != postMessage(mOutputToRenderInterface.mId, msg)) {
+				msg->consume(this);
+			}
+			mTimestampExtrapolator->reset();
+			break;
+		}
+			break;
 		case MSG_CONTROL_READER_EOF:
 			handleEOF(msg);
 			msg->consume(this);
@@ -93,7 +106,7 @@ namespace player {
 
 		texture->mRenderus = FFL_getNowUs() + delay * 100 / speed;
 		delay -= mStatistic->getVideoRenderDelayUs();
-
+		
 		delay -= lastFrameDuration;
 		
 		int64_t correctDelay = correctVideoDelay(getOwner()->getMasterClock(),

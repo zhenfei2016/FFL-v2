@@ -47,6 +47,7 @@ namespace player {
 		const OutputInterface& output,
 		const InputInterface& input, void* userdata) {
 		FFL::PipelineAsyncConnectorFixSize* conn = new FFL::PipelineAsyncConnectorFixSize(3);
+		conn->setName("videoRender");
 		conn->setDebug(true);
 		mClock = conn->getClock();
 		setSpeed(getSpeed());
@@ -69,6 +70,12 @@ namespace player {
 			ret = true;
 		}
 			break;
+		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		{
+			mDevice->clearCache();
+			msg->consume(this);
+			break;
+		}
 		case MSG_CONTROL_READER_EOF:
 			event::postPlayerEvent(this, event::EVENT_VIDEO_RENDER_LAST_FRAME);
 			break;

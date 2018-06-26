@@ -42,7 +42,7 @@ public:
 			width, height,
 			aspectRatioNum,
 			aspectRatioDen);	
-		mPlayer->setSurfaceSize(width,height);
+		//mPlayer->setSurfaceSize(width,height);
 	}	
 	//
 	//  视频播放结束回调
@@ -54,7 +54,12 @@ public:
 	//  seek结束回调
 	//
 	virtual void onSeekComplete(int64_t pos, int64_t duration) {
-		printf("onSeekComplete: pos=%" lld64 " duration=%" lld64 " \n", pos,duration);
+		char durationBuf[256] = {};
+		FFL_usToString(duration,durationBuf);
+
+		char posBuf[256] = {};
+		FFL_usToString(pos, posBuf);
+		printf("onSeekComplete: pos=%s duration=%s \n", posBuf, durationBuf);
 	}
 	//
 	// 错误码
@@ -82,13 +87,14 @@ private:
 	player::FFLPlayer* mPlayer;
 };
 
+bool gIsPause = false;
 bool keyPressed(void* userdata, int key) {
 	player::FFLPlayer* player=(player::FFLPlayer*) userdata;
 
 	switch (key)
 	{
-	case 's':
-	case 'S':
+	case 'r':
+	case 'R':
 		//
 		//  开始播放
 		//
@@ -102,8 +108,8 @@ bool keyPressed(void* userdata, int key) {
 		player->stop();
         FFL_LOG_DEBUG("player stop.");
 		return false;
-	case '.':
-	case '>':
+	case '+':
+	case '=':
 	{
 		//
 		//  加速
@@ -115,8 +121,8 @@ bool keyPressed(void* userdata, int key) {
 		break; 
 	}
 
-	case ',':
-	case '<':
+	case '-':
+	case '_':
 	{		
 		//
 		//  减速
@@ -128,34 +134,83 @@ bool keyPressed(void* userdata, int key) {
 	}
 		
 		break;
-	case '1':
-		//
-		//前跳一点 向前1s
-		//
-		{
-			int64_t cur = player->getCurrentPosition();
-			int64_t target=cur + 1000 * 1000;
-			if (target > player->getDuration()) {
-				target = player->getDuration() - 10;
-			}
-			player->seekTo(target);
-			printf("seekTo %" lld64 "-%" lld64 " \n", cur,target);
-		}
-		break;
-	case '2':
+	
+	case 'a':
+	case 'A':
 		//
 		//  后跳一点 向后1s
 		//
 	{
 		int64_t cur = player->getCurrentPosition();
-		int64_t target = cur - 1000 * 1000;
+		int64_t target = cur - 4000 * 1000;
 		if (target < 0) {
 			target = 0;
+			break;
 		}
 		player->seekTo(target);
-		printf("seekTo %" lld64 "-%" lld64 " \n", cur, target);
+		
+		char currentBuf[256] = {};
+		FFL_usToString(cur, currentBuf);
+		char targetBuf[256] = {};
+		FFL_usToString(target, targetBuf);
+		printf("seekTo <- %s-%s \n", currentBuf, targetBuf);
 	}
 	break;
+	case 'd':
+	case 'D':
+		//
+		//前跳一点 向前1s
+		//
+	{
+		int64_t cur = player->getCurrentPosition();
+		int64_t target = cur + 4000 * 1000 * 60;
+		if (target > player->getDuration()) {
+			target = player->getDuration() - 10;
+		}
+		player->seekTo(target);
+
+		char currentBuf[256] = {};
+		FFL_usToString(cur, currentBuf);
+		char targetBuf[256] = {};
+		FFL_usToString(target, targetBuf);
+		printf("seekTo -> %s-%s \n", currentBuf, targetBuf);
+	}
+	break;
+	case 'w':
+	case 'W':
+	{   //
+		//  音量增加
+		//
+		int32_t volume;
+		player->getVolume(volume);		
+		volume += 10;
+		volume=FFL_MIN(255,volume);
+		player->setVolume(volume);
+
+	
+		printf("volume=%d \n", volume);
+	}
+		break;
+	case 's':
+	case 'S':
+	{   //
+		//  音量减少
+		//
+		int32_t volume;
+		player->getVolume(volume);
+		volume -= 10;
+		volume = FFL_MAX(0, volume);
+		player->setVolume(volume);
+
+
+		printf("volume=%d \n", volume);
+	}
+	break;
+	case 'p':
+	case 'P':		
+		player->pause(gIsPause?0:1);
+		gIsPause = !gIsPause;
+		break;
 	default:
 		break;
 	}
@@ -173,12 +228,12 @@ int playerMain() {
 	url = "d://movic//sintel.ts";       
 	//url = "d://movic//Nocturne.m4a";
 	//url = "d://movic//test.avi";
-	url = "d://movic//zhuoyaoji.mp4";
-	
+	url = "d://movic//zhuoyaoji.mp4";	
 	
 #else
 	url = "/Users/zhufeifei/work/testvideo/sintel.ts";
 #endif
+	//player.setLoop(2);
 	player.setUrl(url.c_str());
 	player::SDL2Loop(keyPressed,&player);
 	//player.release();			

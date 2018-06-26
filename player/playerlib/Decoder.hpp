@@ -28,15 +28,8 @@ namespace player {
 		//
 		void setOutputComposer(FFL::sp<Composer> composer);
 		FFL::sp<Composer> getComposer();		
+	
 	protected:
-		//
-		//   外部setDataInput时候调用此函数，创建对应conn
-		//
-		virtual FFL::sp<FFL::PipelineConnector > onCreateConnector(
-			const OutputInterface& output,
-			const InputInterface& input,
-			void* userdata);				
-	public:
 		OutputInterface mFrameOutput;
 		FFL::sp<Composer> mComposer;
 	};

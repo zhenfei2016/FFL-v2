@@ -26,7 +26,7 @@ namespace player {
 	void TimestampExtrapolator::reset() {
 		mRecentTick.mWorldClock = 0;
 		mRecentTick.mTimestampClock = 0;
-		mRecentTick.mDelayUs = 0;
+		mRecentTick.mLastShowTime = 0;
 		mFrameIndex = 0;
 		setSpeed(100);
 	}
@@ -90,13 +90,13 @@ namespace player {
 			// 因为整体速度改变了，world时钟相应的也需要进行调整
 			//
 			//
-			double distance= ((double)((worldUs - mRecentTick.mWorldClock) * mSpeed)) / 100  - mRecentTick.mDelayUs;
-			delay = duration-(int64_t)distance;
+			double distance= ((double)((worldUs - mRecentTick.mWorldClock) * mSpeed)) / 100 ;
+			delay = mRecentTick.mLastShowTime + duration-(int64_t)distance;
 		}
 
 		mRecentTick.mWorldClock = worldUs;
 		mRecentTick.mTimestampClock = timestampUs;
-		mRecentTick.mDelayUs = delay;
+		mRecentTick.mLastShowTime = delay;
 
 		FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "TimestampExtrapolator::getDelayAndUpdate(%s) timestampUs=%" lld64 " worldClock=%" lld64 " delay=%" lld64,
 			mName.c_str(),

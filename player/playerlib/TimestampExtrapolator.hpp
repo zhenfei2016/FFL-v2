@@ -66,7 +66,7 @@ namespace player {
 			//  当前mClock对应的时间点
 			//
 			int64_t mWorldClock;
-			int64_t mDelayUs;
+			int64_t mLastShowTime;
 		};
 		//
 		//  最近的时钟滴答，由update进行更新

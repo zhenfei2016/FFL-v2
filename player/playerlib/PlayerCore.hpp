@@ -41,6 +41,15 @@ namespace player {
 
 	class SDL2Module;
 
+	class DeviceManager {
+	public:
+		virtual FFL::sp<VideoDevice> getVideoDisplay(FFL::sp<VideoStream> stream)=0;
+		//
+		// 创建删除显示音频的设备
+		//
+		virtual FFL::sp<AudioDevice> getAudioDisplay(FFL::sp<AudioStream> stream) = 0;
+	};
+
 	class PlayerCore : public reader::ReaderStreamManager {
 		friend class NodeBase;
 		friend class FFLPlayer;
@@ -74,6 +83,14 @@ namespace player {
 		//
 		void setSpeed(uint32_t speed);
 		uint32_t getSpeed();
+
+		//
+		// 获取，设置循环播放次数
+		// 如果<0 : 一直循环播放
+		//     =0 : 播放一次
+		//     >0 : 播放num+1次
+		//
+		void setLoop(int32_t num);
 	protected:		
 		void onEvent(const FFL::sp<event::PlayerEvent> event);		
 	public:
@@ -140,25 +157,7 @@ namespace player {
 		//   音视频设备创建，删除系类函数
 		//////////////////////////////////////////////////////////////////////////////
 
-		//
-		// 设置绘制窗口
-		//
-		void setVideoSurface(SurfaceHandle surface);
-		//
-		// 获取绘制中的窗口
-		//
-		FFL::sp<VideoSurface> getVideoSurface();
-	private:
-		//
-		// 创建，删除显示视频设备
-		//
-		FFL::sp<VideoDevice> createVideoDisplay(FFL::sp<VideoStream> stream,SurfaceHandle surface);
-		void destroyVideoDisplay(FFL::sp<VideoDevice> dev);
-		//
-		// 创建删除显示音频的设备
-		//
-		FFL::sp<AudioDevice> createAudioDisplay(FFL::sp<AudioStream> stream);
-		void destroyAudioDisplay(FFL::sp<AudioDevice>);
+
 	private:	
 		FFL::TimeBase mAudioTb;
 
@@ -171,19 +170,25 @@ namespace player {
 		void registerNode(FFL::sp<NodeBase> node);
 		void unRegisterNode(FFL::sp<NodeBase> node);
 	private:				
-		DeviceFactory* mDeviceCreator;
-		FFL::sp<AudioDevice> mAudioDevice;
-		FFL::sp<VideoDevice> mVideoDevice;		
-
-
+		
+		
 		VideoComposer* mVideoComposer;
 		AudioComposer* mAudioComposer;
 
-		SurfaceHandle mSurfaceHandle;
+		
 		FFL::sp<reader::ReaderBase> mFileReader;
 	public:
 		PlayerStatistic mStats;
 	public:
 		FFL::String mUrl;
+	private:
+		DeviceManager* mDeviceManager;
+	public:
+		void setDeviceManager(DeviceManager* mgr) {
+			mDeviceManager = mgr;
+		}
+		DeviceManager* getDeviceManager() const {
+			return mDeviceManager;
+		}
 	};
 }

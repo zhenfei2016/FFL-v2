@@ -43,6 +43,8 @@ namespace reader {
 		// seek函数，具体实现
 		//	
 		virtual void onSeek(int64_t pos);	
+
+         bool seekPos(int64_t pos);
 	private:
 		//
 		//  打开这几个流
@@ -72,8 +74,10 @@ namespace reader {
 		StreamEntry mStreamVector[SUPORT_STREAM_NUM];
 		//
 		// 每次seek后会更改序列号
-		//
-		int64_t mSerialNumber;
+		// 当前读取的数据包的序列号
+		//		
+		volatile int64_t mSeekSerialNumber;
+		volatile int64_t mPacketSerialNumber;
 		//
 		//  是否eof
 		//

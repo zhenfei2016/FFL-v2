@@ -17,6 +17,7 @@
 #include "PlayerCore.hpp"
 #include "VideoTexture.hpp"
 #include "AudioStream.hpp"
+#include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
 	NodeFFMpegAudioDecoder::NodeFFMpegAudioDecoder(AudioStream* stream,AVCodecContext* ctx):
@@ -30,7 +31,16 @@ namespace player {
 	NodeFFMpegAudioDecoder::~NodeFFMpegAudioDecoder()
 	{
 	}
-	
+	//
+	//   外部setDataInput时候调用此函数，创建对应conn
+	//
+	FFL::sp<FFL::PipelineConnector > NodeFFMpegAudioDecoder::onCreateConnector(
+		const OutputInterface& output,
+		const InputInterface& input, void* userdata) {
+		FFL::PipelineAsyncConnectorFixSize* conn = new FFL::PipelineAsyncConnectorFixSize(5);
+		conn->setName("audioDecoder");
+		return conn;
+	}
 	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame){		
 		message::FFMpegAudioFrame* sample = 0;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &sample, MSG_FFMPEG_AUDIO_FRAME);

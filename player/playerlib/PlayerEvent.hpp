@@ -33,6 +33,14 @@ namespace event{
 	   //
 	   EVENT_PREPARED,
 	   //
+	   //  暂停了
+	   //
+	   EVENT_PAUSE,
+	   //
+	   //  暂停状态恢复了
+	   //
+	   EVENT_RESUME,
+	   //
 	   //  视频大小改变了
 	   //
 	   EVENT_VIDEO_SIZE_CAHNGED,

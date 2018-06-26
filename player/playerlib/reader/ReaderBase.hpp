@@ -53,6 +53,14 @@ namespace reader {
 		// 获取当前的播放位置 us
 		//
 		virtual int64_t getCurrentPosition() = 0;
+
+		//
+		// 获取，设置循环播放次数
+		// 如果<0 : 一直循环播放
+		//     =0 : 播放一次
+		//     >0 : 播放num+1次
+		//
+		virtual void setLoop(int32_t count);
 	public:
 		//
 		//  设置流管理器,当open成功后，读取到所有流基本信息，然后会通知IStreamManager
@@ -84,7 +92,7 @@ namespace reader {
 		//
 		// 读取主循环
 		//
-		void onReadOnce();
+		void onReadOnce(const FFL::sp<FFL::PipelineMessage>& msg, void* arg);
 		//
 		//  读取一帧数据
 		//
@@ -126,9 +134,17 @@ namespace reader {
 		// seek函数，具体实现
 		//
 		volatile bool mEventSeekPending;		
-		FFL::sp<FFL::PipelineEvent> mEventSeek;
-		void onSeekStub(const FFL::sp<FFL::PipelineEvent>& event);
+		FFL::sp<FFL::PipelineMessage> mMsgSeek;
+		void onSeekStub(const FFL::sp<FFL::PipelineMessage>& event);
 		virtual void onSeek(int64_t pos)=0;		
+
+	private:
+		FFL::sp<FFL::PipelineSourceConnector> mSourceConn;
+	protected:
+		//
+		// 循环播放次数
+		//
+		volatile int32_t mLoopCount;
 	};
 }
 #endif

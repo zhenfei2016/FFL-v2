@@ -14,17 +14,147 @@
 #include "Player.hpp"
 #include "PlayerCore.hpp"
 #include "PlayerEvent.hpp"
+#include "AudioDevice.hpp"
+#include "VideoDevice.hpp"
 #include <utils/FFL_File.hpp>
 #include <pipeline/FFL_Pipeline.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
+#include "SDL2Module.hpp"
+#include "VideoSurface.hpp"
+#include "AudioDevice.hpp"
+#include "VideoDevice.hpp"
+#include "Statistic.hpp"
+#include "VideoRender.hpp"
+#include "AudioRender.hpp"
+#include "DeviceFactory.hpp"
+#include "reader/Stream.hpp"
+
 
 namespace player {
+	class FFLPlayer::FFLPlayerDeviceManager : public DeviceManager {
+	public:
+		FFLPlayerDeviceManager(FFLPlayer* player){
+			mSurfaceHandle = NULL;
+			mPlayer = player;
+			mDeviceCreator =new SDL2Module();
+		}
+		~FFLPlayerDeviceManager() {
+			FFL_SafeFree(mDeviceCreator);
+		}
+
+		virtual FFL::sp<VideoDevice> getVideoDisplay(FFL::sp<VideoStream> stream) {
+			if (stream.isEmpty()) {
+				return mVideoDevice;
+			}
+
+			if (mVideoDevice.isEmpty()) {
+				mVideoDevice = createVideoDisplay(stream,NULL);
+			}
+			return mVideoDevice;
+		}
+		//
+		// 创建删除显示音频的设备
+		//
+		virtual FFL::sp<AudioDevice> getAudioDisplay(FFL::sp<AudioStream> stream) {
+			if (stream.isEmpty()) {
+				return mAudioDevice;
+			}
+
+			if (mAudioDevice.isEmpty()) {
+				mAudioDevice = createAudioDisplay(stream);
+			}
+			return mAudioDevice;
+		}
+	public:
+		//
+		// 设置绘制窗口
+		//
+		void setVideoSurface(SurfaceHandle surface) {
+			if (surface != NULL && surface != mSurfaceHandle) {
+				mSurfaceHandle = surface;
+				if (!mVideoDevice.isEmpty()) {
+					mVideoDevice->setSurface(surface);
+				}
+			}
+		}
+		//
+		// 获取绘制中的窗口
+		//
+		FFL::sp<VideoSurface> getVideoSurface() {
+			if (!mVideoDevice.isEmpty()) {
+				return mVideoDevice->getSurface();
+			}
+			return NULL;
+		}
+		//
+		// 创建，删除显示视频设备
+		//
+		FFL::sp<VideoDevice> createVideoDisplay(FFL::sp<VideoStream> stream, SurfaceHandle surface){
+			FFL::sp<VideoDevice> dev = mDeviceCreator->createVideoDevice(NULL);
+			uint32_t width = 400;
+			uint32_t height = 300;
+			if (!stream.isEmpty()) {
+				stream->getSize(width, height);
+			}
+			dev->open(surface, width, height);
+			return dev;
+		}
+		void destroyVideoDisplay(FFL::sp<VideoDevice> dev) {
+			if (!dev.isEmpty()) {
+				dev->close();
+				dev = NULL;
+			}
+		}
+		//
+		// 创建删除显示音频的设备
+		//
+		FFL::sp<AudioDevice> createAudioDisplay(FFL::sp<AudioStream> stream) {
+			if (stream.isEmpty()) {
+				return NULL;
+			}
+
+			FFL::sp<AudioDevice> dev = mDeviceCreator->createAudioDevice(NULL);
+			AudioFormat fmt;
+			stream->getFormat(fmt);
+
+			//
+			// 启动音频设备
+			//
+			AudioFormat obtainedFmt;
+			if (!dev->open(fmt, 1024, obtainedFmt)) {
+				return NULL;
+			}
+
+			return dev;
+		}
+		void destroyAudioDisplay(FFL::sp<AudioDevice> dev) {
+			if (!dev.isEmpty()) {
+				dev->close();
+				dev = NULL;
+			}
+		}
+	public:
+		DeviceFactory* mDeviceCreator;
+		FFLPlayer* mPlayer;
+		FFL::sp<AudioDevice> mAudioDevice;
+		FFL::sp<VideoDevice> mVideoDevice;
+
+		SurfaceHandle mSurfaceHandle;
+	};
+
 	FFLPlayer::FFLPlayer():mListener(NULL){
 		mCore = new PlayerCore(this);
 		mEventPrepare = new FFL::PipelineEvent(
 			new FFL::ClassMethodCallback<player::FFLPlayer>(this, &FFLPlayer::onPrepare));	
+
+		mSpeed = 100;
+		mSurfaceHandle = NULL;		
+		mDevManager = new FFLPlayerDeviceManager(this);
+		mCore->setDeviceManager(mDevManager);
+		mDevManager->mVideoDevice=mDevManager->createVideoDisplay(NULL,NULL);
 	}
 	FFLPlayer::~FFLPlayer() {
+		FFL_SafeFree(mDevManager);		
 		FFL_SafeFree(mCore);
 	}
 
@@ -55,9 +185,17 @@ namespace player {
 					FFL_INT64_HIGHT_32(event->getParam2()),
 					FFL_INT64_LOW_32(event->getParam2()));
 			}
+			setSurfaceSize(width,height);
+			
 		}
 		break;
-
+		case event::EVENT_SEEK_START:
+			break;
+		case event::EVENT_SEEK_END:
+			if (mListener) {
+				mListener->onSeekComplete(event->getParam1(), event->getParam2());
+			}
+			break;
 		case event::EVENT_VIDEO_RENDER_FIRST_FRAME:
 			if (mListener) {
 				mListener->onMessage(event::EVENT_VIDEO_RENDER_FIRST_FRAME, 0, 0);
@@ -119,7 +257,7 @@ namespace player {
 #else
 		wnd=surface;
 #endif
-		mCore->setVideoSurface(wnd);
+		mDevManager->setVideoSurface(wnd);
 		FFL_ASSERT_LOG(0, "setSurface not impl.");
 		return FFL_OK;
 	}
@@ -127,7 +265,7 @@ namespace player {
 	// 设置渲染窗口的大小，只有窗口存在的情况下才可以设置大小，否则返回失败
 	//
 	status_t FFLPlayer::setSurfaceSize(int32_t widht, int32_t height) {	
-		FFL::sp<VideoSurface> surface=mCore->getVideoSurface();
+		FFL::sp<VideoSurface> surface=mDevManager->getVideoSurface();
 		if (!surface.isEmpty()) {
 			surface->setWindowSize(widht, height);
 		}
@@ -156,16 +294,22 @@ namespace player {
 		onStart(NULL);
 		return FFL_OK;
 	}
-	status_t FFLPlayer::pause(){
+	status_t FFLPlayer::pause(int32_t pause){
+		FFL::sp<FFL::PipelineEvent> event = new FFL::PipelineEvent(0);
 		{
 			FFL::CMutex::Autolock l(mMutex);
 			if (!isLooping()) {
 				return FFL_ERROR_FAIL;
 			}
-			mFlag.modifyFlags(FLAG_PAUSEING, 0);
+			event->setParams(pause,0);
+			if (pause == 1) {
+				mFlag.modifyFlags(FLAG_PAUSEING, 0);
+			}else {
+				mFlag.modifyFlags(0, FLAG_PAUSEING);
+			}
 		}
 
-		onPause(NULL);
+		onPause(event);
 		return FFL_OK;
 	}
 	status_t FFLPlayer::stop(){
@@ -201,22 +345,58 @@ namespace player {
 		return mCore->getDurationUs();
 	}
 	//
-	//  获取，设置播放速度，正常速度=100
+	//  设置，获取播放速度
 	//
-	uint32_t FFLPlayer::getSpeed(){
-		return mCore->getSpeed();
+	void FFLPlayer::setSpeed(uint32_t speed) {
+		if (speed > 300) {
+			speed = 300;
+		}
+		else if (speed <= 10) {
+			speed = 10;
+		}
+
+		mSpeed = speed;
+
+		FFL::sp<VideoDevice> videoDevice=mDevManager->getVideoDisplay(NULL);
+		if (!videoDevice.isEmpty()) {
+			//
+			//  更新绘制的速度
+			//
+			FFL::sp<VideoRender> render = videoDevice->getRender(0);
+			if (!render.isEmpty()) {
+				render->getRenderClock()->setSpeed(speed);
+			}
+		}
+
+		FFL::sp<AudioDevice> audioDevice = mDevManager->getAudioDisplay(NULL);
+		if (!audioDevice.isEmpty()) {
+			//
+			//  更新音频速度
+			//
+			FFL::sp<AudioRender> render = audioDevice->getRender(0);
+			if (!render.isEmpty()) {
+				render->getRenderClock()->setSpeed(speed);
+			}
+		}
+		mCore->setSpeed(mSpeed);
 	}
-	void FFLPlayer::setSpeed(uint32_t speed){
-		mCore->setSpeed(speed);
+	uint32_t FFLPlayer::getSpeed() {
+		return mSpeed;
 	}
 	//
 	// 获取，设置音量
 	//
-	void FFLPlayer::setVolume(float left, float right){
-		FFL_ASSERT_LOG(0, "setVolume not impl.");
+	void FFLPlayer::setVolume(int32_t volume){
+		FFL::sp<player::AudioDevice >  audioDevice= mDevManager->getAudioDisplay(NULL);
+		if (!audioDevice.isEmpty()) {
+			audioDevice->setVolume(volume);		
+		}	
 	}
-	void FFLPlayer::getVolume(float* left, float* right){
-		FFL_ASSERT_LOG(0, "getVolume not impl.");
+	void FFLPlayer::getVolume(int32_t& volume){
+		FFL::sp<player::AudioDevice >  audioDevice = mDevManager->getAudioDisplay(NULL);
+		if (!audioDevice.isEmpty()) {
+			audioDevice->getVolume(volume);
+		}
 	}
 	//
 	// 获取，设置循环播放次数
@@ -225,7 +405,7 @@ namespace player {
 	//     >0 : 播放num+1次
 	//
 	void FFLPlayer::setLoop(int32_t num){
-		FFL_ASSERT_LOG(0, "setLoop not impl.");
+		mCore->setLoop(num);		
 	}
 	int32_t FFLPlayer::getLoop(){
 		FFL_ASSERT_LOG(0, "getLoop not impl.");
@@ -310,12 +490,35 @@ namespace player {
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.modifyFlags(FLAG_PAUSED, FLAG_PAUSEING);
 
-		mCore->pause();
+		if(even->getParam1()==1)
+		    mCore->pause();
+		else
+			mCore->resume();
 	}
 	void  FFLPlayer::onStop(const FFL::sp<FFL::PipelineEvent>& even) {
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.resetFlags(FLAG_INIT);
 
+		FFL::sp<AudioDevice> audioDevice = mDevManager->getAudioDisplay(NULL);
+		if (!audioDevice.isEmpty()) {
+			audioDevice->close();
+		}
+
+		FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
+		if (!videoDevice.isEmpty()) {
+			videoDevice->close();
+		}
 		mCore->stop();		
 	}
+	////
+	//// 设置绘制窗口
+	////
+	//void FFLPlayer::setVideoSurface(SurfaceHandle surface) {
+	//	if (surface != NULL && surface != mSurfaceHandle) {
+	//		mSurfaceHandle = surface;
+	//		if (!mVideoDevice.isEmpty()) {
+	//			mVideoDevice->setSurface(surface);
+	//		}
+	//	}
+	//}	
 }

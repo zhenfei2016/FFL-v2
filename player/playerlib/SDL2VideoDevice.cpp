@@ -67,7 +67,12 @@ namespace player {
 		SDL_DestroyWindow(mWindow);		
 		mWindow = NULL;		
 	}
-
+	//
+	//  清空cache的数据
+	//
+	void SDL2VideoDevice::clearCache() {
+		FFL_LOG_DEBUG("SDL2VideoDevice::clearCache");
+	}
 	bool SDL2VideoDevice::showTexture(VideoTexture* texture) {
 		FFL::sp<FFL::PipelineMessage> msg = createSDL2Texture(texture);
 		return showSDL2Texture(msg);

@@ -13,7 +13,8 @@
 #include "AudioDevice.hpp"
 #include "AudioRender.hpp"
 namespace player {
-	AudioDevice::AudioDevice() {
+	AudioDevice::AudioDevice():
+		mVolume(255){
 	}
 	AudioDevice::~AudioDevice(){
 	}
@@ -25,5 +26,14 @@ namespace player {
 			mAudioRender = new AudioRender(this);
 		}
 		return mAudioRender;
+	}
+	//
+	//  设置，获取音量
+	//
+	void AudioDevice::setVolume(int32_t volume){
+		mVolume = volume;
+	}
+	void AudioDevice::getVolume(int32_t& volume){
+		volume = mVolume;		
 	}
 }

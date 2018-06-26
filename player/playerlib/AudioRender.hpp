@@ -56,8 +56,12 @@ namespace player {
 
 		FFL::sp<AudioDevice> mDevice;
 
-		int64_t mFrameIndex;
-
+		int64_t mFrameIndex;		
 		FFL::sp<FFL::Clock> mClock;
+
+		//
+		// 是否需要重置同步时钟
+		//
+		volatile bool mResetSyncClock;
 	};
 }

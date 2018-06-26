@@ -23,6 +23,7 @@ namespace player {
 	AudioRender::AudioRender(FFL::sp<AudioDevice> device):mStatistic(NULL){	
 		mDevice = device;
 		setName("AudioRender");
+		mResetSyncClock = false;
 	}
 	AudioRender::~AudioRender() {		
 	}
@@ -46,6 +47,7 @@ namespace player {
 	FFL::sp<FFL::PipelineConnector > AudioRender::onCreateConnector(const OutputInterface& output,
 		const InputInterface& input,void* userdata) {
 		FFL::sp<FFL::PipelineAsyncConnectorFixSize> conn = new FFL::PipelineAsyncConnectorFixSize(2);
+		conn->setName("audioRender");
 		mClock = conn->getClock();
 		setSpeed(getSpeed());
 		return conn;
@@ -63,6 +65,13 @@ namespace player {
                 msg->consume(this);
                 return true;
             }
+			case MSG_CONTROL_SERIAL_NUM_CHANGED:
+			{
+				mDevice->clearCache();
+				msg->consume(this);	
+				mResetSyncClock = true;
+				break;
+			}
 			case MSG_CONTROL_READER_EOF: 
 			{				
 				event::postPlayerEvent(this, event::EVENT_AUDIO_RENDER_LAST_FRAME);
@@ -86,7 +95,15 @@ namespace player {
 		pts=mDevice->getRenderingPts();
 		mStatistic->renderAudioFrame(pts, FFL_getNowUs());
 
-		if (pts>0){
+		if (mResetSyncClock) {
+			//
+			// 重置一下同步的时钟
+			//
+			StreamPtr stream = getOwner()->getStream(samples->mStreamId);
+			if (!stream.isEmpty()) {				
+				stream->getSyncClock()->reset();
+			}
+		}else	if (pts>0){
 			StreamPtr stream= getOwner()->getStream(samples->mStreamId);
 			if (!stream.isEmpty()) {
 				FFL::TimeBase tb;

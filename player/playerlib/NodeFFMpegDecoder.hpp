@@ -53,9 +53,7 @@ namespace player {
 		//
 		virtual void handleDecodedFrame(AVFrame* frame)=0;
 
-		virtual void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
-        
-        virtual void handleDiscardCache(const FFL::sp<FFL::PipelineMessage>& eof);
+		virtual void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);     
 	public:
 		//
 		// 解码上下文

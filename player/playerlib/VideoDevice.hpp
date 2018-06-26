@@ -26,6 +26,10 @@ namespace player {
 		virtual bool open(SurfaceHandle surface,int32_t widht,int32_t height) = 0;
 		virtual void close() = 0;
 		//
+		//  清空cache的数据
+		//
+		virtual void clearCache()=0;
+		//
 		//  写一帧数据
 		//		
 		virtual bool showTexture(VideoTexture* texture)=0;

@@ -84,6 +84,10 @@ namespace player {
 			const OutputInterface& output,
 			const InputInterface& input,
 			void* userdata);
+
+		FFL::sp<FFL::PipelineConnector> getConnector(const OutputInterface& output);
+		FFL::sp<FFL::PipelineConnector> getConnector(const InputInterface& input);
+
 		//
 		// 处理接收到的消息，如果返回false表示这个消息没有处理，
 		// 返回true表示这个消息处理了，消息处理结束后必须msg->consume();

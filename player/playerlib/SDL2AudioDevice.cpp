@@ -222,7 +222,14 @@ namespace player {
 		FFL::CMutex::Autolock l(&mLock);
 		return mByteBuffer->getByteStream()->getSize();
 	}
-
+	//
+	//  清空缓冲的数据
+	//
+	int64_t SDL2AudioDevice::clearCache() {				
+		int64_t size=skip(0);		
+		mCurrentRenderPts = 0;
+		return size;
+	}
 	//
 	// 获取缓冲的延迟时间
 	//
@@ -256,7 +263,12 @@ namespace player {
 		if (readed != len) {
 			FFL_LOG_DEBUG_TAG(TAG_AUDIO, "SDL2AudioDevice::SDL2_fill readed=%d  want=%d", readed , len);
 		}
-		SDL_MixAudio(stream, (Uint8*)mSwapBuffer.data(), readed, SDL_MIX_MAXVOLUME);
+
+		int32_t volume;
+		getVolume(volume);	
+
+		int sdlVolume = (int)(((float)volume / 255) * SDL_MIX_MAXVOLUME);
+		SDL_MixAudio(stream, (Uint8*)mSwapBuffer.data(), readed, sdlVolume);
 	}	
 	//
 	//  从本地缓存读数据到交换缓冲中
@@ -308,4 +320,55 @@ namespace player {
 		
 		return copyLen;
 	}	
+
+	//
+	//  从本地缓存读数据到交换缓冲中
+	//
+	uint32_t SDL2AudioDevice::skip(uint32_t wantedSize) {
+		FFL::CMutex::Autolock l(mLock);
+		FFL::ByteStream* byteStream = mByteBuffer->getByteStream();
+		if (byteStream->getSize() == 0) {
+			mCond.signal();
+			return 0;
+		}
+
+		uint32_t copyLen = 0;
+		if (wantedSize == 0) {
+			copyLen = byteStream->getSize();
+		}else if (wantedSize > byteStream->getSize()) {
+			copyLen = byteStream->getSize();
+		}
+		else {
+			copyLen = wantedSize;
+		}
+
+		if (copyLen > 0) {			
+			byteStream->readBytes(NULL, copyLen);
+			if (byteStream->getSize() <= byteStream->getCapacity() / 2) {
+				mCond.signal();
+			}
+		}
+		else {
+			FFL_LOG_WARNING_TAG(TAG_AUDIO, " SDL2AudioDevice::skip wantedSize=%d read=0", wantedSize);
+		}
+
+		{
+			int64_t count = copyLen;
+			while (mSamples.size() > 0) {
+				SampleEntry& entry = mSamples.front();
+				entry.consumeCount += count;
+				if (entry.size <= entry.consumeCount) {
+					count = entry.consumeCount - entry.size;
+					mCurrentRenderPts = entry.pts;
+					mSamples.pop_front();
+				}
+				else {
+					mCurrentRenderPts = entry.pts;
+					break;
+				}
+			}			
+		}
+		mCond.signal();
+		return copyLen;
+	}
 }

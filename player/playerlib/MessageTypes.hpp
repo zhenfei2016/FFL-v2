@@ -32,9 +32,13 @@ enum
 	//
 	MSG_CONTROL_READER_EOF,
 	//
-	// 丢弃消息
+	//  重新开始读写
 	//
-	MSG_CONTROL_DISCARD_MSG,
+	MSG_CONTROL_READER_RESTART,
+	//
+	// 序列号更新消息，不是这个序列号的消息丢掉
+	//
+	MSG_CONTROL_SERIAL_NUM_CHANGED,
     //
     // 对其音视频同步指令
     //
@@ -61,7 +65,7 @@ inline const char* getMsgName(int32_t msg){
         REGISTER_MSG_CODE(MSG_SDL2_TEXTURE),
         REGISTER_MSG_CODE(MSG_SDL2_SAMPLES),
         REGISTER_MSG_CODE(MSG_CONTROL_READER_EOF),
-		REGISTER_MSG_CODE(MSG_CONTROL_DISCARD_MSG),
+		REGISTER_MSG_CODE(MSG_CONTROL_SERIAL_NUM_CHANGED),
         REGISTER_MSG_CODE(MSG_CONTROL_AV_SYNC),
     };
     

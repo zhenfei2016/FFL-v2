@@ -68,6 +68,10 @@ namespace player {
 		//
 		virtual int64_t getCacheBytes() ;
 		//
+		//  清空缓冲的数据
+		//
+		int64_t clearCache();
+		//
 		// 获取缓冲的延迟时间
 		//
 		int64_t getCacheDelayUs();
@@ -92,6 +96,11 @@ namespace player {
 		//  从本地缓存读数据到交换缓冲中
 		//
 		uint32_t readData2SwapBuffer(uint32_t wantedSize);
+
+		//
+		//   wantedSize=0,跳过所有你的
+		//
+		uint32_t skip(uint32_t wantedSize);
 	private:
 		FFL::CMutex mLock;
 		FFL::CCondition mCond;

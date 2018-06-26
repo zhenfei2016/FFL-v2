@@ -60,6 +60,10 @@ namespace player {
 		virtual int64_t getCacheBytes()=0;	
 		virtual int64_t getCacheDelay(FFL::TimeBase& base) = 0;
 		//
+		//  清空缓冲的数据
+		//
+		virtual int64_t clearCache() = 0;
+		//
 		// 获取render
 		//
 		virtual FFL::sp<AudioRender> getRender(void* userdata) ;	
@@ -67,8 +71,18 @@ namespace player {
 		// 获取播放中的音频的pts
 		//
 		virtual int64_t getRenderingPts()=0;
-	private:
+		//
+		//  设置，获取音量
+		//
+		virtual void setVolume(int32_t volume);
+		virtual void getVolume(int32_t& volume);
+	protected:
 		FFL::sp<AudioRender> mAudioRender;
+
+		//
+		// 音量
+		//
+		uint8_t mVolume;		
 	};
 }
 #endif

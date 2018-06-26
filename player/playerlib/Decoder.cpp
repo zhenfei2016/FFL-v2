@@ -12,7 +12,7 @@
 */
 #include "Decoder.hpp"
 #include "Composer.hpp"
-#include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
+
 
 namespace player {
 	Decoder::Decoder(){
@@ -43,13 +43,6 @@ namespace player {
 		return mComposer;
 	}
 
-	//
-	//   外部setDataInput时候调用此函数，创建对应conn
-	//
-	FFL::sp<FFL::PipelineConnector > Decoder::onCreateConnector(
-		const OutputInterface& output,
-		const InputInterface& input, void* userdata) {
-		return new FFL::PipelineAsyncConnectorFixSize(5);
-	}
+
 
 }
