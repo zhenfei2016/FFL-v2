@@ -192,6 +192,7 @@ namespace FFL {
 	//  清空转发的消息
 	//
 	void PipelineAsyncConnector::clearMessage() {
+		FFL_LOG_DEBUG("PipelineAsyncConnector::clearMessage %s",getName());
 		if (!mLooper.isEmpty() && !mHandler.isEmpty()) {
 			mLooper->clearMessage(mHandler->id());
 		}

@@ -20,16 +20,32 @@
 
 
 namespace FFL {
+	static const char* gPipelineConnectorName = "";
 	PipelineConnector::PipelineConnector():
 		mInput(NULL),
 		mOutput(NULL)
 	{
+		mName = gPipelineConnectorName;
 		FFL_LOG_DEBUG("PipelineConnector::PipelineConnector %p",this);
 	}
 	PipelineConnector::~PipelineConnector() {
+		if (mName&& mName!= gPipelineConnectorName) {
+			FFL_freep((void**)&mName);
+			mName = 0;
+		}
 		FFL_LOG_DEBUG("PipelineConnector::~PipelineConnector %p", this);
 	}
 
+	const char* PipelineConnector::getName() const {
+		return mName;
+	}
+	void PipelineConnector::setName(const char* name) {
+		if (mName&& mName != gPipelineConnectorName) {
+			FFL_freep((void**)&mName);
+			mName = 0;
+		}
+		mName = name? FFL_strdup(name): gPipelineConnectorName;
+	}
 	bool PipelineConnector::isConnected()
 	{
 		CMutex::Autolock l(mMutex);

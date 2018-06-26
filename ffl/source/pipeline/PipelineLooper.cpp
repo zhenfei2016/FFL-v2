@@ -68,6 +68,7 @@ namespace FFL {
 		List< sp<Message> > list;
 		clearMessageList(&list,id);
 
+		FFL_LOG_DEBUG("PipelineLooper:clearMessage count=%d", list.size());
 		for (List< sp<Message> >::iterator it = list.begin(); it != list.end(); it++) {
 			sp<Message> msg = *it;
 			if (msg.isEmpty()) {

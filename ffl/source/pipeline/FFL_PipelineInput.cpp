@@ -196,7 +196,7 @@ namespace FFL {
 		sp<PipelineConnector> conn;
 		{
 			CMutex::Autolock l(mLock);
-			sp<PipelineConnector> conn = mConnector;
+			conn = mConnector;
 		}
 
 		if (!conn.isEmpty()) {

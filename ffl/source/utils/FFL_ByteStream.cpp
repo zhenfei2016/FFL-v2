@@ -49,9 +49,6 @@ namespace FFL {
 	//
 	static inline void  internalCopyBytes(uint8_t* s, uint8_t* d, uint32_t size, bool order) {
 		if (order) {
-			//for (int16_t i = 0; i < size; i++) {
-			//	d[i] = s[i];
-			//}
 			memcpy(d, s, size);
 		}
 		else {
@@ -336,12 +333,16 @@ namespace FFL {
 
 	void ByteStream::readBuffer(uint8_t* dst, uint32_t size, bool reversal) {
 		if (mReadPos + size <= getCapacity()) {
-			internalCopyBytes(getData()+ mReadPos,dst,size,reversal);
+			if (dst) {
+				internalCopyBytes(getData() + mReadPos, dst, size, reversal);
+			}
 			mReadPos += size;
 		}else {
 			uint8_t s1 = getCapacity() - mReadPos;
-			internalCopyBytes(getData()+ mReadPos, dst,s1 , reversal);
-			internalCopyBytes(getData(), dst+s1, size-s1, reversal);
+			if (dst) {
+				internalCopyBytes(getData() + mReadPos, dst, s1, reversal);
+				internalCopyBytes(getData(), dst + s1, size - s1, reversal);
+			}
 			mReadPos = size-s1;
 		}
 		mDataSize -= size;

@@ -114,6 +114,16 @@ namespace FFL {
 	int64_t PipelineMessage::getParam2() const {
 		return mParam2;
 	}
+	//
+	//  获取，设置这个Message的追溯信息，主要用于调试，分析
+	//  因为，一条消息可能经过n多的node进行处理
+	//
+	void PipelineMessage::setTracebackInfo(const PipelineMessage::TraceBackInfo& info) {
+		mTraceBackInfo = info;
+	}
+	void PipelineMessage::getTracebackInfo(PipelineMessage::TraceBackInfo& info) {
+		info=mTraceBackInfo ;
+	}
    
     //
     //  是否系统消息

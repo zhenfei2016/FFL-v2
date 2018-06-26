@@ -34,6 +34,11 @@ extern "C" {
 	 *  获取当前时间的字符串类型
 	 */
 	void FFL_getNowString(char* s);
+
+	/*
+	*  毫米转化为string，
+	*/
+	void FFL_usToString(int64_t timeUs, char* s);
 #ifdef  __cplusplus
 }
 #endif

@@ -50,6 +50,10 @@ namespace FFL
 		//
 		status_t tranport(const sp<PipelineMessage> &msg, int64_t delayUs);
 		//
+		//  清空转发的消息
+		//
+		void clearMessage();
+		//
 		//  消耗了这条消息
 		//
 		void consumer(const sp<PipelineMessage> &msg);		
@@ -57,6 +61,11 @@ namespace FFL
 		// 获取待处理的消息的大小
 		//
 		int64_t getPendingMessageSize();
+	private:
+		//
+		//  重新计算一下现在消息的大小
+		//
+		void reCalcSizeLock();
 	protected:
 		CCondition mCond;
 		mutable CMutex mMutex;

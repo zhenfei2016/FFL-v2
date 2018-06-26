@@ -52,13 +52,6 @@ namespace FFL{
 		//
 		uint32_t getType() const;
 		void setType(uint32_t type);
-
-		//
-		//  设置谁来处理的这个消息
-		//
-		void setTarget(Looper::handler_id target);
-		Looper::handler_id target() const;
-
 		//
 		//  这个消息消耗监听器
 		//  当消息被消耗完的时候会执行对应listener
@@ -101,12 +94,26 @@ namespace FFL{
 		//  监听器
 		//
 		MessageConsumeListener* mConsumeListener;
-
 		//
 		//Message::uniqueId() 
 		//保存Message的唯一id
 		//
 		uint32_t mMessageUniqueId;
+	public:
+		struct TraceBackInfo {
+			//
+			//  全局唯一的
+			//
+			int64_t mId;
+		};
+		//
+		//  获取，设置这个Message的追溯信息，主要用于调试，分析
+		//  因为，一条消息可能经过n多的node进行处理
+		//
+		void setTracebackInfo(const TraceBackInfo& info);
+		void getTracebackInfo(TraceBackInfo& info);
+	private:
+		TraceBackInfo mTraceBackInfo;
 	};
    
 	

@@ -101,10 +101,9 @@ namespace FFL {
 	status_t PipelineAsyncConnectorFixSize::tranport(const sp<PipelineMessage> &msg, int64_t delayUs){
 		int64_t startUs = FFL_getNowUs();
 		{			
-			CMutex::Autolock l(&mMutex);			
-			//FFL_LOG_INFO("PipelineAsyncConnectorFixSize . size=%d capacity=%d", mSize, mCapacity);
+			CMutex::Autolock l(&mMutex);						
 			while ( mSize >= mCapacity && !isShutdowned() && !mHasShutdownRequest) {
-				FFL_LOG_INFO("PipelineAsyncConnectorFixSize is full. size=%d capacity=%d", mSize, mCapacity);
+				FFL_LOG_INFO("PipelineAsyncConnectorFixSize(%s) is full. size=%d capacity=%d", getName(), mSize,mCapacity);
 				if (mFullFlags.hasFlags(IF_FULL_REMOVE_FIRST)) {
 					//
 					//  移除待处理的第一条
@@ -140,7 +139,7 @@ namespace FFL {
 			}
 
 			if (isShutdowned()|| mHasShutdownRequest) {
-				FFL_LOG_INFO("PipelineAsyncConnectorFixSize is shutdown.");
+				FFL_LOG_INFO("PipelineAsyncConnectorFixSize(%s) is shutdown.",getName());
 				return FFL_ERROR_FAIL;
 			}
 
@@ -155,6 +154,7 @@ namespace FFL {
 				mSize = gDefaultMessageSizeCalculator.calcSize(mMessageListCache);
 			}
 			mIsFull = (mSize >= mCapacity);
+			FFL_LOG_INFO("PipelineAsyncConnectorFixSize(%s) insert size=%d capacity=%d", getName(), mSize,mCapacity);
 		}
 
 		//
@@ -171,6 +171,19 @@ namespace FFL {
 			consumer(msg);
 		}
 		return status;
+	}
+	//
+	//  清空转发的消息
+	//
+	void PipelineAsyncConnectorFixSize::clearMessage() {
+		FFL_LOG_DEBUG("PipelineAsyncConnectorFixSize::clearMessage(%s)",getName() );
+		CMutex::Autolock l(&mMutex);				
+		mMessageListCache.clear();
+		PipelineAsyncConnector::clearMessage();
+		//
+		//  重新计算一下现在消息的大小
+		//
+		reCalcSizeLock();
 	}
 
 	//
@@ -199,17 +212,7 @@ namespace FFL {
 		//
 		//  重新计算一下现在消息的大小
 		//
-		if (mMessageSizeCalculator != NULL) {
-			mSize = mMessageSizeCalculator->calcSize(mMessageListCache);
-		}else {
-			mSize = gDefaultMessageSizeCalculator.calcSize(mMessageListCache);
-		}
-		
-		if (mIsFull && mSize<mCapacity) {
-			FFL_LOG_INFO("PipelineAsyncConnectorFixSize signal. size=%d capacity=%d", mSize, mCapacity);
-			mIsFull = false;
-			mCond.signal();
-		}
+		reCalcSizeLock();
 	}
 	//
 	// 获取待处理的消息的大小
@@ -217,7 +220,23 @@ namespace FFL {
 	int64_t PipelineAsyncConnectorFixSize::getPendingMessageSize() {
 		return mSize;
 	}
+	void PipelineAsyncConnectorFixSize::reCalcSizeLock() {
+		//
+		//  重新计算一下现在消息的大小
+		//
+		if (mMessageSizeCalculator != NULL) {
+			mSize = mMessageSizeCalculator->calcSize(mMessageListCache);
+		}
+		else {
+			mSize = gDefaultMessageSizeCalculator.calcSize(mMessageListCache);
+		}
 
+		if (mIsFull && mSize < mCapacity) {
+			FFL_LOG_INFO("PipelineAsyncConnectorFixSize(%s) signal. size=%d capacity=%d",getName(), mSize, mCapacity);
+			mIsFull = false;
+			mCond.signal();
+		}
+	}
 	//
 	// 设置满了情况的处理标志
 	//

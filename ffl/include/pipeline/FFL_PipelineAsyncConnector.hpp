@@ -96,7 +96,6 @@ namespace FFL
 		//
 		class InputHandler;
 		sp<InputHandler> mHandler;
-
 	private:
 		//
 		// 状态标志

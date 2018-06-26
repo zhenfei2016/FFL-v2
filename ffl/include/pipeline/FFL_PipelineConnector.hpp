@@ -41,6 +41,9 @@ namespace FFL
 		PipelineConnector();
 		virtual ~PipelineConnector();
 
+		const char* getName() const;
+		void setName(const char* name);
+
 		//
 		//  是否是连接状态， 有输入输出端
 		//
@@ -104,7 +107,10 @@ namespace FFL
 	private:
 		CMutex mMutex;
 		PipelineInput* mInput;
-		PipelineOutput* mOutput;		
+		PipelineOutput* mOutput;	
+
+	private:
+		const char* mName;
 	};
 		
 	/*
