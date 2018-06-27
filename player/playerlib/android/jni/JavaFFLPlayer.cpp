@@ -1,3 +1,15 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  JavaFFLPlayer.cpp
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+*  java层FFLPlayer和Native层FFLplayer的一些相关导出，导入封装
+*/
 #include "JavaFFLPlayer.hpp"
 #include "NativeFFLPlayer.hpp"
 #include "NativeFFLPlayer.hpp"

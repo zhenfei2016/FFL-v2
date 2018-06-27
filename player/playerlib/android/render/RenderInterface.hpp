@@ -1,3 +1,15 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  RenderInterface.hpp   
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*  android渲染接口
+*
+*/
 #ifndef _RENDER_INTERFACE_HPP_
 #define _RENDER_INTERFACE_HPP_
 

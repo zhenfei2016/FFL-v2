@@ -1,3 +1,15 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  AndroidAudioDevice.cpp   
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*  android下播放音频的封装
+*
+*/
 #include "AndroidAudioDevice.hpp"
 #include "jni/JavaAudiotrack.hpp"
 namespace android {

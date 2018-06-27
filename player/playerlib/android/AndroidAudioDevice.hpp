@@ -1,4 +1,15 @@
-#ifndef _ANDROID_AUDIO_DEVICE_HPP_
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  AndroidAudioDevice.hpp   
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*  android下播放音频的封装
+*
+*/#ifndef _ANDROID_AUDIO_DEVICE_HPP_
 #define _ANDROID_AUDIO_DEVICE_HPP_
 #include "AudioDevice.hpp"
 #include <FFL.h>

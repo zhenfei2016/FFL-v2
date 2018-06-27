@@ -1,3 +1,16 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  RenderManager.hpp   
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+*  android下所有支持的渲染格式，方式的管理类，可以通过视频格式获取特定的渲染器
+*
+*/
 #ifndef _RENDER_MANAGER_HPP_
 #define _RENDER_MANAGER_HPP_
 

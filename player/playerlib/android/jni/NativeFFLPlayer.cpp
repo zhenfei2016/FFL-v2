@@ -1,3 +1,15 @@
+/*
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  NativeFFLPlayer.cpp
+*  Created by zhufeifei(34008081@qq.com) on 2018/06/28
+*  https://github.com/zhenfei2016/FFL-v2.git
+*  Native层的FFLPlayer的一个包装层，把一些调用转到player::FFLPlayer中
+*
+*/
 #include "NativeFFLPlayer.hpp"
 
 namespace android{
