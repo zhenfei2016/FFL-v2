@@ -17,10 +17,12 @@
 #include <string>
 
 namespace FFL {
+	
 	typedef std::string String;
+
 	void formatString(String& str, const char *fmt, ...);
 	int64_t String2int64_t(String& str);
-	int32_t String2int32_t(String& str);
+	int32_t String2int32_t(String& str);	
 }
 
 

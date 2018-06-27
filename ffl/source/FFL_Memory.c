@@ -142,7 +142,7 @@ void *FFL_malloc(size_t size)
 	return mem;
 }
 
-void FFL_free(void *mem)
+void FFL_free(const void *mem)
 {
     char* prefix=0;
     char * subfix=0;

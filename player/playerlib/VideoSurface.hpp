@@ -16,6 +16,9 @@
 #if WIN32
 #include <windows.h>
 typedef HWND  SurfaceHandle;
+#elif ANDROID
+#include <android/native_window.h>
+typedef ANativeWindow*  SurfaceHandle;
 #else
 typedef void*  SurfaceHandle;
 #endif

@@ -1,5 +1,5 @@
 #include "SDL2VideoDevice.hpp"
-#include "MessageSDL2Texture.hpp"
+#include "SDL2MessageTexture.hpp"
 #include "VideoRender.hpp"
 #include "VideoSurface.hpp"
 

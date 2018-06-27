@@ -16,7 +16,7 @@
 #include <utils/FFL_Serializable.hpp>
 #include <utils/FFL_Looper.hpp>
 #include <thread/FFL_SysMessage.hpp>
-#include <string>
+#include <utils/FFL_String.hpp>
 
 
 namespace FFL {

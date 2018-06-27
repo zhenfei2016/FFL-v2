@@ -21,8 +21,9 @@
 #include <SDL.h>
 #include "VideoSurface.hpp"
 #include "AudioSample.hpp"
-#include "MessageSDL2Texture.hpp"
+#include "SDL2MessageTexture.hpp"
 #include <utils/FFL_Utils.hpp>
+#include <utils/FFL_ByteBuffer.hpp>
 #include <utils/FFL_List.hpp>
 #include <thread/FFL_Thread.hpp>
 #include "AudioDevice.hpp"

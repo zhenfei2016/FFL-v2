@@ -12,6 +12,7 @@
 */
 #pragma once
 #include <pipeline/FFL_Pipeline.hpp>
+#include <utils/FFL_String.hpp>
 
 namespace player {
 	class InputInterface;

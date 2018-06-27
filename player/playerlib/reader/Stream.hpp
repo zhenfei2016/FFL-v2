@@ -15,7 +15,7 @@
 #include <ref/FFL_Ref.hpp>
 #include <utils/FFL_Clock.hpp>
 #include <utils/FFL_Dictionary.hpp>
-#include "../NodeBase.hpp"
+#include "NodeBase.hpp"
 
 namespace player {
 	class Decoder;

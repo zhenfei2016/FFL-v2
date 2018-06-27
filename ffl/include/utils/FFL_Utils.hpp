@@ -68,10 +68,9 @@ private:
     class_name(const class_name &); \
     class_name &operator=(const class_name &)
 
-#include <utils/FFL_String.hpp>
+
 #include <utils/FFL_List.hpp>
 #include <utils/FFL_Vector.hpp>
-#include <utils/FFL_ByteStream.hpp>
-#include <utils/FFL_ByteBuffer.hpp>
+#include <utils/FFL_String.hpp>
 
 #endif

@@ -12,7 +12,9 @@
 *
 */
 
-#pragma once
+#ifndef _AUDIO_RENDER_HPP_
+#define _AUDIO_RENDER_HPP_
+
 #include "Render.hpp"
 #include "VideoSurface.hpp"
 #include "VideoTexture.hpp"
@@ -65,3 +67,5 @@ namespace player {
 		volatile bool mResetSyncClock;
 	};
 }
+
+#endif

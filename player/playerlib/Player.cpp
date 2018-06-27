@@ -19,7 +19,6 @@
 #include <utils/FFL_File.hpp>
 #include <pipeline/FFL_Pipeline.hpp>
 #include <pipeline/FFL_PipelineEvent.hpp>
-#include "SDL2Module.hpp"
 #include "VideoSurface.hpp"
 #include "AudioDevice.hpp"
 #include "VideoDevice.hpp"
@@ -29,6 +28,11 @@
 #include "DeviceFactory.hpp"
 #include "reader/Stream.hpp"
 
+#if defined(ANDROID)
+#include "android/AndroidModule.hpp"
+#else
+#include "SDL2Module.hpp"
+#endif
 
 namespace player {
 	class FFLPlayer::FFLPlayerDeviceManager : public DeviceManager {
@@ -36,7 +40,11 @@ namespace player {
 		FFLPlayerDeviceManager(FFLPlayer* player){
 			mSurfaceHandle = NULL;
 			mPlayer = player;
-			mDeviceCreator =new SDL2Module();
+#if defined(ANDROID)
+			mDeviceCreator =new android::AndroidModule();
+#else
+			mDeviceCreator = new SDL2Module();
+#endif
 		}
 		~FFLPlayerDeviceManager() {
 			FFL_SafeFree(mDeviceCreator);
@@ -252,11 +260,7 @@ namespace player {
 	//
 	status_t FFLPlayer::setSurface(void* surface){
 		SurfaceHandle wnd;
-#if WIN32
-		wnd=((HWND)surface);
-#else
-		wnd=surface;
-#endif
+		wnd=(SurfaceHandle)(surface);
 		mDevManager->setVideoSurface(wnd);
 		FFL_ASSERT_LOG(0, "setSurface not impl.");
 		return FFL_OK;

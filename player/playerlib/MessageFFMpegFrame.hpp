@@ -37,7 +37,7 @@ namespace message {
 		//
 		void fillAvframe(AVFrame* frame);
 	public:
-		VideoTexture mTexture;
+		player::VideoTexture mTexture;
 		AVFrame* mFrame;
 	};
 

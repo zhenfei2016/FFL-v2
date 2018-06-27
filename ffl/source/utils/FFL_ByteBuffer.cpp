@@ -11,7 +11,7 @@
 */
 
 #include <utils/FFL_ByteBuffer.hpp>
-
+#include <utils/FFL_ByteStream.hpp>
 namespace FFL {
 	ByteBuffer::ByteBuffer():mData(0),mSize(0), mStream(0){
 		mStream = new ByteStream();

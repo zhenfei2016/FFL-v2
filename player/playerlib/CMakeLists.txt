@@ -1,21 +1,44 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+IF (WIN32)
+    MESSAGE(STATUS "Now is windows")  
+ELSEIF (APPLE)  
+    MESSAGE(STATUS "Now is Apple systens.")  
+ELSEIF (ANDROID)
+    MESSAGE(STATUS "Now is Android os.")  
+ELSEIF (UNIX)  
+    MESSAGE(STATUS "Now is UNIX-like OS's. Including aPPLE os x  and CygWin")  
+ENDIF () 
+
+
 PROJECT(playerLib)
 
-INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_android_static/include/ )
-LINK_DIRECTORIES(../third/FFmpeg3.3.5/output_android_static/)
 IF (WIN32)
-INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_win_dll/include/ ../third/SDL2/SDL2/)
-LINK_DIRECTORIES( ../third/FFmpeg3.3.5/output_win_dll/bin/ ../third/SDL2)
+INCLUDE_DIRECTORIES(
+            ./
+            ../../ffl/include/
+            ../third/FFmpeg3.3.5/output_win_dll/include/
+            ../third/SDL2/SDL2/ )
+LINK_DIRECTORIES(
+            ../third/FFmpeg3.3.5/output_win_dll/bin/
+            ../third/SDL2)
 ELSEIF (APPLE)
-INCLUDE_DIRECTORIES(../../ffl/include/ ../ffl/include/ /Users/zhufeifei/opensource/ffmpeg/output-so/include/ /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include)
-LINK_DIRECTORIES( /Users/zhufeifei/opensource/ffmpeg/output-so/lib/ /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux" )
-INCLUDE_DIRECTORIES(../../ffl/include/ ../third/FFmpeg3.3.5/output_android_static/include/ )
-LINK_DIRECTORIES(../third/FFmpeg3.3.5/output_android_static/)
+INCLUDE_DIRECTORIES(
+            ./
+            ../../ffl/include/
+            /Users/zhufeifei/opensource/ffmpeg/output-so/include/
+            /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include )
+LINK_DIRECTORIES(
+            /Users/zhufeifei/opensource/ffmpeg/output-so/lib/
+            /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)
+ELSEIF(ANDROID)
+INCLUDE_DIRECTORIES(
+            ./
+            ../../ffl/include/
+            ../third/FFmpeg3.3.5/output_android_static/include/ )
+LINK_DIRECTORIES(
+            ../third/FFmpeg3.3.5/output_android_static/)
 ENDIF ()
-
-
 
 SET(LOCAL_SRC_FILES   
    FFMpeg.cpp;FFMpeg.hpp
@@ -28,9 +51,9 @@ SET(LOCAL_SRC_FILES
    Statistic.hpp;Statistic.cpp         
    
    NodeBase.cpp;NodeBase.hpp
-   NodeFFMpegDecoder.hpp;NodeFFMpegDecoder.cpp
-   NodeFFMpegVideoDecoder.hpp;NodeFFMpegVideoDecoder.cpp
-   NodeFFMpegAudioDecoder.hpp;NodeFFMpegAudioDecoder.cpp   
+   FFMpegDecoder.hpp;FFMpegDecoder.cpp
+   FFMpegVideoDecoder.hpp;FFMpegVideoDecoder.cpp
+   FFMpegAudioDecoder.hpp;FFMpegAudioDecoder.cpp   
    Decoder.hpp;Decoder.cpp
    Composer.hpp;Composer.cpp  
    AudioUtils.hpp;AudioUtils.cpp 
@@ -41,6 +64,7 @@ SET(LOCAL_SRC_FILES
    AudioRender.hpp;AudioRender.cpp
    AudioResample.hpp;AudioResample.cpp
    AudioComposer.hpp;AudioComposer.cpp
+   VideoFormat.hpp
    VideoComposer.hpp;VideoComposer.cpp
    VideoUtils.hpp;VideoUtils.cpp 
    VideoSurface.hpp;VideoSurface.cpp      
@@ -51,13 +75,9 @@ SET(LOCAL_SRC_FILES
    VideoRender.hpp;VideoRender.cpp   
    Render.hpp;Render.cpp      
    FFMpegStream.hpp;FFMpegStream.cpp
-   SDL2Module.hpp;SDL2Module.cpp   
-   SDL2AudioDevice.hpp;SDL2AudioDevice.cpp   
-   SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
    MessageBase.hpp;MessageBase.cpp
    MessageFFMpegPacket.hpp;MessageFFMpegPacket.cpp
    MessageFFMpegFrame.hpp;MessageFFMpegFrame.cpp
-   MessageSDL2Texture.hpp;MessageSDL2Texture.cpp
    TimestampExtrapolator.hpp;TimestampExtrapolator.cpp       
    TimestampUtils.hpp;TimestampUtils.cpp
 
@@ -68,10 +88,36 @@ SET(LOCAL_SRC_FILES
    reader/ReaderStreamManager.hpp;reader/ReaderStreamManager.cpp
    reader/ReaderFactory.hpp;reader/ReaderFactory.cpp
    reader/ReaderBase.hpp;reader/ReaderBase.cpp
-   reader/ReaderFFmpeg.hpp;reader/ReaderFFmpeg.cpp
+   reader/FFmpegReader.hpp;reader/FFmpegReader.cpp
    )
 
+IF (WIN32)
+SET(LOCAL_PLATFORM_SRC_FILES
+     SDL2Module.hpp;SDL2Module.cpp
+     SDL2AudioDevice.hpp;SDL2AudioDevice.cpp
+     SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
+	 SDL2MessageTexture.hpp;SDL2MessageTexture.cpp )
+ELSEIF (APPLE)
+SET(LOCAL_PLATFORM_SRC_FILES
+    SDL2Module.hpp;SDL2Module.cpp
+    SDL2AudioDevice.hpp;SDL2AudioDevice.cpp
+    SDL2VideoDevice.hpp;SDL2VideoDevice.cpp
+    SDL2MessageTexture.hpp;SDL2MessageTexture.cpp)
+ELSEIF(ANDROID)
+SET(LOCAL_PLATFORM_SRC_FILES
+   android/render/MemcopyRender.cpp;android/render/MemcopyRender.hpp
+   android/render/RenderInterface.hpp
+   android/render/RenderManager.cpp;android/render/RenderManager.hpp
 
+   android/AndroidVideoDevice.hpp;android/AndroidVideoDevice.cpp
+   android/AndroidAudioDevice.hpp;android/AndroidAudioDevice.cpp
+   android/AndroidModule.hpp;android/AndroidModule.cpp
+
+      )
+ ADD_SUBDIRECTORY(./android/jni)
+ELSE()
+SET(LOCAL_PLATFORM_SRC_FILES   "")
+ENDIF ()
 if (MSVC)
     set(CompilerFlags
         CMAKE_CXX_FLAGS
@@ -86,5 +132,10 @@ if (MSVC)
     endforeach()
 endif(MSVC)
 
-add_library( playerLib STATIC ${LOCAL_SRC_FILES})
+add_library( playerLib STATIC "${LOCAL_SRC_FILES};${LOCAL_PLATFORM_SRC_FILES}" )
+IF (ANDROID)
+find_library(log-lib  log )
+target_link_libraries( playerLib  android ${log-lib} libffmpeg.so FFL  EGL GLESv2)
+ELSE()
+ENDIF()
 

@@ -12,7 +12,6 @@
 */
 #include "VideoRender.hpp"
 #include "MessageFFMpegFrame.hpp"
-#include "SDL2Module.hpp"
 #include "VideoDevice.hpp"
 #include "PlayerCore.hpp"
 #include "PlayerConstant.hpp"

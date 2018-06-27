@@ -120,11 +120,11 @@
  *  c中定义struct结构体，模拟class定义
  *
 */
-#define FFL_DECLEAR_C_OBJECT(type)  \
+#define FFL_DECLEAR_CLASS(type)  \
          type* FFL_Allocate_##type(); \
          void FFL_Free_##type(type* p);
 
-#define FFL_IMPLEMENT_C_OBJECT(type,contruct_fun) \
+#define FFL_IMPLEMENT_CLASS(type,contruct_fun) \
         type* FFL_Allocate_##type() {	\
 		type* p = (type*)FFL_mallocz(sizeof(type)); \
 		if (p == 0) {\
@@ -140,11 +140,11 @@
 
 
 
-#define FFL_DECLEAR_C_OBJECT_EX(type)  \
+#define FFL_DECLEAR_CLASS_EX(type)  \
          type* FFL_Allocate_##type(const char*); \
          void FFL_Free_##type(type* p);
 
-#define FFL_IMPLEMENT_C_OBJECT_EX(type,contruct_fun) \
+#define FFL_IMPLEMENT_CLASS_EX(type,contruct_fun) \
         type* FFL_Allocate_##type(const char* name) {	\
 		type* p = (type*)FFL_mallocz(sizeof(type)); \
 		if (p == 0) {\

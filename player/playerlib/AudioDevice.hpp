@@ -31,8 +31,8 @@ namespace player {
 		//           非null 返回跟他匹配的 
 		//  fmtList: 返回支持的格式list
 		//
-		virtual void getSupportFormat(const AudioFormat* wanted,FFL::List<AudioFormat>& fmtList)=0;
-		virtual bool isSupportFormat(const AudioFormat* wanted) = 0;
+		virtual void getSupportFormat(const player::AudioFormat* wanted,FFL::List<player::AudioFormat>& fmtList)=0;
+		virtual bool isSupportFormat(const player::AudioFormat* wanted) = 0;
 		//
 		// 设置缓冲多长时间的数据
 		//
@@ -40,7 +40,7 @@ namespace player {
 		//
 		//  打开关闭音频设备
 		//
-		virtual bool open(const AudioFormat& wanted,int32_t sampleNum, AudioFormat& obtained)=0;
+		virtual bool open(const player::AudioFormat& wanted,int32_t sampleNum, player::AudioFormat& obtained)=0;
 		virtual void close()=0;
 		//
 		//获取当前打开的格式，如果未打开则返回null
@@ -49,7 +49,7 @@ namespace player {
 		//
 		//  写一帧数据
 		//
-		virtual bool writeFrame(AudioSample* samples)=0;
+		virtual bool writeFrame(player::AudioSample* samples)=0;
 		//
 		//  获取播放设备硬件的延迟
 		//
@@ -66,7 +66,7 @@ namespace player {
 		//
 		// 获取render
 		//
-		virtual FFL::sp<AudioRender> getRender(void* userdata) ;	
+		virtual FFL::sp<player::AudioRender> getRender(void* userdata) ;
 		//
 		// 获取播放中的音频的pts
 		//
@@ -77,7 +77,7 @@ namespace player {
 		virtual void setVolume(int32_t volume);
 		virtual void getVolume(int32_t& volume);
 	protected:
-		FFL::sp<AudioRender> mAudioRender;
+		FFL::sp<player::AudioRender> mAudioRender;
 
 		//
 		// 音量

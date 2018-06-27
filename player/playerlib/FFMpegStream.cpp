@@ -12,9 +12,9 @@
  *
 */
 #include "FFMpegStream.hpp"
-#include "NodeFFMpegVideoDecoder.hpp"
-#include "NodeFFMpegAudioDecoder.hpp"
-#include "NodeFFMpegDecoder.hpp"
+#include "FFMpegVideoDecoder.hpp"
+#include "FFMpegAudioDecoder.hpp"
+#include "FFMpegDecoder.hpp"
 
 namespace player {
 	static AVCodecContext* openCodec(AVStream* stream)

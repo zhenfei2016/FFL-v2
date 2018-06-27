@@ -1,5 +1,5 @@
 #include "ReaderFactory.hpp"
-#include "ReaderFFmpeg.hpp"
+#include "FFmpegReader.hpp"
 
 FFL_IMPLEMENT_SINGLETON(reader::ReaderFactory);
 //template<> reader::ReaderFactory* FFL::Singleton<reader::ReaderFactory>::sInstance=NULL;

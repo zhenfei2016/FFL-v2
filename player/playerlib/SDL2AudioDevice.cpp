@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <utils/FFL_ByteStream.hpp>
 #include "SDL2AudioDevice.hpp"
 #include "PlayerConstant.hpp"
 #include "AudioUtils.hpp"

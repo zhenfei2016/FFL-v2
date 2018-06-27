@@ -12,7 +12,8 @@
 */
 #ifndef _FFL_DICTIONARY_HPP_
 #define _FFL_DICTIONARY_HPP_
-#include <utils/FFL_String.hpp>
+
+#include "FFL_String.hpp"
 
 namespace FFL {
 	class DictionaryImpl;
@@ -48,8 +49,6 @@ namespace FFL {
 	private:
 		DictionaryImpl* mImpl;
 	};
-
 }
-
 
 #endif

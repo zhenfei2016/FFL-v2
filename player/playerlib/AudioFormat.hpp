@@ -15,7 +15,7 @@
 #define _AUDIOSAMPLEFORMAT_HPP_
 
 #include "FFMpeg.hpp"
-#define DEBUG_AUDIO 1
+#define DEBUG_AUDIO 0
 #if DEBUG_AUDIO
 #include <utils/FFL_String.hpp>
 #endif

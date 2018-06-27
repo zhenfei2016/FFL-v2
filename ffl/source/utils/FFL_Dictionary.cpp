@@ -10,6 +10,7 @@
 *
 *
 */
+#include <utils/FFL_String.hpp>
 #include <utils/FFL_Dictionary.hpp>
 #include <map>
 
