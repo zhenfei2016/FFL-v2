@@ -46,7 +46,7 @@ namespace player {
 			mDeviceCreator = new SDL2Module();
 #endif
 		}
-		~FFLPlayerDeviceManager() {
+        virtual ~FFLPlayerDeviceManager() {
 			FFL_SafeFree(mDeviceCreator);
 		}
 

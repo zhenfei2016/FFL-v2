@@ -269,7 +269,8 @@ _getopt_initialize (int argc, char *const *argv, const char *optstring,
 #ifdef WIN32
   d->__posixly_correct = 0;
 #else
-  d->__posixly_correct = !!getenv("POSIXLY_CORRECT");
+  //d->__posixly_correct = !!getenv("POSIXLY_CORRECT");
+    d->__posixly_correct = 0;
 #endif // WIN32  
   /* Determine how to handle the ordering of options and nonoptions.  */
 

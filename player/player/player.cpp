@@ -12,8 +12,9 @@
 */
 
 
+
+//#include <utils/FFL_MemoryWatch.hpp>
 #include "SDL2Module.hpp"
-#include <utils/FFL_MemoryWatch.hpp>
 #if WIN32
 #include <windows.h>
 #endif
@@ -228,14 +229,14 @@ int playerMain() {
 	url = "d://movic//sintel.ts";       
 	//url = "d://movic//Nocturne.m4a";
 	//url = "d://movic//test.avi";
-	url = "d://movic//zhuoyaoji.mp4";	
+	//url = "d://movic//zhuoyaoji.mp4";	
 	
 #else
 	url = "/Users/zhufeifei/work/testvideo/sintel.ts";
 #endif
-	//player.setLoop(2);
+	
 	player.setUrl(url.c_str());
-	player::SDL2Loop(keyPressed,&player);
-	//player.release();			
+    //player.prepare();
+    player::SDL2Loop(keyPressed,&player);
 	return 0;
 }

@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.4.1)
 
 IF (WIN32)
     MESSAGE(STATUS "Now is windows")  
-ELSEIF (APPLE)  
-    MESSAGE(STATUS "Now is Apple systens.")  
+ELSEIF (IOS_PLATFORM)
+    MESSAGE(STATUS "Now is ios systens.")
+ELSEIF (APPLE)
+    MESSAGE(STATUS "Now is Apple systens.")
 ELSEIF (ANDROID)
     MESSAGE(STATUS "Now is Android os.")  
 ELSEIF (UNIX)  
@@ -17,27 +19,36 @@ IF (WIN32)
 INCLUDE_DIRECTORIES(
             ./
             ../../ffl/include/
-            ../third/FFmpeg3.3.5/output_win_dll/include/
-            ../third/SDL2/SDL2/ )
+            ../../third/FFmpeg3.3.5/include/
+            ../../third/SDL2/include/ )
 LINK_DIRECTORIES(
-            ../third/FFmpeg3.3.5/output_win_dll/bin/
-            ../third/SDL2)
+            ../../third/FFmpeg3.3.5/output_win_dll/bin/
+            ../../third/SDL2/lib/window/ )
+ELSEIF(IOS_PLATFORM)
+INCLUDE_DIRECTORIES(
+            ./
+            ../../ffl/include/
+            ../../third/FFmpeg3.3.5/include/
+            ../../third/SDL2/include/ )
+
+
 ELSEIF (APPLE)
 INCLUDE_DIRECTORIES(
             ./
             ../../ffl/include/
-            /Users/zhufeifei/opensource/ffmpeg/output-so/include/
-            /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/usr/local/include )
+            ../../third/FFmpeg3.3.5/include/
+            ../../third/SDL2/include/ )
 LINK_DIRECTORIES(
-            /Users/zhufeifei/opensource/ffmpeg/output-so/lib/
-            /Users/zhufeifei/Library/Developer/Xcode/DerivedData/SDL-bwbfbcmldscsrehedezutogkvhhf/Build/Products/Debug/)
+            ../../third/FFmpeg3.3.5/output_mac_dylib/bin/
+            ../../third/SDL2/lib/mac/ )
 ELSEIF(ANDROID)
 INCLUDE_DIRECTORIES(
             ./
             ../../ffl/include/
-            ../third/FFmpeg3.3.5/output_android_static/include/ )
+            ../../third/FFmpeg3.3.5/include/ )
 LINK_DIRECTORIES(
-            ../third/FFmpeg3.3.5/output_android_static/)
+            ../../third/FFmpeg3.3.5/output_android_static/)
+
 ENDIF ()
 
 SET(LOCAL_SRC_FILES   
