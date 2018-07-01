@@ -50,7 +50,7 @@ static void free_getopt_Option(struct option* opts) {
 *   命令行格式  --cmd=12344
 *   返回命令在opts中的位置，没找到返回-1
 */
-int FFL_parseCommnadline(int argc,const char** argv,CmdOption* opts, int size) {
+int FFL_parseCommnadline(int argc,const char** argv,CmdOption* opts, int size, void* userdata) {
 	struct option* longOpt=alloc_getopt_Option(opts, size);
 	
 	int cmdIndex = -1;
@@ -62,7 +62,7 @@ int FFL_parseCommnadline(int argc,const char** argv,CmdOption* opts, int size) {
 		if (optionIndex != -1) {
 			cmdIndex = optionIndex;
 			if (opts[cmdIndex].fun) {
-				opts[cmdIndex].fun(optarg);
+				opts[cmdIndex].fun(optarg,userdata);
 			}
 		}
 		optionIndex = -1;

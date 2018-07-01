@@ -206,8 +206,8 @@ namespace reader {
 		streamIndexVec[2] = -1;
 
 		for (int i = 0; i < FFL_ARRAY_ELEMS(streamIndexVec); i++) {
-			uint32_t index = streamIndexVec[i];
-			if (index == -1) continue;
+			int32_t index = streamIndexVec[i];
+			if (index< 0) continue;
 			stream = streams[index];
 
 			FFL::String name;

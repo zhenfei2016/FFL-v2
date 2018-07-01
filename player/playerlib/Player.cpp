@@ -33,133 +33,29 @@
 #else
 #include "SDL2Module.hpp"
 #endif
+#include "DeviceManager.hpp"
+#include "DefaultDeviceManager.hpp"
 
 namespace player {
-	class FFLPlayer::FFLPlayerDeviceManager : public DeviceManager {
-	public:
-		FFLPlayerDeviceManager(FFLPlayer* player){
-			mSurfaceHandle = NULL;
-			mPlayer = player;
-#if defined(ANDROID)
-			mDeviceCreator =new android::AndroidModule();
-#else
-			mDeviceCreator = new SDL2Module();
-#endif
-		}
-        virtual ~FFLPlayerDeviceManager() {
-			FFL_SafeFree(mDeviceCreator);
-		}
-
-		virtual FFL::sp<VideoDevice> getVideoDisplay(FFL::sp<VideoStream> stream) {
-			if (stream.isEmpty()) {
-				return mVideoDevice;
-			}
-
-			if (mVideoDevice.isEmpty()) {
-				mVideoDevice = createVideoDisplay(stream,NULL);
-			}
-			return mVideoDevice;
-		}
-		//
-		// 创建删除显示音频的设备
-		//
-		virtual FFL::sp<AudioDevice> getAudioDisplay(FFL::sp<AudioStream> stream) {
-			if (stream.isEmpty()) {
-				return mAudioDevice;
-			}
-
-			if (mAudioDevice.isEmpty()) {
-				mAudioDevice = createAudioDisplay(stream);
-			}
-			return mAudioDevice;
-		}
-	public:
-		//
-		// 设置绘制窗口
-		//
-		void setVideoSurface(SurfaceHandle surface) {
-			if (surface != NULL && surface != mSurfaceHandle) {
-				mSurfaceHandle = surface;
-				if (!mVideoDevice.isEmpty()) {
-					mVideoDevice->setSurface(surface);
-				}
-			}
-		}
-		//
-		// 获取绘制中的窗口
-		//
-		FFL::sp<VideoSurface> getVideoSurface() {
-			if (!mVideoDevice.isEmpty()) {
-				return mVideoDevice->getSurface();
-			}
-			return NULL;
-		}
-		//
-		// 创建，删除显示视频设备
-		//
-		FFL::sp<VideoDevice> createVideoDisplay(FFL::sp<VideoStream> stream, SurfaceHandle surface){
-			FFL::sp<VideoDevice> dev = mDeviceCreator->createVideoDevice(NULL);
-			uint32_t width = 400;
-			uint32_t height = 300;
-			if (!stream.isEmpty()) {
-				stream->getSize(width, height);
-			}
-			dev->open(surface, width, height);
-			return dev;
-		}
-		void destroyVideoDisplay(FFL::sp<VideoDevice> dev) {
-			if (!dev.isEmpty()) {
-				dev->close();
-				dev = NULL;
-			}
-		}
-		//
-		// 创建删除显示音频的设备
-		//
-		FFL::sp<AudioDevice> createAudioDisplay(FFL::sp<AudioStream> stream) {
-			if (stream.isEmpty()) {
-				return NULL;
-			}
-
-			FFL::sp<AudioDevice> dev = mDeviceCreator->createAudioDevice(NULL);
-			AudioFormat fmt;
-			stream->getFormat(fmt);
-
-			//
-			// 启动音频设备
-			//
-			AudioFormat obtainedFmt;
-			if (!dev->open(fmt, 1024, obtainedFmt)) {
-				return NULL;
-			}
-
-			return dev;
-		}
-		void destroyAudioDisplay(FFL::sp<AudioDevice> dev) {
-			if (!dev.isEmpty()) {
-				dev->close();
-				dev = NULL;
-			}
-		}
-	public:
-		DeviceFactory* mDeviceCreator;
-		FFLPlayer* mPlayer;
-		FFL::sp<AudioDevice> mAudioDevice;
-		FFL::sp<VideoDevice> mVideoDevice;
-
-		SurfaceHandle mSurfaceHandle;
-	};
-
-	FFLPlayer::FFLPlayer():mListener(NULL){
-		mCore = new PlayerCore(this);
+	FFLPlayer::FFLPlayer(DeviceManager* mgr):mListener(NULL){		
 		mEventPrepare = new FFL::PipelineEvent(
 			new FFL::ClassMethodCallback<player::FFLPlayer>(this, &FFLPlayer::onPrepare));	
 
 		mSpeed = 100;
+
 		mSurfaceHandle = NULL;		
-		mDevManager = new FFLPlayerDeviceManager(this);
+		if (mgr) {
+			mAudoDeleteDevManager = false;
+			mDevManager = mgr;
+		}
+		else {
+			mAudoDeleteDevManager = true;
+			mDevManager = new DefaultDeviceManager();
+		}
+		mDevManager->openVideoDisplay(mSurfaceHandle);
+
+		mCore = new PlayerCore(this);
 		mCore->setDeviceManager(mDevManager);
-		mDevManager->mVideoDevice=mDevManager->createVideoDisplay(NULL,NULL);
 	}
 	FFLPlayer::~FFLPlayer() {
 		FFL_SafeFree(mDevManager);		
@@ -241,6 +137,7 @@ namespace player {
 			return FFL_FAILED;
 		}
 
+		if(0)
 		{
 			FFL::CMutex::Autolock l(mMutex);
 			if (isLooping() || isStarting()) {
@@ -261,15 +158,26 @@ namespace player {
 	status_t FFLPlayer::setSurface(void* surface){
 		SurfaceHandle wnd;
 		wnd=(SurfaceHandle)(surface);
-		mDevManager->setVideoSurface(wnd);
-		FFL_ASSERT_LOG(0, "setSurface not impl.");
+		mSurfaceHandle = wnd;
+
+		FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
+		if (!videoDevice.isEmpty()) {
+			videoDevice->setSurface(wnd);
+		}		
 		return FFL_OK;
 	}
 	//
 	// 设置渲染窗口的大小，只有窗口存在的情况下才可以设置大小，否则返回失败
 	//
 	status_t FFLPlayer::setSurfaceSize(int32_t widht, int32_t height) {	
-		FFL::sp<VideoSurface> surface=mDevManager->getVideoSurface();
+		FFL::sp<VideoSurface> surface;
+		FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
+		if (!videoDevice.isEmpty()) {
+			surface=videoDevice->getSurface();
+		}else {
+			FFL_LOG_WARNING("Failed to FFLPlayer::setSurfaceSize(), videoDevice not open.");
+		}
+		
 		if (!surface.isEmpty()) {
 			surface->setWindowSize(widht, height);
 		}
@@ -280,12 +188,27 @@ namespace player {
 	//
 	status_t FFLPlayer::prepare(){
 		FFL::CMutex::Autolock l(mMutex);
-		if (!isPrepared()) {
-			mFlag.modifyFlags(FLAG_PREPAREING, 0);
-			mCore->getPipeline()->postEvent(mEventPrepare);
-			return FFL_OK;
-		}
-		return FFL_ERROR_FAIL;
+		//if (isPrepared()) {
+		
+			mDevManager->closeAudioDisplay();			
+
+			FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
+			if (!videoDevice.isEmpty()) {
+				videoDevice->resetRender();
+			}
+		
+			mCore->stop();
+
+			FFL_SafeFree(mCore);
+			mCore = new PlayerCore(this);
+			mCore->setDeviceManager(mDevManager);
+
+			mFlag.resetFlags(FLAG_INIT);
+		//}
+
+		mFlag.modifyFlags(FLAG_PREPAREING, 0);
+		mCore->getPipeline()->postEvent(mEventPrepare);
+		return FFL_OK;			
 	}
 	status_t FFLPlayer::start(){ 
 		{
@@ -503,26 +426,8 @@ namespace player {
 		FFL::CMutex::Autolock l(mMutex);
 		mFlag.resetFlags(FLAG_INIT);
 
-		FFL::sp<AudioDevice> audioDevice = mDevManager->getAudioDisplay(NULL);
-		if (!audioDevice.isEmpty()) {
-			audioDevice->close();
-		}
-
-		FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
-		if (!videoDevice.isEmpty()) {
-			videoDevice->close();
-		}
+		mDevManager->closeAudioDisplay();
+		mDevManager->closeVideoDisplay();
 		mCore->stop();		
-	}
-	////
-	//// 设置绘制窗口
-	////
-	//void FFLPlayer::setVideoSurface(SurfaceHandle surface) {
-	//	if (surface != NULL && surface != mSurfaceHandle) {
-	//		mSurfaceHandle = surface;
-	//		if (!mVideoDevice.isEmpty()) {
-	//			mVideoDevice->setSurface(surface);
-	//		}
-	//	}
-	//}	
+	}	
 }

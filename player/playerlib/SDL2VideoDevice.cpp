@@ -38,7 +38,7 @@ namespace player {
 	//
 	//  打开关闭视频设备
 	//
-	bool SDL2VideoDevice::open(SurfaceHandle surface, int32_t widht, int32_t height) {
+	bool SDL2VideoDevice::onOpen(SurfaceHandle surface, int32_t widht, int32_t height) {
 		SDL_Window * hWnd=NULL;
 		if (surface==NULL) {
 			hWnd = SDL_CreateWindow("PlayerCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -52,14 +52,14 @@ namespace player {
 			return false;
 		}
 		mWindow = hWnd;
-
+		mMessageCache->clear();
 		SDL2VideoSurface* sdl2Surface = new SDL2VideoSurface();
 		sdl2Surface->setHandle(surface);
 		sdl2Surface->mWindow = mWindow;
 		mSurface=sdl2Surface;
 		return mWindow!=NULL;
 	}
-	void SDL2VideoDevice::close() {
+	void SDL2VideoDevice::onClose() {
 		mSurface = NULL;
 		SDL_DestroyRenderer(mSDLRenderer);
 		mSDLRenderer = NULL;
@@ -132,5 +132,12 @@ namespace player {
 
 		msg->consume(this);
 		return true;
+	}
+	void SDL2VideoDevice::resetRender() {
+		VideoDevice::resetRender();
+
+		SDL_DestroyRenderer(mSDLRenderer);
+		mSDLRenderer = NULL;
+		mMessageCache->clear();
 	}
 }

@@ -95,7 +95,7 @@ namespace player {
 	//
 	//  打开关闭音频设备
 	//
-	bool SDL2AudioDevice::open(const AudioFormat& wanted, int32_t sampleNum, AudioFormat& obtained) {
+	bool SDL2AudioDevice::onOpen(const AudioFormat& wanted, int32_t sampleNum, AudioFormat& obtained) {
 		AudioFormat inFormat;
 		if (isSupportFormat(&wanted)) {
 			inFormat = wanted;
@@ -139,7 +139,7 @@ namespace player {
 		mIsOpened = true;
 		return mIsOpened;;
 	}
-	void SDL2AudioDevice::close() {
+	void SDL2AudioDevice::onClose() {
 		if (mIsOpened) {
 			SDL_PauseAudio(1);
 			SDL_CloseAudio();

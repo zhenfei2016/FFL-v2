@@ -30,11 +30,12 @@ namespace player {
 	class AudioDevice;
 	class VideoDevice;
 	class DeviceFactory;
+	class DeviceManager;
 
 	class FFLPlayer : public IPlayer,
 		 public FFL::PipelineEventFilter{
 	public:
-		FFLPlayer();
+		FFLPlayer(DeviceManager* mgr=NULL);
 		virtual ~FFLPlayer();
 	public:
 		//
@@ -160,11 +161,19 @@ namespace player {
 		FFL::CMutex mMutex;
 		mutable FFL::Flags32b mFlag;	
 	private:
-		class FFLPlayerDeviceManager;
-		friend class FFLPlayerDeviceManager;
-		FFLPlayerDeviceManager* mDevManager;
+		//
+		//  管理设备创建，关闭的
+		//
+		DeviceManager* mDevManager;
+		bool mAudoDeleteDevManager;
 
+		//
+		// 播放速度
+		//
 		uint32_t mSpeed;		
+		//
+		// 显示窗口句柄
+		//
 		SurfaceHandle mSurfaceHandle;		
 	};
 }

@@ -24,8 +24,8 @@ namespace player {
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(SurfaceHandle wnd, int32_t widht, int32_t height);
-		virtual void close();
+		virtual bool onOpen(SurfaceHandle wnd, int32_t widht, int32_t height);
+		virtual void onClose();
 		//
 		//  清空cache的数据
 		//
@@ -34,6 +34,8 @@ namespace player {
 		//  显示当前文理
 		//
 		virtual bool showTexture(VideoTexture* texture);
+
+		virtual void resetRender();
 	protected:
 		//
 		// 通过纹理创建一个sdl2模块可以处理的消息

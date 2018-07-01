@@ -4,7 +4,7 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  NodeFFMpegAudioDecoder.hpp
+*  FFMpegAudioDecoder.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/04/15
 *
 *  音频解码器

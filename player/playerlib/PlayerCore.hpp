@@ -19,6 +19,7 @@
 #include "VideoDevice.hpp"
 #include "Statistic.hpp"
 #include "DeviceFactory.hpp"
+#include "DeviceManager.hpp"
 #include "SyncClock.hpp"
 #include "reader/Stream.hpp"
 #include "reader/ReaderBase.hpp"
@@ -41,14 +42,7 @@ namespace player {
 
 	class SDL2Module;
 
-	class DeviceManager {
-	public:
-		virtual FFL::sp<VideoDevice> getVideoDisplay(FFL::sp<VideoStream> stream)=0;
-		//
-		// 创建删除显示音频的设备
-		//
-		virtual FFL::sp<AudioDevice> getAudioDisplay(FFL::sp<AudioStream> stream) = 0;
-	};
+
 
 	class PlayerCore : public reader::ReaderStreamManager {
 		friend class NodeBase;

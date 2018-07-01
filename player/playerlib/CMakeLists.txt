@@ -54,6 +54,10 @@ ENDIF ()
 SET(LOCAL_SRC_FILES   
    FFMpeg.cpp;FFMpeg.hpp
    DeviceFactory.cpp;DeviceFactory.hpp
+   DeviceManager.cpp;DeviceManager.hpp
+   DefaultDeviceManager.cpp;DefaultDeviceManager.hpp
+   
+      
    PlayerCore.cpp;PlayerCore.hpp
    PlayerEvent.hpp;PlayerEvent.cpp
    PlayerConstant.hpp

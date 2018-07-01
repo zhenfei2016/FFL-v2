@@ -23,20 +23,14 @@ namespace player {
 	//
 	//  创建播放视频设备
 	//
-	FFL::sp<VideoDevice> SDL2Module::createVideoDevice(PlayerCore* player) {
-		if (mVideoDevice.isEmpty()) {
-			mVideoDevice = new SDL2VideoDevice();
-		}
-		return mVideoDevice;
+	FFL::sp<VideoDevice> SDL2Module::createVideoDevice(void* player) {
+		return	new SDL2VideoDevice();
 	}
 	//
 	//  创建播放音频设备
 	//
-	FFL::sp<AudioDevice> SDL2Module::createAudioDevice(PlayerCore* player) {
-		if (mAudioDevice.isEmpty()) {
-			mAudioDevice = new SDL2AudioDevice();
-		}
-		return mAudioDevice;
+	FFL::sp<AudioDevice> SDL2Module::createAudioDevice(void* player) {	
+	    return new SDL2AudioDevice();	
 	}
 
 

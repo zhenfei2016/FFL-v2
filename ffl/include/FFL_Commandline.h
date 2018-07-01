@@ -24,7 +24,7 @@ extern "C" {
 */
 typedef struct CmdOption {
 	const char* mName;
-	void(*fun)(const char* value);
+	void(*fun)(const char* value,void* userdata);
 	const char* nHelp;
 }CmdOption;
 
@@ -34,10 +34,11 @@ typedef struct CmdOption {
 *   argv：参数数组
 *   opts：支持的命令数组，以null结尾
 *   size：opts数组的大少
+*   userdata: 透传到CmdOption中的函数回调中
 *   命令行格式  --cmd=12344
 *   返回命令在opts中的位置，没找到返回-1
 */
-int FFL_parseCommnadline(int argc,const char** argv, CmdOption* opts,int size);
+int FFL_parseCommnadline(int argc,const char** argv, CmdOption* opts,int size,void* userdata);
 
 #ifdef  __cplusplus
 }

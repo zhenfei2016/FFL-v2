@@ -25,11 +25,11 @@ namespace android {
 		//
 		//  创建播放视频设备
 		//
-		virtual FFL::sp<player::VideoDevice> createVideoDevice(player::PlayerCore* player) ;
+		virtual FFL::sp<player::VideoDevice> createVideoDevice(void* player) ;
 		//
 		//  创建播放音频设备
 		//
-		virtual FFL::sp<player::AudioDevice> createAudioDevice(player::PlayerCore* player) ;
+		virtual FFL::sp<player::AudioDevice> createAudioDevice(void* player) ;
 
 	private:
 		FFL::sp<AndroidVideoDevice> mVideoDevice;

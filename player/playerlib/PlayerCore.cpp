@@ -31,6 +31,7 @@
 #include "reader/ReaderFactory.hpp"
 #include "AudioStream.hpp"
 #include "VideoStream.hpp"
+#include "DeviceManager.hpp"
 
 namespace player {
 	PlayerCore::PlayerCore(FFL::PipelineEventFilter* eventFilter):mSpeed(100){
@@ -81,7 +82,7 @@ namespace player {
 		if (!mPipeline.isEmpty()){			
 			mPipeline->shutdownAndWait();
 			mPipeline->setEventFilter(NULL);
-		}
+		}	
 		return FFL_OK;
 	}
 	status_t PlayerCore::pause() {
@@ -262,10 +263,21 @@ namespace player {
 		FFL_ASSERT(0);
 	}
 	bool PlayerCore::onAddVideoStream(FFL::sp<VideoStream> stream) {		
-		FFL::sp<VideoDevice> videoDevice = mDeviceManager->getVideoDisplay(stream);
-		if (videoDevice.isEmpty()) {
-			FFL_LOG_WARNING("Failed to create video device.");
+		FFL::sp<Decoder> decoder = stream->createDecoder(this);
+		if (decoder.isEmpty()) {
+			FFL_LOG_WARNING("Failed to create video decoder.");
 			return false;
+		}
+
+		FFL::sp<VideoDevice> videoDevice = mDeviceManager->getVideoDisplay(stream);
+		if (videoDevice.isEmpty()) {			
+			//  如果视频设备未打开，则打开视频输出设备
+			//
+			videoDevice = mDeviceManager->openVideoDisplay(NULL);
+			if (videoDevice.isEmpty()) {
+				FFL_LOG_WARNING("Failed to create video device.");
+				return false;
+			}			
 		}
 		//
 		// 视频处理节点
@@ -285,21 +297,33 @@ namespace player {
 		}
 		//
 		//  解码器解码出来的数据输出到composer中
-		//
-		FFL::sp<Decoder> decoder = stream->createDecoder(this);		
+		//	
 		decoder->setOutputComposer(mVideoComposer);
 
 		fetchVideoMetaData(stream);
 		return  true;
 	}
 	bool PlayerCore::onAddAudioStream(FFL::sp<AudioStream> stream) {		
+		FFL::sp<Decoder> decoder = stream->createDecoder(this);
+		if (decoder.isEmpty()) {
+			FFL_LOG_WARNING("Failed to create audio decoder.");
+			return false;
+		}
+
 		//
-		// 如果音频设备未打开，则打开音频输出设备
+		// 获取音频设备
 		//
 		FFL::sp<AudioDevice> audioDevice= mDeviceManager->getAudioDisplay(stream);
 		if (audioDevice.isEmpty()) {
-			FFL_LOG_WARNING("Failed to create audio device.");
-			return false;
+			AudioFormat fmt;
+			stream->getFormat(fmt);			//
+			//  如果音频设备未打开，则打开音频输出设备
+			//
+			audioDevice = mDeviceManager->openAudioDisplay(fmt);
+			if (audioDevice.isEmpty()) {
+				FFL_LOG_WARNING("Failed to create audio device.");
+				return false;
+			}
 		}
 
 		//
@@ -322,8 +346,7 @@ namespace player {
 		}
 		//
 		//  解码器解码出来的数据输出到composer中
-		//
-		FFL::sp<Decoder> decoder = stream->createDecoder(this);
+		//		
 		decoder->setOutputComposer(mAudioComposer);
 		
 		//  设置这个流为同步的主时钟

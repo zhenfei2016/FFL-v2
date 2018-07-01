@@ -50,8 +50,8 @@ namespace player {
 		//
 		//  打开关闭音频设备
 		//
-		virtual bool open(const AudioFormat& wanted, int32_t sampleNum, AudioFormat& obtained) ;
-		virtual void close() ;
+		virtual bool onOpen(const AudioFormat& wanted, int32_t sampleNum, AudioFormat& obtained) ;
+		virtual void onClose() ;
 		//
 		//获取当前打开的格式，如果未打开则返回null
 		//

@@ -12,16 +12,17 @@
 */
 #include <stdio.h>
 #include <FFL_Commandline.h>
+#include "Player.hpp"
 
-void play(const char* args) {
+void play(const char* args,void* userdata) {
 	printf("play: %s \n",args? args:"null");
 }
 
-void pause(const char* args) {
+void pause(const char* args, void* userdata) {
 	printf("pause: %s \n", args ? args : "null");
 }
 
-void release(const char* args) {
+void release(const char* args, void* userdata) {
 	printf("release: %s \n", args ? args : "null");
 }
 static CmdOption  gCmdOption[] = {
@@ -33,6 +34,8 @@ static CmdOption  gCmdOption[] = {
 
 
 int mainTestCmd() {
+	player::FFLPlayer player;
+
 	char cmd[256] = {};
 	while (fgets(cmd + 2, 256 - 3, stdin)) {
 		cmd[0] = '-';
@@ -44,9 +47,14 @@ int mainTestCmd() {
 		};
 		int argc = 2;
 
-		if (FFL_parseCommnadline(argc, argv, gCmdOption, FFL_ARRAY_ELEMS(gCmdOption)) < 0) {
+		if (FFL_parseCommnadline(argc, argv,
+			gCmdOption,
+			FFL_ARRAY_ELEMS(gCmdOption),
+			&player) < 0) {
 			printf("unknown command: %s \n",cmd+2);
 		}
 	}	
+
+	
 	return 0;
 }

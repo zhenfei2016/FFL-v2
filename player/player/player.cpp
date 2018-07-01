@@ -88,6 +88,14 @@ private:
 	player::FFLPlayer* mPlayer;
 };
 
+const char* gMovicUrl[] = {
+   "d://movic//sintel.ts",   
+   "d://movic//test.avi",
+   "d://movic//zhuoyaoji.mp4",
+};
+static int gMovicCount = 3;
+static int gMovicIndex = 0;
+
 bool gIsPause = false;
 bool keyPressed(void* userdata, int key) {
 	player::FFLPlayer* player=(player::FFLPlayer*) userdata;
@@ -108,7 +116,17 @@ bool keyPressed(void* userdata, int key) {
 		//
 		player->stop();
         FFL_LOG_DEBUG("player stop.");
-		return false;
+		return true;
+	case 'n':
+	case 'N':
+		//
+		// 下一个视频
+		//		
+		gMovicIndex=(++gMovicIndex) % (gMovicCount);
+		player->setUrl(gMovicUrl[gMovicIndex]);
+		player->prepare();
+		FFL_LOG_DEBUG("player stop.");
+		return true;
 	case '+':
 	case '=':
 	{

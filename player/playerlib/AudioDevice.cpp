@@ -14,9 +14,32 @@
 #include "AudioRender.hpp"
 namespace player {
 	AudioDevice::AudioDevice():
-		mVolume(255){
+		mVolume(255),mIsOpend(0){
 	}
 	AudioDevice::~AudioDevice(){
+	}
+	//
+	//  打开关闭音频设备
+	//
+	bool AudioDevice::open(const player::AudioFormat& wanted, int32_t sampleNum, player::AudioFormat& obtained) {
+		FFL::CMutex::Autolock l(mStateLock);
+		if (mIsOpend!=0) {
+			return false;
+		}
+
+		bool ok= onOpen(wanted, sampleNum, obtained);		
+		mIsOpend = ok?1:0;
+		return ok;
+	}
+	void AudioDevice::close() {
+		FFL::CMutex::Autolock l(mStateLock);
+		onClose();
+		mAudioRender = NULL;
+		mIsOpend = 0;
+	}
+	bool AudioDevice::isOpend() {
+		FFL::CMutex::Autolock l(mStateLock);
+		return mIsOpend!=0; 
 	}
 	//
 	// 获取render

@@ -31,15 +31,11 @@ namespace player {
 		//
 		//  创建播放视频设备
 		//
-		virtual FFL::sp<VideoDevice> createVideoDevice(PlayerCore* player) ;
+		virtual FFL::sp<VideoDevice> createVideoDevice(void* player) ;
 		//
 		//  创建播放音频设备
 		//
-		virtual FFL::sp<AudioDevice> createAudioDevice(PlayerCore* player) ;
-
-	private:
-		FFL::sp<SDL2VideoDevice> mVideoDevice;
-		FFL::sp<SDL2AudioDevice> mAudioDevice;				
+		virtual FFL::sp<AudioDevice> createAudioDevice(void* player) ;
 	};
 
 	//返回false就会退出循环

@@ -16,6 +16,7 @@
 #include <ref/FFL_Ref.hpp>
 #include <utils/FFL_List.hpp>
 #include <utils/FFL_Clock.hpp>
+#include <thread/FFL_Mutex.hpp>
 #include "AudioFormat.hpp"
 #include "AudioSample.hpp"
 
@@ -40,8 +41,13 @@ namespace player {
 		//
 		//  打开关闭音频设备
 		//
-		virtual bool open(const player::AudioFormat& wanted,int32_t sampleNum, player::AudioFormat& obtained)=0;
-		virtual void close()=0;
+		bool open(const player::AudioFormat& wanted,int32_t sampleNum, player::AudioFormat& obtained);
+		void close();
+		bool isOpend();
+
+		virtual bool onOpen(const player::AudioFormat& wanted, int32_t sampleNum, player::AudioFormat& obtained) = 0;
+		virtual void onClose() = 0;
+
 		//
 		//获取当前打开的格式，如果未打开则返回null
 		//
@@ -83,6 +89,12 @@ namespace player {
 		// 音量
 		//
 		uint8_t mVolume;		
+
+		FFL::CMutex mStateLock;
+		//
+		// 是否已经打开音频设备了
+		//
+		uint8_t mIsOpend;
 	};
 }
 #endif

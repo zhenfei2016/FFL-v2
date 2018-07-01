@@ -23,8 +23,11 @@ namespace player {
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(SurfaceHandle surface,int32_t widht,int32_t height) = 0;
-		virtual void close() = 0;
+		bool open(SurfaceHandle surface,int32_t widht,int32_t height) ;
+		void close() ;
+		virtual bool onOpen(SurfaceHandle wnd, int32_t widht, int32_t height)=0;
+		virtual void onClose()=0;
+		
 		//
 		//  清空cache的数据
 		//
@@ -36,7 +39,9 @@ namespace player {
 		//
 		// 获取render
 		//
-		virtual FFL::sp<VideoRender> getRender(void* userdata) ;		
+		virtual FFL::sp<VideoRender> getRender(void* userdata) ;
+
+		virtual void resetRender();
 	private:
 		FFL::sp<VideoRender> mVideoRender;
 	};
