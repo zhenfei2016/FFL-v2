@@ -52,10 +52,13 @@ namespace player {
 			mAudoDeleteDevManager = true;
 			mDevManager = new DefaultDeviceManager();
 		}
-		mDevManager->openVideoDisplay(mSurfaceHandle);
+		
 
 		mCore = new PlayerCore(this);
 		mCore->setDeviceManager(mDevManager);
+	}
+	void FFLPlayer::create() {
+		mDevManager->openVideoDisplay(mSurfaceHandle);
 	}
 	FFLPlayer::~FFLPlayer() {
 		FFL_SafeFree(mDevManager);		

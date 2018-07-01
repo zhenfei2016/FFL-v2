@@ -78,8 +78,6 @@ int printLog(int level,const char* tag, const char *format, va_list v)
 }
 #endif
 extern int playerMain();
-extern int mainTestCmd();
-
 
 extern "C" int main(int argc ,const char* argv[]) {
 
@@ -89,16 +87,9 @@ extern "C" int main(int argc ,const char* argv[]) {
 #endif
     FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
 	//FFL_LogSetLevel(FFL_LOG_LEVEL_WARNING);
-	if (0) {
-		mainTestCmd();
-	}
-	else {
-
-		FFL_LOG_INFO("start player");
-		playerMain();
-		FFL_LOG_INFO("quit player");
-	}
+	FFL_LOG_INFO("start player");
+	playerMain();
+	FFL_LOG_INFO("quit player");
 	FFL_malloc_memory_dump();
-	//getchar();
 	return 0;
 }

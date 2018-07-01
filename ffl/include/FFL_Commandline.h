@@ -23,8 +23,21 @@ extern "C" {
 * 命令行参数选项
 */
 typedef struct CmdOption {
+	/*
+	*  命令名称
+	*/
 	const char* mName;
+	/*
+	*  是否存在参数 0 , 1
+	*/
+	int32_t  mHaveAargument;
+	/*
+	*  这个命令需要执行的函数
+	*/
 	void(*fun)(const char* value,void* userdata);
+	/*
+	*  帮助信息
+	*/
 	const char* nHelp;
 }CmdOption;
 

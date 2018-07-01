@@ -23,7 +23,7 @@ static struct option* alloc_getopt_Option(CmdOption* opts, int size) {
 		};
 
 		optionList[i].name = FFL_strdup(opts[i].mName);
-		optionList[i].has_arg = optional_argument;
+		optionList[i].has_arg = optional_argument;//(opts[i].mHaveAargument !=0)? optional_argument : no_argument;
 		optionList[i].flag = NULL;
 		optionList[i].val = 0;		
 	}
@@ -57,7 +57,11 @@ int FFL_parseCommnadline(int argc,const char** argv,CmdOption* opts, int size, v
 	int optionIndex=-1;
 	int opt = -1;
 	optind = 1;	
-	while ((opt = getopt_long_only(argc, ( char *const *)argv, "", longOpt, &optionIndex)) != -1)
+	while ((opt = getopt_long_only(argc, 
+		         ( char *const *)argv,
+		         "",
+		         longOpt,
+		         &optionIndex)) != -1)
 	{
 		if (optionIndex != -1) {
 			cmdIndex = optionIndex;
