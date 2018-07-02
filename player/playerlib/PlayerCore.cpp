@@ -218,8 +218,7 @@ namespace player {
 		break;
 		case  STREAM_TYPE_AUDIO:
 		{
-			onAddAudioStream((AudioStream*)stream.get());
-			ret = true;
+			ret=onAddAudioStream((AudioStream*)stream.get());
 		}
 		break;
 		default:
@@ -273,7 +272,7 @@ namespace player {
 		if (videoDevice.isEmpty()) {			
 			//  如果视频设备未打开，则打开视频输出设备
 			//
-			videoDevice = mDeviceManager->openVideoDisplay(NULL);
+			videoDevice = mDeviceManager->openVideoDisplay(mDeviceManager->mSurfaceHandle);
 			if (videoDevice.isEmpty()) {
 				FFL_LOG_WARNING("Failed to create video device.");
 				return false;

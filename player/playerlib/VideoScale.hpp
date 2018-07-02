@@ -15,47 +15,41 @@
 #define _VIDEO_SCALE_HPP_
 #include "NodeBase.hpp"
 #include "FFMpeg.hpp"
+#include "VideoFormat.hpp"
+#include "MessageFFMpegFrame.hpp"
 
 namespace player {
 
 	class SDL2Module;
 	class VideoScale : public NodeBase {
 	public:
-		struct TextureFormat
-		{
-			TextureFormat()
-			{
-				mWidht = 0;
-				mHeight = 0;
-				mFormat = AV_PIX_FMT_NONE;
-			}
-
-			int32_t mWidht;
-			int32_t mHeight;
-			AVPixelFormat mFormat;
-		};
-	public:
-		VideoScale();
+		VideoScale(VideoFormat* src,VideoFormat* dst);
 		~VideoScale();
+	public:
+		//
+		//  获取缩放后的出口
+		//
+		OutputInterface getOutput();
 	protected:
 		//
 		//  创建图片缩放上下文
 		//  src: 源格式
 		//  dst: 目标格式
 		//
-		bool createSws(TextureFormat* src, TextureFormat* dst);
+		bool createSws(VideoFormat* src, VideoFormat* dst);
 		//
 		//  删除缩放上下文
 		//
 		void destroySws();
-	public:
 		//
 		//  开始缩放图片
 		//
 		bool scaleVideo(
 			const uint8_t** srcPix, int* srcLinesize, int height,
 			uint8_t** dstPix, int* dstLinesize);
-		
+
+
+		void scaleVideo(message::FFMpegVideoFrame* frame);
 	public:
 		//
 		//  成功创建了node
@@ -74,13 +68,14 @@ namespace player {
 		// 返回true表示这个消息处理了，消息处理结束后必须msg->consume();
 		//
 		virtual bool handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata);	
-	private:	
+	private:
 
+		OutputInterface mOutputInterface;
 		//
 		//  当前的sws个格式
 		//
-		TextureFormat mSourceFormat;
-		TextureFormat mDestFormat;
+		VideoFormat mSourceFormat;
+		VideoFormat mDestFormat;
 		SwsContext* mSwsCtx;
 	};
 }

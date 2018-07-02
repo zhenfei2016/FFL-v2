@@ -7,7 +7,7 @@
 *  JavaClass.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/28
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  android jni°ïÖúº¯Êı£¬Í¨¹ıjava°üÃû»ñÈ¡java²ãµÄÀàµÄÒ»Ğ©ĞÅÏ¢
+*  android jniå¸®åŠ©å‡½æ•°ï¼Œé€šè¿‡javaåŒ…åè·å–javaå±‚çš„ç±»çš„ä¸€äº›ä¿¡æ¯
 *
 */
 

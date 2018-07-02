@@ -168,6 +168,8 @@ namespace player {
 		OutputInterface(FFL::PipelineNodeId nodeId, FFL::PipelineOutputId outputId);
 		bool isValid() const;
 
+		void reset();
+
 		FFL::PipelineNodeId  mNodeId;
 		FFL::PipelineOutputId mId;
 		FFL::String mName;

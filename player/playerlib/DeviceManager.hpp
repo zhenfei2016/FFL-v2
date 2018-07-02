@@ -48,6 +48,9 @@ namespace player {
 		// 获取已经创建的音频设备
 		//
 		virtual FFL::sp<AudioDevice> getAudioDisplay(FFL::sp<AudioStream> stream) = 0;
+
+    public:
+        SurfaceHandle mSurfaceHandle;
 	};
 }
 #endif

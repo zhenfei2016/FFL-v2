@@ -11,11 +11,14 @@
 *
 */
 
-#pragma once
+#ifndef _VIDEO_RENDER_HPP_
+#define _VIDEO_RENDER_HPP_
+
 #include "Render.hpp"
 #include "VideoSurface.hpp"
 #include "VideoTexture.hpp"
 #include "Statistic.hpp"
+#include <utils/FFL_Clock.hpp>
 
 
 namespace player {
@@ -27,13 +30,23 @@ namespace player {
 		~VideoRender();
 
 		//
+		//  获取支持的格式
+		//  wanted: 如果为nUll则返回所有支持的格式
+		//           非null 返回跟他匹配的
+		//  fmtList: 返回支持的格式list
+		//
+		virtual void getSupportFormat(const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList);
+        virtual bool getOptimalFormat(const player::VideoFormat* wanted,player::VideoFormat* optinal);
+		virtual bool isSupportFormat(const player::VideoFormat* wanted);
+
+		//
 		//  成功创建了node
 		//
 		virtual void onCreate();
 		//
 		//  获取渲染时钟，可以改变时钟速度
 		//
-		FFL::sp<FFL::Clock> getRenderClock();
+		virtual FFL::sp<FFL::Clock> getRenderClock();
 		//
 		//   外部setDataInput时候调用此函数，创建对应conn
 		//
@@ -60,3 +73,5 @@ namespace player {
 		FFL::sp<FFL::Clock> mClock;
 	};
 }
+
+#endif

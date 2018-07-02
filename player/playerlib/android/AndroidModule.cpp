@@ -23,19 +23,14 @@ namespace android {
 	//  创建播放视频设备
 	//
 	FFL::sp<player::VideoDevice> AndroidModule::createVideoDevice(void* player) {
-		if (mVideoDevice.isEmpty()) {
-			mVideoDevice = new AndroidVideoDevice();
-		}
-		return mVideoDevice;
+		return  new AndroidVideoDevice();
 	}
 	//
 	//  创建播放音频设备
 	//
 	FFL::sp<player::AudioDevice> AndroidModule::createAudioDevice(void* player) {
-		if (mAudioDevice.isEmpty()) {
-			mAudioDevice = new AndroidAudioDevice();
-		}
-		return mAudioDevice;
+		//return new AndroidAudioDevice();
+		return  NULL;
 	}
 
 

@@ -14,12 +14,16 @@
 #define _VIDEO_TEXTURE_HPP_
 
 #include <FFL.h>
+#include "VideoFormat.hpp"
+
 namespace player {
 	class VideoTexture {
 	public:
 		VideoTexture();
 		~VideoTexture();
 
+	public:
+		VideoFormat* getVideoFormat();
 	public:
 		uint32_t mStreamId;
 		//
@@ -39,6 +43,7 @@ namespace player {
 		uint32_t mWidth;
 		uint32_t mHeight;
 		uint32_t mPixFormat;
+		VideoFormat mFormat;
 		//
 		//  宽高比  ,可能跟视频宽度，高度不成比例
 		//

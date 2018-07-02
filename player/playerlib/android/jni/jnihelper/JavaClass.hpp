@@ -14,6 +14,9 @@
 #define _JNIJAVA_CLASS_HPP_
 #include <jni.h>
 
+extern JavaVM* getJavaVM();
+extern void getJNIEnv(JNIEnv** env);
+
 namespace android {
 	class JavaClass {
 	public:

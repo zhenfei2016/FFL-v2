@@ -38,7 +38,7 @@ namespace player {
 		FFLPlayer(DeviceManager* mgr=NULL);
 		virtual ~FFLPlayer();
 
-		void create();
+		void create(void* surface);
 	public:
 		//
 		// FFL::PipelineEventFilter

@@ -57,7 +57,7 @@ namespace player {
 		mCore = new PlayerCore(this);
 		mCore->setDeviceManager(mDevManager);
 	}
-	void FFLPlayer::create() {
+	void FFLPlayer::create(void* surface) {
 		mDevManager->openVideoDisplay(mSurfaceHandle);
 	}
 	FFLPlayer::~FFLPlayer() {
@@ -80,8 +80,8 @@ namespace player {
 			if (mListener) {
 				mListener->onPrepared(event->getParam1() == 1 ? 1 : 0);
 			} else {
-				//mCore->play();
-				//mFlag.modifyFlags(FLAG_LOOPING, FLAG_PREPARED);
+				mCore->play();
+				mFlag.modifyFlags(FLAG_LOOPING, FLAG_PREPARED);
 			}
 			break;
 		case event::EVENT_VIDEO_SIZE_CAHNGED:{
@@ -163,6 +163,7 @@ namespace player {
 		wnd=(SurfaceHandle)(surface);
 		mSurfaceHandle = wnd;
 
+        mDevManager->mSurfaceHandle=mSurfaceHandle;
 		FFL::sp<VideoDevice> videoDevice = mDevManager->getVideoDisplay(NULL);
 		if (!videoDevice.isEmpty()) {
 			videoDevice->setSurface(wnd);

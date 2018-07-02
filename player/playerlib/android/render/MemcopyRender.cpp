@@ -63,7 +63,6 @@ namespace android{
     }
 
     status_t ANativeWindowDisplay(ANativeWindow *window, player::VideoTexture* tex){
-        int retval;
         if (NULL==window || NULL==tex) {
             FFL_LOG_ERROR("ANativeWindow is Null or tex is NULL.");
             return FFL_FAILED;
@@ -73,76 +72,35 @@ namespace android{
             return FFL_FAILED;
         }
 
+        int32_t ret;
         int curr_w = ANativeWindow_getWidth(window);
         int curr_h = ANativeWindow_getHeight(window);
         int curr_format = ANativeWindow_getFormat(window);
-        int buff_w = FFL_ALIGN(tex->mWidth, 2);
-        int buff_h = FFL_ALIGN(tex->mHeight, 2);
-//
-//        /*  图片格式 */
-//        AndroidHalFourccDescriptor *overlayDesc = native_window_get_desc(overlay->format);
-//        if (!overlayDesc)
-//        {
-//            FFL_LOG_ERROR("SDL_Android_NativeWindow_display_l: unknown overlay format: %d", overlay->format);
-//            return -1;
-//        }
-//
-//        /*  输出屏幕格式 */
-//        AndroidHalFourccDescriptor *voutDesc = native_window_get_desc(curr_format);
-//        if (!voutDesc || voutDesc->hal_format != overlayDesc->hal_format)
-//        {
-//            FFL_LOG_ERROR("ANativeWindow_setBuffersGeometry: w=%d, h=%d, f=%.4s(0x%x) => w=%d, h=%d, f=%.4s(0x%x)",
-//                      curr_w, curr_h, (char*) &curr_format, curr_format,
-//                      buff_w, buff_h, (char*) &overlay->format, overlay->format);
-//            retval = ANativeWindow_setBuffersGeometry(native_window, buff_w, buff_h, overlayDesc->hal_format);
-//            if (retval < 0)
-//            {
-//                FFL_LOG_ERROR("SDL_Android_NativeWindow_display_l: ANativeWindow_setBuffersGeometry: failed %d", retval);
-//                return retval;
-//            }
-//
-//            if (!voutDesc)
-//            {
-//                FFL_LOG_ERROR("SDL_Android_NativeWindow_display_l: unknown hal format %d", curr_format);
-//                return -1;
-//            }
-//        }
-//
-//        ANativeWindow_Buffer out_buffer;
-//        retval = ANativeWindow_lock(native_window, &out_buffer, NULL);
-//        if (retval < 0)
-//        {
-//            FFL_LOG_ERROR("SDL_Android_NativeWindow_display_l: ANativeWindow_lock: failed %d", retval);
-//            return retval;
-//        }
-//
-//        if (out_buffer.width != buff_w || out_buffer.height != buff_h)
-//        {
-//            FFL_LOG_ERROR("unexpected native window buffer (%p)(w:%d, h:%d, fmt:'%.4s'0x%x), expecting (w:%d, h:%d, fmt:'%.4s'0x%x)",
-//                      native_window,
-//                      out_buffer.width, out_buffer.height, (char*)&out_buffer.format, out_buffer.format,
-//                      buff_w, buff_h, (char*)&overlay->format, overlay->format);
-//            // TODO: 8 set all black
-//            ANativeWindow_unlockAndPost(native_window);
-//            ANativeWindow_setBuffersGeometry(native_window, buff_w, buff_h, overlayDesc->hal_format);
-//            return -1;
-//        }
-//
-//        /*  绘制 */
-//        int render_ret = voutDesc->render(&out_buffer, overlay);
-//        if (render_ret < 0)
-//        {
-//            // TODO: 8 set all black
-//            // return after unlock image;
-//        }
-//
-//        /*  提交 */
-//        retval = ANativeWindow_unlockAndPost(native_window);
-//        if (retval < 0)
-//        {
-//            FFL_LOG_ERROR("SDL_Android_NativeWindow_display_l: ANativeWindow_unlockAndPost: failed %d", retval);
-//            return retval;
-//        }
+        int imageWidth = FFL_ALIGN(tex->mWidth, 2);
+        int imageHeight = FFL_ALIGN(tex->mHeight, 2);
+
+        ANativeWindow_Buffer framebuffer;
+        ret = ANativeWindow_lock(window, &framebuffer, NULL);
+        if (ret < 0)
+        {
+            FFL_LOG_ERROR("Faild to ANativeWindow_lock ret %d", ret);
+            return ret;
+        }
+
+        if (framebuffer.width != imageWidth || framebuffer.height != imageHeight){
+            ANativeWindow_unlockAndPost(window);
+            //ANativeWindow_setBuffersGeometry(window, imageWidth, imageHeight, ARBt);
+            return -1;
+        }
+
+        renderRgb2Rgb(&framebuffer,tex,32);
+
+        ret = ANativeWindow_unlockAndPost(window);
+        if (ret < 0)
+        {
+            FFL_LOG_ERROR("Failed to ANativeWindowDisplay %d", ret);
+            return ret;
+        }
         return FFL_OK;
     }
 

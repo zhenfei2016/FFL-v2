@@ -18,6 +18,9 @@
 #include "PlayerConstant.hpp"
 #include "TimestampExtrapolator.hpp"
 #include "SyncUtils.hpp"
+#include "VideoRender.hpp"
+#include "VideoScale.hpp"
+#include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
 	VideoComposer::VideoComposer():mTimestampExtrapolator(NULL){
@@ -44,7 +47,15 @@ namespace player {
 		const OutputInterface& output,
 		const InputInterface& input,
 		void* userdata) {
-		return new FFL::SyncPipelineConnector();
+        FFL::PipelineConnector* conn;
+        if(mConnector.isEmpty()){
+            mConnector=new FFL::PipelineAsyncConnectorFixSize(5);
+            conn=mConnector.get();
+        }else{
+           // conn=new FFL::PipelineAsyncConnectorFixSize(
+            //        5,mConnector->getLooper());
+        }
+		return conn;
 	}
 	//
 	//
@@ -123,6 +134,29 @@ namespace player {
 	//  收到待显示的纹理包
 	//	
 	void VideoComposer::handleTexture(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture) {
+        //
+        //  查看渲染是否支持这个格式，如果不支持则需要进行缩放
+        //
+        FFL::sp<VideoRender> render;
+		if (!render.isEmpty()) {
+			VideoFormat* videoFormat = texture->getVideoFormat();
+			if (videoFormat) {
+				if (!render->isSupportFormat(videoFormat)) {
+					VideoFormat dstFormat;
+					if (render->getOptimalFormat(videoFormat, &dstFormat)) {
+						scaleVideo(msg, texture, videoFormat, &dstFormat);
+					}
+					else {
+						FFL_LOG_WARNING("Failed to getOptimalFormat ");
+					}
+					return;
+				}
+			}
+		}
+
+        //
+        //  计算时间发送到渲染节点
+        //
 		OptMode mode;
 		int64_t delay = getDelay(texture, mode);
 		if (delay < 0 /*|| mode==DROP_FRAME*/) {
@@ -148,4 +182,46 @@ namespace player {
 	void VideoComposer::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 		postMessageDelayToRender(eof,-1);
 	}
+    //
+    // 进行缩放，从src格式转到dst格式,异步操作
+    //
+    void VideoComposer::scaleVideo(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture,VideoFormat* src,VideoFormat* dst){
+        if(!createScale(src,dst)){
+            msg->consume(this);
+            return;
+        }
+
+    }
+
+    //
+    //  设置这个合成器的输出到那个一个渲染器中
+    //
+    bool VideoComposer::createScale(VideoFormat* src,VideoFormat* dst) {
+        if (!mScaleOutput.isValid()) {
+            return true;
+        }
+
+        //
+        //  当前节点输出到缩放中
+        //
+        mScaleOutput=createOutputInterface();
+        InputInterface input;
+        FFL::sp<VideoScale> scale=new VideoScale(src,dst);
+        if(!scale->connectSource(mScaleOutput,"scale", input,NULL)){
+            mScaleOutput.reset();
+            return false;
+        }
+
+        //
+        //  缩放输入到本节点
+        //
+        OutputInterface sacleOutput=scale->getOutput();
+        if(!connectSource(sacleOutput,"",input,(void*)1)){
+            mScaleOutput.reset();
+            return false;
+        }
+
+        return true;
+    }
+
 }

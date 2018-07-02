@@ -11,14 +11,23 @@
  *
 */
 #include "VideoScale.hpp"
+#include "MessageTypes.hpp"
+#include "MessageFFMpegFrame.hpp"
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
-	VideoScale::VideoScale():mSwsCtx(NULL){
-		
+	VideoScale::VideoScale(VideoFormat* src,VideoFormat* dst):mSwsCtx(NULL){
+		mSourceFormat=*src;
 	}
 	VideoScale::~VideoScale() {
 		destroySws();
+	}
+
+	OutputInterface VideoScale::getOutput(){
+		if(mOutputInterface.isValid()){
+			mOutputInterface=createOutputInterface();
+		}
+		return mOutputInterface;
 	}
 	//
 	//  成功创建了node
@@ -31,15 +40,13 @@ namespace player {
 	//  src: 源格式
 	//  dst: 目标格式
 	//
-	bool VideoScale::createSws(TextureFormat* src, TextureFormat* dst)
+	bool VideoScale::createSws(VideoFormat* src, VideoFormat* dst)
 	{
 		int flags = SWS_BILINEAR;		
 		mSwsCtx = sws_getContext(mSourceFormat.mWidht,
-			mSourceFormat.mHeight,
-			mSourceFormat.mFormat,
+			mSourceFormat.mHeight, (AVPixelFormat)mSourceFormat.getFFMpegFormat(),
 			mDestFormat.mWidht,
-			mDestFormat.mHeight,
-			mDestFormat.mFormat, flags, 0, 0, 0);
+			mDestFormat.mHeight,(AVPixelFormat)mDestFormat.getFFMpegFormat(), flags, 0, 0, 0);
 		return true;
 	}
 	//
@@ -62,6 +69,9 @@ namespace player {
 
 		return false;		
 	}
+	void VideoScale::scaleVideo(message::FFMpegVideoFrame* frame){
+
+	}
 	//
 	//  删除缩放上下文
 	//
@@ -80,20 +90,21 @@ namespace player {
 	// 处理接收到的消息，如果返回false表示这个消息没有处理，
 	// 返回true表示这个消息处理了，消息处理结束后必须msg->consume();
 	//
-	bool VideoScale::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)
-	{
+	bool VideoScale::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata){
 		bool ret = false;
-		//switch (msg->getType())
-		//{
-	
-		//	msg->consume(this);
-		//	ret = true;
-		//}
-		//	break;
-		//case MSG_CONTROL_READER_EOF:
-		//	break;
-		//}
-		
+		switch (msg->getType())
+		{
+			case MSG_FFMPEG_VIDEO_FRAME: {
+				message::FFMpegVideoFrame *frame = (message::FFMpegVideoFrame *) msg->getPayload();
+				scaleVideo(frame);
+				ret = true;
+				break;
+			}
+			default:
+			break;
+		}
 		return ret;
 	}
+
+
 }

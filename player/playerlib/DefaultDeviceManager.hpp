@@ -23,7 +23,6 @@ namespace player {
 	public:
 		DefaultDeviceManager();
 		virtual ~DefaultDeviceManager();
-
 		//
 		//  通过wnd创建对应的
 		//

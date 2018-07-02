@@ -40,10 +40,10 @@ namespace android {
 	//
 	//  打开关闭音频设备
 	//
-	bool AndroidAudioDevice::open(const player::AudioFormat& wanted, int32_t sampleNum, player::AudioFormat& obtained) {
+	bool AndroidAudioDevice::onOpen(const player::AudioFormat& wanted, int32_t sampleNum, player::AudioFormat& obtained) {
 		return false;
 	}
-	void AndroidAudioDevice::close() {
+	void AndroidAudioDevice::onClose() {
 
 		//udioTrack->
 	}

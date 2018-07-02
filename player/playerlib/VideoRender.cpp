@@ -26,6 +26,27 @@ namespace player {
 	VideoRender::~VideoRender() {		
 	}
 	//
+	//  获取支持的格式
+	//  wanted: 如果为nUll则返回所有支持的格式
+	//           非null 返回跟他匹配的
+	//  fmtList: 返回支持的格式list
+	//
+	void VideoRender::getSupportFormat(const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList){
+
+	}
+
+    bool VideoRender::getOptimalFormat(const player::VideoFormat* wanted,player::VideoFormat* optinal){
+        optinal->mFormat=wanted->mFormat;
+        optinal->mWidht=wanted->mWidht;
+        optinal->mHeight=wanted->mHeight;
+        return true;
+    }
+
+	bool VideoRender::isSupportFormat(const player::VideoFormat* wanted){
+		return true;
+	}
+
+	//
 	//  成功创建了node
 	//
 	void VideoRender::onCreate() {
@@ -56,8 +77,7 @@ namespace player {
 	// 处理接收到的消息，如果返回false表示这个消息没有处理，
 	// 返回true表示这个消息处理了，消息处理结束后必须msg->consume();
 	//
-	bool VideoRender::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)
-	{
+	bool VideoRender::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)	{
 		bool ret = false;
 		switch (msg->getType())
 		{

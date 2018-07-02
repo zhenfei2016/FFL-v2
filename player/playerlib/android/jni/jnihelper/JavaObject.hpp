@@ -18,11 +18,24 @@ namespace android {
 	template<typename T>
 	class JavaObject {
 	public:
-		JavaObject(T& javaClass,jobject javaObj):
+		//
+		//  javaObj:java层对象，golbal对象
+		//   autoDel: 是否当这个JavaFFLPlayer对象删除的时候，需要自动删除java层对象
+		//
+		JavaObject(T& javaClass,jobject javaObj,bool autoDel):
 				mJavaClass(javaClass),
-				mJavaObj(NULL){
+				mJavaObj(javaObj),
+		        mAutoDel(autoDel) {
 		}
-		~JavaObject(){}
+		~JavaObject(){
+			if(mAutoDel&&mJavaObj!=NULL){
+				JNIEnv* env=0;
+				getJNIEnv(&env);
+				if(env) {
+					JNIdeleteGlobalRef(*env,mJavaObj);
+				}
+			}
+		}
 
 		//
 		//  java层对象的对应的class
@@ -40,6 +53,7 @@ namespace android {
 	protected:
 		T& mJavaClass;
 		jobject mJavaObj;
+		bool mAutoDel;
 	};
 }
 #endif

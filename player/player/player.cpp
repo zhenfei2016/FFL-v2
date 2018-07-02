@@ -252,7 +252,7 @@ public:
 	PlayerUiThread(player::FFLPlayer *player) :mPlayer(player) {
 	}
 	virtual bool threadLoop() {
-		mPlayer->create();
+		mPlayer->create(NULL);
 		player::SDL2Loop(NULL, mPlayer);
 		return false;
 	}
@@ -295,7 +295,7 @@ static CmdOption  gCmdOption[] = {
 	
 	{ "volumedown",0,volumeDown,"turn down the volume" },
 	{ "s",0,volumeDown,"turn down the volume" },
-	{ "S",0,volumeDown,"turn down the volume" },
+	{ "S",0,volumeDown,"turn down the volume" }, 
 
 	{ "volumeup",0,volumeUp,"turn up the volume" },
 	{ "w",0,volumeUp,"turn up the volume" },

@@ -79,7 +79,7 @@ SET(LOCAL_SRC_FILES
    AudioRender.hpp;AudioRender.cpp
    AudioResample.hpp;AudioResample.cpp
    AudioComposer.hpp;AudioComposer.cpp
-   VideoFormat.hpp
+   VideoFormat.hpp;VideoFormat.cpp
    VideoComposer.hpp;VideoComposer.cpp
    VideoUtils.hpp;VideoUtils.cpp 
    VideoSurface.hpp;VideoSurface.cpp      

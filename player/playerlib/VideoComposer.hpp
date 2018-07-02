@@ -10,14 +10,15 @@
 *  视频合成
 *
 */
+#ifndef _VIDEO_COMPOSER_HPP_
+#define _VIDEO_COMPOSER_HPP_
 
-#pragma once
 #include "Composer.hpp"
 #include "VideoTexture.hpp"
 #include "reader/Stream.hpp"
 #include "Statistic.hpp"
 #include "SyncUtils.hpp"
-
+#include <pipeline/FFL_PipelineAsyncConnector.hpp>
 
 namespace player {	
 	class TimestampExtrapolator;
@@ -55,12 +56,26 @@ namespace player {
 		//  接收到eof消息
 		//
 		void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);
-	
+    private:
+        //
+        // 进行缩放，从src格式转到dst格式,异步操作
+        //
+        void scaleVideo(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture,VideoFormat* src,VideoFormat* dst);
+        //
+        // 创建缩放节点
+        //
+        bool createScale(VideoFormat* src,VideoFormat* dst);
 	private:
 		FFL::TimeBase mTb;
 		TimestampExtrapolator* mTimestampExtrapolator;
+
+        FFL::sp<FFL::PipelineAsyncConnector> mConnector;
+
+        OutputInterface mScaleOutput;
 
 	protected:
 		IStatisticVideoRender* mStatistic;
 	};
 }
+
+#endif

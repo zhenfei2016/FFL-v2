@@ -24,6 +24,8 @@ typedef void*  SurfaceHandle;
 #endif
 
 #include <ref/FFL_Ref.hpp>
+#include "VideoFormat.hpp"
+
 namespace player {
 	class VideoSurface : public FFL::RefBase{
 	public:
@@ -34,12 +36,20 @@ namespace player {
 		//
 		virtual void setHandle(SurfaceHandle handle);
 		virtual SurfaceHandle getHandle();
+
+		//
+		//  获取surface的当前格式
+		//
+		virtual VideoFormat  getFormat();
 		//
 		//  设置窗口的宽度，高度
 		//
 		virtual void setWindowSize(int32_t widht, int32_t height);
-	private:
+		virtual bool getWindowSize(int32_t& widht, int32_t& height);
+
+    protected:
 		SurfaceHandle mHandle;
+		VideoFormat mVideoFormat;
 	};	
 }
 #endif

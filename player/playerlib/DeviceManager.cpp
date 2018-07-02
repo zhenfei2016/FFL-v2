@@ -7,7 +7,7 @@
 *  DeviceManager.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/01
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  音视频设备管理，设备的打开，关闭，获取已经缓存的音视频设备
+*  闊宠棰戣澶囩鐞嗭紝璁惧鐨勬墦寮�锛屽叧闂紝鑾峰彇宸茬粡缂撳瓨鐨勯煶瑙嗛璁惧
 *
 */
 #include "DeviceManager.hpp"
@@ -16,6 +16,7 @@
 
 namespace player {
 	DeviceManager::DeviceManager(){
+		mSurfaceHandle=NULL;
 	}
 	DeviceManager::~DeviceManager() {
 	}

@@ -14,9 +14,8 @@
 #include <FFL.h>
 
 namespace android {
-	JavaClass::JavaClass(JNIEnv& env,const char* sign) {
+	JavaClass::JavaClass(JNIEnv& env,const char* sign) :mClass(NULL){
 		mClassSign = FFL_strdup(sign);
-		init(env);
 	}
 	JavaClass::~JavaClass() {
 		FFL_ASSERT_LOG("JavaClass %s not Free.", mClassSign);
@@ -39,8 +38,8 @@ namespace android {
 		if (clssz) {
 			mClass = (jclass)JNInewGlobalRef(env, clssz);
 		}
-
 		JNIdeleteLocalRef(env, clssz);
+
 		if (mClass) {
 			if (!onInit(env)) {
 				JNIdeleteGlobalRef(env,mClass);
@@ -166,4 +165,8 @@ namespace android {
 	void JNIreleasePtrFromByteArray(JNIEnv& env, jbyteArray bytearray,void* data) {
 		env.ReleasePrimitiveArrayCritical(bytearray, data, 0);
 	}
+}
+
+extern void getJNIEnv(JNIEnv** env){
+    getJavaVM()->GetEnv((void**)env,JNI_VERSION_1_4);
 }

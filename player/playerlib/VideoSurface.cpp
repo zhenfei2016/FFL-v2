@@ -28,8 +28,22 @@ namespace player {
 		return mHandle;
 	}
 	//
+	//  获取surface的当前格式
+	//
+	VideoFormat  VideoSurface::getFormat(){
+		return  mVideoFormat;
+	}
+	//
 	//  设置窗口的宽度，高度
 	//
 	void VideoSurface::setWindowSize(int32_t widht, int32_t height) {
+        mVideoFormat.mWidht=widht;
+        mVideoFormat.mHeight=height;
+	}
+	bool VideoSurface::getWindowSize(int32_t& widht, int32_t& height){
+        widht=mVideoFormat.mWidht;
+        height=mVideoFormat.mHeight;
+		return  false;
+
 	}
 }

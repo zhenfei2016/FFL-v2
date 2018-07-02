@@ -15,6 +15,7 @@
 #include "VideoDevice.hpp"
 #include <FFL.h>
 namespace android {
+	class RenderManager;
 	class AndroidVideoDevice : public player::VideoDevice{
 	public:
 		AndroidVideoDevice();
@@ -31,8 +32,8 @@ namespace android {
 		//
 		//  打开关闭视频设备
 		//
-		virtual bool open(SurfaceHandle surface, int32_t widht, int32_t height) ;
-		virtual void close() ;
+		virtual bool onOpen(SurfaceHandle wnd, int32_t widht, int32_t height);
+		virtual void onClose();
 		//
 		//  清空cache的数据
 		//
@@ -41,6 +42,12 @@ namespace android {
 		//  写一帧数据
 		//		
 		virtual bool showTexture(player::VideoTexture* texture) ;
+
+	private:
+		RenderManager* mRenderManager;
+
+		SurfaceHandle mSurfaceHandle;
+		player::VideoSurface* mVideoSurface;
 	};
 }
 

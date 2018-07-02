@@ -7,15 +7,16 @@
 *  DefaultDeviceManager.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/01
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÒôÊÓÆµÉè±¸¹ÜÀí£¬Éè±¸µÄ´ò¿ª£¬¹Ø±Õ£¬»ñÈ¡ÒÑ¾­»º´æµÄÒôÊÓÆµÉè±¸
-*  Ä¬ÈÏÊ¹ÓÃµÄ£¬androidÆ½Ì¨ÏÂÊ¹ÓÃ AndroidModule.hpp  £¬ÆäËûÆ½Ì¨Ê¹ÓÃSDL2Module.hpp
+*  éŸ³è§†é¢‘è®¾å¤‡ç®¡ç†ï¼Œè®¾å¤‡çš„æ‰“å¼€ï¼Œå…³é—­ï¼Œè·å–å·²ç»ç¼“å­˜çš„éŸ³è§†é¢‘è®¾å¤‡
+*  é»˜è®¤ä½¿ç”¨çš„ï¼Œandroidå¹³å°ä¸‹ä½¿ç”¨ AndroidModule.hpp  ï¼Œå…¶ä»–å¹³å°ä½¿ç”¨SDL2Module.hpp
 *
 */
 
 #include "DefaultDeviceManager.hpp"
-#include "SDL2Module.hpp"
 #if defined(ANDROID)
 #include "android/AndroidModule.hpp"
+#else
+#include "SDL2Module.hpp"
 #endif
 
 namespace player {
@@ -42,7 +43,7 @@ namespace player {
 		FFL_SafeFree(mDeviceFactory);
 	}
 	//
-	//  Í¨¹ıwnd´´½¨¶ÔÓ¦µÄ
+	//  é€šè¿‡wndåˆ›å»ºå¯¹åº”çš„
 	//
 	FFL::sp<VideoDevice> DefaultDeviceManager::openVideoDisplay(SurfaceHandle wnd) {
 		FFL::sp<VideoDevice> dev = mDeviceFactory->createVideoDevice(this);
@@ -56,7 +57,7 @@ namespace player {
 		return dev;
 	}
 	//
-	//  Èç¹ûÊ½Í¨¹ıÒÑ¾­´´½¨µÄSufraceHandle ´´½¨µÄVideoDeviceÔò²»»á¹Ø±ÕÕâ¸ö´°¿ÚµÄ
+	//  å¦‚æœå¼é€šè¿‡å·²ç»åˆ›å»ºçš„SufraceHandle åˆ›å»ºçš„VideoDeviceåˆ™ä¸ä¼šå…³é—­è¿™ä¸ªçª—å£çš„
 	//
 	void DefaultDeviceManager::closeVideoDisplay() {
 		if (!mVideoDevice.isEmpty()) {
@@ -65,12 +66,16 @@ namespace player {
 		}
 	}
 	//
-	//  Í¨¹ıfmt´ò¿ª¶ÔÓ¦µÄÒôÆµÉè±¸
+	//  é€šè¿‡fmtæ‰“å¼€å¯¹åº”çš„éŸ³é¢‘è®¾å¤‡
 	//
 	FFL::sp<AudioDevice> DefaultDeviceManager::openAudioDisplay(AudioFormat fmt) {		
 		FFL::sp<AudioDevice> dev = mDeviceFactory->createAudioDevice(this);
+		if(dev.isEmpty()){
+			FFL_LOG_ERROR("Faild to DefaultDeviceManager.openAudioDisplay.");
+			return NULL;
+		}
 		//
-		// Æô¶¯ÒôÆµÉè±¸
+		// å¯åŠ¨éŸ³é¢‘è®¾å¤‡
 		//
 		AudioFormat obtainedFmt;
 		if (!dev->open(fmt, 1024, obtainedFmt)) {
@@ -81,7 +86,7 @@ namespace player {
 		return dev;
 	}
 	//
-	//  ¹Ø±ÕÒôÆµÉè±¸
+	//  å…³é—­éŸ³é¢‘è®¾å¤‡
 	//
 	void DefaultDeviceManager::closeAudioDisplay() {
 		if (!mAudioDevice.isEmpty()) {
@@ -90,13 +95,13 @@ namespace player {
 		}
 	}
 	//
-	//  »ñÈ¡ÒÑ¾­´´½¨µÄÊÓÆµÉè±¸
+	//  è·å–å·²ç»åˆ›å»ºçš„è§†é¢‘è®¾å¤‡
 	//
 	FFL::sp<VideoDevice> DefaultDeviceManager::getVideoDisplay(FFL::sp<VideoStream> stream) {
 		return mVideoDevice;
 	}
 	//
-	// »ñÈ¡ÒÑ¾­´´½¨µÄÒôÆµÉè±¸
+	// è·å–å·²ç»åˆ›å»ºçš„éŸ³é¢‘è®¾å¤‡
 	//
 	FFL::sp<AudioDevice> DefaultDeviceManager::getAudioDisplay(FFL::sp<AudioStream> stream) {
 		return mAudioDevice;

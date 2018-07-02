@@ -296,6 +296,10 @@ namespace player {
 		mNodeId(nodeId), mId(outputId)
 	{
 	}
+	void OutputInterface::reset(){
+		mNodeId=FFL::Pipeline_INVALID_Id;
+		mId=FFL::Pipeline_INVALID_Id;
+	}
 	bool OutputInterface::isValid() const {
 		return mNodeId != FFL::Pipeline_INVALID_Id && mId != FFL::Pipeline_INVALID_Id;
 	}

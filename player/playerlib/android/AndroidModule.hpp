@@ -30,10 +30,6 @@ namespace android {
 		//  创建播放音频设备
 		//
 		virtual FFL::sp<player::AudioDevice> createAudioDevice(void* player) ;
-
-	private:
-		FFL::sp<AndroidVideoDevice> mVideoDevice;
-		FFL::sp<AndroidAudioDevice> mAudioDevice;
 	};
 }
 

@@ -18,8 +18,10 @@ namespace android{
     //  引用进来audiotrack
     //
     JavaAudioTrackClass* importJavaAudioTrack( JNIEnv& env){
-        if(!gJavaAudioTrackClass)
-            gJavaAudioTrackClass=new JavaAudioTrackClass(env);
+        if(!gJavaAudioTrackClass) {
+            gJavaAudioTrackClass = new JavaAudioTrackClass(env);
+            gJavaAudioTrackClass->init(env);
+        }
         return gJavaAudioTrackClass;
     }
     JavaAudioTrackClass* getJavaAudioTrackClass(){
@@ -49,7 +51,7 @@ namespace android{
         methodSign="()V";
         mMethod_pause=getMethodId(env,methodName,methodSign);
 
-        methodName="plush";
+        methodName="flush";
         methodSign="()V";
         mMethod_flush=getMethodId(env,methodName,methodSign);
 
@@ -62,24 +64,20 @@ namespace android{
         getMethodId(env,methodName,methodSign);
 
         methodName="getMinBufferSize";
-        methodSign="()V";
-        getMethodId(env,methodName,methodSign);
-
-        methodName="getMinBufferSize";
         methodSign="(III)I";
-        getMethodId(env,methodName,methodSign);
+        getStaticMethodId(env,methodName,methodSign);
 
         methodName="getMaxVolume";
         methodSign="()F";
-        getMethodId(env,methodName,methodSign);
+        getStaticMethodId(env,methodName,methodSign);
 
         methodName="getMinVolume";
         methodSign="()F";
-        getMethodId(env,methodName,methodSign);
+        getStaticMethodId(env,methodName,methodSign);
 
         methodName="getNativeOutputSampleRate";
         methodSign="(I)I";
-        getMethodId(env,methodName,methodSign);
+        getStaticMethodId(env,methodName,methodSign);
 
         methodName="setStereoVolume";
         methodSign="(FF)I";
@@ -105,15 +103,6 @@ namespace android{
         methodSign="(I)I";
         getMethodId(env,methodName,methodSign);
 
-//        methodName="getPlaybackParams";
-//        methodSign="()Landroid/media/PlaybackParams;";
-//        getMethodId(env,methodName,methodSign);
-//
-//
-//        methodName="setPlaybackParams";
-//        methodSign="(Landroid/media/PlaybackParams;)V";
-//        getMethodId(env,methodName,methodSign);
-//
         return true;
     }
 
@@ -137,7 +126,8 @@ namespace android{
     }
 
 
-    JavaAudioTrack::JavaAudioTrack(jobject javaAudioTrack) :JavaObject<JavaAudioTrackClass>(*gJavaAudioTrackClass,javaAudioTrack) {
+    JavaAudioTrack::JavaAudioTrack(jobject javaAudioTrack) :
+            JavaObject<JavaAudioTrackClass>(*gJavaAudioTrackClass,javaAudioTrack, false) {
         mJNIEnv=NULL;
     }
     JavaAudioTrack::~JavaAudioTrack(){

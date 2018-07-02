@@ -48,4 +48,10 @@ namespace player {
 	VideoTexture::~VideoTexture() {
 	}
 
+	VideoFormat* VideoTexture::getVideoFormat(){
+		mFormat.mFormat=0;
+		mFormat.mWidht=mWidth;
+		mFormat.mHeight=mHeight;
+		return &mFormat;
+	}
 }
