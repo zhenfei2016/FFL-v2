@@ -81,7 +81,7 @@ namespace player {
 		//  设置，获取音量
 		//
 		virtual void setVolume(int32_t volume);
-		virtual void getVolume(int32_t& volume);
+		virtual int32_t getVolume();
 	protected:
 		FFL::sp<player::AudioRender> mAudioRender;
 

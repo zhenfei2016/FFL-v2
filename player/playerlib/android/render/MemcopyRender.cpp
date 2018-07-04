@@ -50,8 +50,13 @@ namespace android{
         int dst_line_size = dst_stride * bpp / 8;
 
         uint8_t *dst_pixels =(uint8_t*) out_buffer->bits;
-        const uint8_t *src_pixels = tex->mPixels[0];
+        uint8_t *src_pixels = tex->mPixels[0];
 
+
+//        for(int i=0;i<255;i++){
+//            for(int j=0;j<src_line_size;j++)
+//               *(src_pixels+i*src_line_size + j) =0xFF;
+//        }
         if (dst_line_size == src_line_size) {
             int plane_size = src_line_size * min_height;
             memcpy(dst_pixels, src_pixels, plane_size);
@@ -73,9 +78,9 @@ namespace android{
         }
 
         int32_t ret;
-        int curr_w = ANativeWindow_getWidth(window);
-        int curr_h = ANativeWindow_getHeight(window);
-        int curr_format = ANativeWindow_getFormat(window);
+        int curWidth = ANativeWindow_getWidth(window);
+        int curHeight = ANativeWindow_getHeight(window);
+        int currForamt = ANativeWindow_getFormat(window);
         int imageWidth = FFL_ALIGN(tex->mWidth, 2);
         int imageHeight = FFL_ALIGN(tex->mHeight, 2);
 
@@ -102,6 +107,30 @@ namespace android{
             return ret;
         }
         return FFL_OK;
+    }
+
+    //  获取支持的格式
+    //  wanted: 如果为nUll则返回所有支持的格式
+    //           非null 返回跟他匹配的
+    //  fmtList: 返回支持的格式list
+    //
+    void MemcopyRender::getSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList){
+        player::VideoFormat targetFormat;
+        surface->getFormat(targetFormat);
+        fmtList.push_back(targetFormat);
+    }
+    bool MemcopyRender::getOptimalFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,player::VideoFormat* optinal){
+        player::VideoFormat targetFormat;
+        surface->getFormat(targetFormat);
+        if(optinal){
+            *optinal=targetFormat;
+        }
+        return true;
+    }
+    bool MemcopyRender::isSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted){
+        player::VideoFormat targetFormat;
+        surface->getFormat(targetFormat);
+        return  targetFormat.equal(*wanted);
     }
 
 }

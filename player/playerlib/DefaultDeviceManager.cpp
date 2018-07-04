@@ -21,8 +21,6 @@
 
 namespace player {
 	DefaultDeviceManager::DefaultDeviceManager(){
-		mSurfaceHandle = NULL;
-		//mPlayer = player;
 #if defined(ANDROID)
 		mDeviceFactory = new android::AndroidModule();
 #else

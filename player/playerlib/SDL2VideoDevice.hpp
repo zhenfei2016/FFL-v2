@@ -14,6 +14,16 @@ namespace player {
 		SDL2VideoDevice();
 		~SDL2VideoDevice();
 		//
+		//  获取支持的格式
+		//  wanted: 如果为nUll则返回所有支持的格式
+		//           非null 返回跟他匹配的
+		//  fmtList: 返回支持的格式list
+		//
+		virtual void getSupportFormat(const player::VideoFormat* wanted, FFL::List<player::VideoFormat>& fmtList);
+		virtual bool getOptimalFormat(const player::VideoFormat* wanted, player::VideoFormat* optinal);
+		virtual bool isSupportFormat(const player::VideoFormat* wanted);
+
+		//
 		// 获取绘制窗口
 		//		
 		virtual FFL::sp<VideoSurface> getSurface();

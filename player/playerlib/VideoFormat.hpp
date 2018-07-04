@@ -27,13 +27,16 @@ namespace player {
 		VideoFormat();
 		~VideoFormat();
 
-
 		void setFFMpegFormat(int32_t pixFormat);
         int32_t getFFMpegFormat();
 
         int32_t getFormat() const {
             return mFormat;
         }
+
+		VideoFormat& operator=(const VideoFormat& r);
+		bool operator==(const VideoFormat& r) const;
+		bool equal(const VideoFormat& r) const;
 	public:
 		//
 		//  格式，宽度，高度

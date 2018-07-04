@@ -56,7 +56,7 @@ namespace player {
 	void AudioDevice::setVolume(int32_t volume){
 		mVolume = volume;
 	}
-	void AudioDevice::getVolume(int32_t& volume){
-		volume = mVolume;		
+	int32_t AudioDevice::getVolume(){
+		return mVolume;
 	}
 }

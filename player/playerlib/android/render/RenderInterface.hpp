@@ -17,6 +17,7 @@
 namespace player{
     class VideoSurface;
     class VideoTexture;
+    class VideoFormat;
 }
 
 namespace  android{
@@ -34,6 +35,15 @@ namespace  android{
         //  释放这个render，释放后这个render就不可用了
         //
         virtual void destroy()=0;
+
+        //  获取支持的格式
+        //  wanted: 如果为nUll则返回所有支持的格式
+        //           非null 返回跟他匹配的
+        //  fmtList: 返回支持的格式list
+        //
+        virtual void getSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList)=0;
+        virtual bool getOptimalFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,player::VideoFormat* optinal)=0;
+        virtual bool isSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted)=0;
     };
 };
 #endif

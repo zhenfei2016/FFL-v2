@@ -49,7 +49,7 @@ namespace player {
 	}
 
 	VideoFormat* VideoTexture::getVideoFormat(){
-		mFormat.mFormat=0;
+		mFormat.setFFMpegFormat(mPixFormat);
 		mFormat.mWidht=mWidth;
 		mFormat.mHeight=mHeight;
 		return &mFormat;

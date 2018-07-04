@@ -23,7 +23,6 @@ namespace message {
 	public:
 		MessageBase();
 		virtual ~MessageBase();
-
 		//
 		//  获取类型
 		//
@@ -36,8 +35,6 @@ namespace message {
 		//  已经处理完成了，可以回收了		
 		//
 		virtual void consume();
-        
-
 	};
 
 	//

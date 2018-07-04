@@ -30,8 +30,8 @@ namespace player {
 	//
 	//  获取surface的当前格式
 	//
-	VideoFormat  VideoSurface::getFormat(){
-		return  mVideoFormat;
+	void  VideoSurface::getFormat(VideoFormat& fmt){
+        fmt=mVideoFormat;
 	}
 	//
 	//  设置窗口的宽度，高度

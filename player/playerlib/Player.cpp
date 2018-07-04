@@ -323,11 +323,13 @@ namespace player {
 			audioDevice->setVolume(volume);		
 		}	
 	}
-	void FFLPlayer::getVolume(int32_t& volume){
+	int32_t FFLPlayer::getVolume(){
 		FFL::sp<player::AudioDevice >  audioDevice = mDevManager->getAudioDisplay(NULL);
 		if (!audioDevice.isEmpty()) {
-			audioDevice->getVolume(volume);
+			return audioDevice->getVolume();
 		}
+
+		return 100;
 	}
 	//
 	// 获取，设置循环播放次数

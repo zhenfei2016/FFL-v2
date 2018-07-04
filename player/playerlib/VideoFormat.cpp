@@ -37,4 +37,16 @@ namespace player {
 		}
 		return AV_PIX_FMT_NONE;
 	}
+	VideoFormat& VideoFormat::operator=(const VideoFormat& r){
+		mFormat=r.mFormat;
+		mWidht=r.mWidht ;
+		mHeight = r.mHeight;
+		return  *this;
+	}
+	bool VideoFormat::operator==(const VideoFormat& r) const{
+		return this->equal(r);
+	}
+	bool VideoFormat::equal(const VideoFormat& r) const{
+		return  (mFormat==r.mFormat && mWidht==r.mWidht && mHeight == r.mHeight);
+	}
 }

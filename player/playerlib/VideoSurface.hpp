@@ -40,7 +40,7 @@ namespace player {
 		//
 		//  获取surface的当前格式
 		//
-		virtual VideoFormat  getFormat();
+		virtual void  getFormat(VideoFormat& fmt);
 		//
 		//  设置窗口的宽度，高度
 		//

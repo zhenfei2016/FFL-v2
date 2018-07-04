@@ -99,7 +99,10 @@ namespace player {
 		//
 		SyncClock* getMasterClock() const {
 			return mMasterClock;
-		};	    
+		};
+
+		FFL::sp<VideoRender> getVideoRender();
+		FFL::sp<AudioRender> getAudioRender();
 	private:
 		uint32_t mSpeed;
 		FFL::sp<FFL::Pipeline> mPipeline;		

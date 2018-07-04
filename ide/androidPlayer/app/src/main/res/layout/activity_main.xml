@@ -7,7 +7,7 @@
     <TextureView
         android:id="@+id/video"
         android:layout_width="match_parent"
-        android:layout_height="400dp"/>
+        android:layout_height="200dp"/>
 
     <Button
         android:id="@+id/btnPlay"
@@ -21,5 +21,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="stop"
+        />
+
+    <Button
+        android:id="@+id/btnPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pause"
+        />
+
+    <Button
+        android:id="@+id/btnResume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="resume"
+        />
+
+    <Button
+        android:id="@+id/btnPrepare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="prepare"
+        />
+
+    <Button
+        android:id="@+id/btnSeturl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="seturl"
         />
 </LinearLayout>

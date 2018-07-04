@@ -169,7 +169,22 @@ namespace player {
 			break;
 		}
 	}
+	FFL::sp<VideoRender> PlayerCore::getVideoRender(){
+		FFL::sp<VideoDevice> videoDevice = mDeviceManager->getVideoDisplay(NULL);
+		if (videoDevice.isEmpty()) {
+			return videoDevice->getRender(NULL);
+		}
 
+		return  NULL;
+	}
+	FFL::sp<AudioRender> PlayerCore::getAudioRender(){
+		FFL::sp<AudioDevice> audioDevice = mDeviceManager->getAudioDisplay(NULL);
+		if (audioDevice.isEmpty()) {
+			return audioDevice->getRender(NULL);
+		}
+
+		return  NULL;
+	}
 	void PlayerCore::registerNode( FFL::sp<NodeBase> node) {
 		FFL::CMutex::Autolock l(mNodeLock);
 		mNodeList.push_back(node);

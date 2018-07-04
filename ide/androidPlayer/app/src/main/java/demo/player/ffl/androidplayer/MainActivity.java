@@ -1,8 +1,13 @@
 package demo.player.ffl.androidplayer;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.SurfaceTexture;
 import android.media.AudioTrack;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     TextureView mTextureView;
     FFLPlayer mFFLPlayer;
 
+    String mUrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,18 +30,15 @@ public class MainActivity extends AppCompatActivity {
         requestPerssion();
 
         mTextureView=(TextureView)findViewById(R.id.video);
+        mUrl="/sdcard/DCIM/sintel.ts";
+
         View v=findViewById(R.id.btnPlay);
         v.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
-                if(mFFLPlayer==null) {
-                    mFFLPlayer = new FFLPlayer();
-                    mFFLPlayer.native_setSurface(new Surface(mTextureView.getSurfaceTexture()));
-                }
-
-                String url="/sdcard/DCIM/sintel.ts";
-                mFFLPlayer.native_play(url);
+                String url=mUrl;
+                getPlayer().native_play(url);
             }
         });
 
@@ -44,13 +47,55 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                if(mFFLPlayer!=null) {
-                    mFFLPlayer.native_stop();
-                }
+                getPlayer().native_stop();
+            }
+        });
+
+        v=findViewById(R.id.btnPause);
+        v.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                getPlayer().native_pause(1);
+            }
+        });
+
+        v=findViewById(R.id.btnResume);
+        v.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                getPlayer().native_pause(0);
+            }
+        });
+
+        v=findViewById(R.id.btnPrepare);
+        v.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                getPlayer().native_prepare();
+            }
+        });
+
+        v=findViewById(R.id.btnSeturl);
+        v.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                chooseVideo();
+
             }
         });
     }
 
+    private FFLPlayer getPlayer(){
+        if(mFFLPlayer==null) {
+            mFFLPlayer = new FFLPlayer();
+            mFFLPlayer.native_setSurface(new Surface(mTextureView.getSurfaceTexture()));
+        }
+        return mFFLPlayer;
+    }
     private void requestPerssion(){
         //判断用户是否已经授权，未授权则向用户申请授权，已授权则直接进行呼叫操作
         //
@@ -63,9 +108,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void test(){
-        AudioTrack audioTrack=null;
+    private void chooseVideo(){
+        Intent intent=new Intent(Intent.ACTION_PICK);
+        intent.setData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, 1);
+    }
 
-       // audioTrack.setStereoVolume()
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        Uri selectedImage = data.getData(); //获取系统返回的照片的Uri
+                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                        Cursor cursor = getContentResolver().query(selectedImage,
+                                filePathColumn, null, null, null);//从系统表中查询指定Uri对应的照片
+                        cursor.moveToFirst();
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        mUrl=filePath;
+                        getPlayer().native_setUrl(filePath);
+                        cursor.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 }

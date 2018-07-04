@@ -11,7 +11,9 @@
 *
 */
 
-#pragma once
+#ifndef _FFMPEGVIDEOFRAME_HPP_
+#define _FFMPEGVIDEOFRAME_HPP_
+
 #include "MessageBase.hpp"
 #include "FFMpeg.hpp"
 #include "VideoTexture.hpp"
@@ -21,21 +23,18 @@ namespace message {
 	//
 	//   解码完的的数据包
 	//
-	class FFMpegVideoFrame : public MessageBase
-	{
+	class FFMpegVideoFrame : public MessageBase{
 	public:		
 		FFMpegVideoFrame();
 		~FFMpegVideoFrame();
-      
 		//
 		//  已经处理完成了，可以回收了		
 		//
-		void consume();
-
+		virtual  void consume();
 		//
 		//  填充数据
 		//
-		void fillAvframe(AVFrame* frame);
+		virtual  void fillAvframe(AVFrame* frame);
 	public:
 		player::VideoTexture mTexture;
 		AVFrame* mFrame;
@@ -52,7 +51,6 @@ namespace message {
 		//  已经处理完成了，可以回收了		
 		//
 		void consume();
-
 		//
 		//  填充数据
 		//
@@ -62,3 +60,5 @@ namespace message {
 		AVFrame* mFrame;
 	};
 }
+
+#endif

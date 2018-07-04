@@ -16,6 +16,10 @@ enum
     //  FFMPEG解码后的Avframe
     //
     MSG_FFMPEG_VIDEO_FRAME=4,
+	//
+	//  进行一次转码后的
+	//
+	MSG_FFMPEG_VIDEO_FRAME_SCALE = 5,
     //
     //  音频采样包
     //

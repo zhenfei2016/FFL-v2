@@ -14,6 +14,8 @@
 #include <string>
 #include "JavaAudiotrack.hpp"
 #include "JavaFFLPlayer.hpp"
+#include "FFMpeg.hpp"
+
 static JavaVM* gJvm;
 
 JavaVM* getJavaVM(){
@@ -27,12 +29,39 @@ extern "C" {
 }
 
 extern "C" int fflv2PrintLog(int level,const char* tag,const char *format, va_list vaList){
-    __android_log_print(ANDROID_LOG_ERROR,tag?tag:"FFLv2",format,vaList);
+
+    //__android_log_print(ANDROID_LOG_ERROR,tag?tag:"FFLv2",format,vaList);
     return 1;
 }
 
+extern "C"  void ffmpegPrintLog(void *ptr, int level, const char *fmt, va_list vl)
+{
+    static int print_prefix = 1;
+    static int count;
+    static char prev[1024];
+    char line[1024];
+    static int is_atty;
+
+    av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &print_prefix);
+
+    strcpy(prev, line);
+    //sanitize((uint8_t *)line);
+
+    if (level <= AV_LOG_WARNING)
+    {
+        __android_log_print(ANDROID_LOG_ERROR,"ffmpeg","%s",line);;
+    }
+    else
+    {
+        __android_log_print(ANDROID_LOG_DEBUG,"ffmpeg","%s",line);;
+    }
+}
+
 void Loginit(){
+    FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
     FFL_LogHook(fflv2PrintLog);
+    av_log_set_level(AV_LOG_DEBUG);
+    av_log_set_callback(ffmpegPrintLog);
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)

@@ -112,7 +112,9 @@ void FFL_SYS_SetThreadName(const char *name)
 #endif /* !__NACL__ */
 
     if (name != NULL) {
-        #if defined(__MACOSX__) || defined(__IPHONEOS__) || defined(__LINUX__)
+        #if defined(ANDROID)
+            pthread_setname_np(pthread_self(),name);
+        #elif defined(__MACOSX__) || defined(__IPHONEOS__) || defined(__LINUX__)
         SDL_assert(checked_setname);
         if (ppthread_setname_np != NULL) {
             #if defined(__MACOSX__) || defined(__IPHONEOS__)

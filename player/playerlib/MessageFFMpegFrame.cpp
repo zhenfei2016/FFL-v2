@@ -28,8 +28,6 @@ namespace message {
 			av_frame_free(&mFrame);
 		}
 	}
-
- 
 	//
 	//  已经处理完成了，可以回收了		
 	//
@@ -43,12 +41,11 @@ namespace message {
 	//
 	//  填充数据
 	//
-	void FFMpegVideoFrame::fillAvframe(AVFrame* frame)
-	{
-		if (mFrame) {
+	void FFMpegVideoFrame::fillAvframe(AVFrame* frame){
+		if (mFrame!=frame) {
 			FFL_LOG_WARNING("FFMpegVideoFrame av_frame_unref");
+			mFrame = frame;
 		}
-		mFrame = frame;
 
 		mTexture.mWidth = frame->width;
 		mTexture.mHeight = frame->height;		
@@ -81,7 +78,6 @@ namespace message {
 
 		//av_guess_sample_aspect_ratio()
 		//mTexture.mSampleAspectRatioDen
-
 	}
 
 

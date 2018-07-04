@@ -35,7 +35,7 @@ namespace android{
         //    format :需要的render格式
         //    arg  :参数，通过这个参数，找到一个最配置的render
         //
-        RenderInterface *getRender(player::VideoFormat* format, void *arg);
+        RenderInterface *getRender(const player::VideoFormat* format, void *arg);
     };
 }
 #endif

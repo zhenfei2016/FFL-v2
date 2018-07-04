@@ -52,8 +52,6 @@ namespace player {
 		FFLPlayer* mPlayer;
 		FFL::sp<AudioDevice> mAudioDevice;
 		FFL::sp<VideoDevice> mVideoDevice;
-
-		SurfaceHandle mSurfaceHandle;
 	};
 }
 #endif

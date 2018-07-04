@@ -24,6 +24,27 @@ namespace player {
 	SDL2VideoDevice::~SDL2VideoDevice() {
 		mMessageCache->clear();
 	}
+	//
+	//  获取支持的格式
+	//  wanted: 如果为nUll则返回所有支持的格式
+	//           非null 返回跟他匹配的
+	//  fmtList: 返回支持的格式list
+	//
+	void SDL2VideoDevice::getSupportFormat(const player::VideoFormat* wanted, FFL::List<player::VideoFormat>& fmtList) {
+
+	}
+	bool SDL2VideoDevice::getOptimalFormat(const player::VideoFormat* wanted, player::VideoFormat* optinal) {
+		optinal->mWidht = -1;
+		optinal->mHeight = -1;
+		optinal->mFormat = VideoFormat::PIXEL_FORMAT_YUV420P;
+		return true;
+	}
+	bool SDL2VideoDevice::isSupportFormat(const player::VideoFormat* wanted) {
+		if (wanted->getFormat() == VideoFormat::PIXEL_FORMAT_YUV420P) {
+			return true;
+	    }
+		return false;
+	}
 
 	FFL::sp<VideoSurface> SDL2VideoDevice::getSurface() {
 		return mSurface;
@@ -100,11 +121,13 @@ namespace player {
 			sdlTexture->mTexture = pic;
 		}
 
+	
 
 		SDL_UpdateYUVTexture(sdlTexture->mTexture, NULL,
 			texture->mPixels[0], texture->mPitches[0],
 			texture->mPixels[1], texture->mPitches[1],
 			texture->mPixels[2], texture->mPitches[2]);
+		
 		return msg;
 	}
 

@@ -64,13 +64,14 @@ namespace player {
         //
         // 创建缩放节点
         //
-        bool createScale(VideoFormat* src,VideoFormat* dst);
+        bool createScale(int32_t streamId,VideoFormat* src,VideoFormat* dst);
 	private:
 		FFL::TimeBase mTb;
 		TimestampExtrapolator* mTimestampExtrapolator;
 
         FFL::sp<FFL::PipelineAsyncConnector> mConnector;
 
+		
         OutputInterface mScaleOutput;
 
 	protected:

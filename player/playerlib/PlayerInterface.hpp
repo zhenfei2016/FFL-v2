@@ -42,7 +42,7 @@ namespace player {
 		//    0-255
 		//
 		virtual void setVolume(int32_t volume)=0;
-		virtual void getVolume(int32_t& volume)=0;
+		virtual int32_t getVolume()=0;
 		//
 		// 获取，设置循环播放次数
 		// 如果<0 : 一直循环播放

@@ -214,18 +214,34 @@ namespace android{
     //  播放，暂停，停止
     //
     status_t NativeFFLPlayer::prepare(JNIEnv* env, jobject thiz){
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->prepare();
+        }
         return FFL_OK;
     }
     status_t NativeFFLPlayer::start(JNIEnv* env, jobject thiz){
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->start();
+        }
         return FFL_OK;
     }
     //
     //  pause:1 进行暂停， 0：恢复
     //
     status_t NativeFFLPlayer::pause(JNIEnv* env, jobject thiz,jint pause){
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->pause(pause);
+        }
         return FFL_OK;
     }
     status_t NativeFFLPlayer::stop(JNIEnv* env, jobject thiz){
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->stop();
+        }
         return FFL_OK;
     }
     //
@@ -234,32 +250,58 @@ namespace android{
     //  获取总的播放时长us
     //
     status_t NativeFFLPlayer::seekTo(JNIEnv* env, jobject thiz,jlong us){
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->seekTo(us);
+        }
         return FFL_OK;
     }
     jlong  NativeFFLPlayer::getCurrentPosition(JNIEnv* env, jobject thiz){
-        return FFL_OK;
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            return player->getCurrentPosition();
+        }
+        return -1;
     }
     jlong  NativeFFLPlayer::getDuration(JNIEnv* env, jobject thiz){
-        return FFL_OK;
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            return player->getDuration();
+        }
+        return -1;
     }
     //
     //  获取，设置播放速度，正常速度=100
     //
     jint NativeFFLPlayer::getSpeed(JNIEnv* env, jobject thiz){
-        return FFL_OK;
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            return player->getSpeed();
+        }
+        return 100;
     }
     void NativeFFLPlayer::setSpeed(JNIEnv* env, jobject thiz,jint speed){
-
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->setSpeed(speed);
+        }
     }
     //
     // 获取，设置音量
     //  0-255
     //
     void NativeFFLPlayer::setVolume(JNIEnv* env, jobject thiz,jint volume){
-
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->setVolume(volume);
+        }
     }
     jint NativeFFLPlayer::getVolume(JNIEnv* env, jobject thiz){
-        return FFL_OK;
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            return  player->getVolume();
+        }
+        return 100;
     }
     //
     // 获取，设置循环播放次数
@@ -268,10 +310,18 @@ namespace android{
     //     >0 : 播放num+1次
     //
     void NativeFFLPlayer::setLoop(JNIEnv* env, jobject thiz,jint num){
-
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->setLoop(num);
+        }
     }
     jint NativeFFLPlayer::getLoop(JNIEnv* env, jobject thiz){
-        return FFL_OK;
+        player::FFLPlayer* player=getRealPlayer(env,thiz);
+        if(player){
+            player->getLoop();
+        }
+        return 0;
+
     }
     //
     // 获取，设置一些特定的选项

@@ -52,8 +52,8 @@ namespace player {
             mConnector=new FFL::PipelineAsyncConnectorFixSize(5);
             conn=mConnector.get();
         }else{
-           // conn=new FFL::PipelineAsyncConnectorFixSize(
-            //        5,mConnector->getLooper());
+			//FFL::sp<FFL::PipelineLooper> looper=mConnector->getLooper();
+			conn=new FFL::PipelineAsyncConnectorFixSize(5);
         }
 		return conn;
 	}
@@ -75,6 +75,12 @@ namespace player {
 			handleTexture(msg, &(frame->mTexture));
 		}
 			break;
+		case MSG_FFMPEG_VIDEO_FRAME_SCALE:
+		{
+			message::FFMpegVideoFrame* frame = (message::FFMpegVideoFrame*)msg->getPayload();
+			handleTexture(msg, &(frame->mTexture));
+		}
+		break;
 		case MSG_CONTROL_SERIAL_NUM_CHANGED:
 		{
 			FFL::sp<FFL::PipelineOutput > output = getOutput(mOutputToRenderInterface.mId);
@@ -137,13 +143,13 @@ namespace player {
         //
         //  查看渲染是否支持这个格式，如果不支持则需要进行缩放
         //
-        FFL::sp<VideoRender> render;
-		if (!render.isEmpty()) {
+        FFL::sp<VideoDevice> renderDevice=getOwner()->getDeviceManager()->getVideoDisplay(NULL);
+		if (!renderDevice.isEmpty()) {
 			VideoFormat* videoFormat = texture->getVideoFormat();
 			if (videoFormat) {
-				if (!render->isSupportFormat(videoFormat)) {
+				if (!renderDevice->isSupportFormat(videoFormat)) {
 					VideoFormat dstFormat;
-					if (render->getOptimalFormat(videoFormat, &dstFormat)) {
+					if (renderDevice->getOptimalFormat(videoFormat, &dstFormat)) {
 						scaleVideo(msg, texture, videoFormat, &dstFormat);
 					}
 					else {
@@ -168,8 +174,9 @@ namespace player {
 				stream->getSyncClock()->updateClock(texture->mPts, tb);
 			}
 
-			msg->consume(this);
-			return;
+			//msg->consume(this);
+			//return;
+			delay=0;
 		}		
 		//
 		// 发送到这个输出接口上
@@ -186,18 +193,21 @@ namespace player {
     // 进行缩放，从src格式转到dst格式,异步操作
     //
     void VideoComposer::scaleVideo(const FFL::sp<FFL::PipelineMessage>& msg,VideoTexture* texture,VideoFormat* src,VideoFormat* dst){
-        if(!createScale(src,dst)){
+        if(!createScale(texture->mStreamId,src,dst)){
             msg->consume(this);
             return;
         }
 
+        if(FFL_OK!=postMessage(mScaleOutput.mId,msg)){
+            msg->consume(this);
+        }
     }
 
     //
     //  设置这个合成器的输出到那个一个渲染器中
     //
-    bool VideoComposer::createScale(VideoFormat* src,VideoFormat* dst) {
-        if (!mScaleOutput.isValid()) {
+    bool VideoComposer::createScale(int32_t streamId, VideoFormat* src,VideoFormat* dst) {
+        if (mScaleOutput.isValid()) {
             return true;
         }
 
@@ -207,20 +217,22 @@ namespace player {
         mScaleOutput=createOutputInterface();
         InputInterface input;
         FFL::sp<VideoScale> scale=new VideoScale(src,dst);
+        scale->create(getOwner());
         if(!scale->connectSource(mScaleOutput,"scale", input,NULL)){
             mScaleOutput.reset();
             return false;
         }
-
         //
         //  缩放输入到本节点
         //
         OutputInterface sacleOutput=scale->getOutput();
-        if(!connectSource(sacleOutput,"",input,(void*)1)){
+        if(!connectSource(sacleOutput,"scale-composer",input,(void*)1)){
             mScaleOutput.reset();
             return false;
         }
 
+		getPipeline()->ansyStartupNode(input.mNodeId);
+        getPipeline()->ansyStartupNode(sacleOutput.mNodeId);
         return true;
     }
 

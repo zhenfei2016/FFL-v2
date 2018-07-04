@@ -22,8 +22,31 @@ namespace android {
         }
         void setHandle(SurfaceHandle handle){
             player::VideoSurface::setHandle(handle);
-        }
 
+			int32_t hardwareFmt=-1;
+			ANativeWindow* win=handle;
+			if(win) {
+				hardwareFmt =ANativeWindow_getFormat(win);
+				mVideoFormat.mWidht = ANativeWindow_getWidth(win);
+				mVideoFormat.mHeight = ANativeWindow_getHeight(win);
+			}else{
+				mVideoFormat.mWidht = -1;
+				mVideoFormat.mHeight = -1;
+			}
+
+
+			switch (hardwareFmt){
+				case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+				case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+					mVideoFormat.mFormat=player::VideoFormat::PIXEL_FORMAT_RGBA_8888;
+					break;
+				default:
+					mVideoFormat.mFormat=player::VideoFormat::PIXEL_FORMAT_NONE;
+			}
+        }
+		void setWindowSize(int32_t widht, int32_t height) {
+
+		}
 		bool getWindowSize(int32_t& width, int32_t& height){
 			ANativeWindow* win=getHandle();
 			if(win) {
@@ -44,7 +67,32 @@ namespace android {
 		mRenderManager->unRegisterRenders();
 		FFL_SafeFree(mRenderManager);
 	}
-
+//
+	//  获取支持的格式
+	//  wanted: 如果为nUll则返回所有支持的格式
+	//           非null 返回跟他匹配的
+	//  fmtList: 返回支持的格式list
+	//
+	void AndroidVideoDevice::getSupportFormat(const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList){
+		if(!mVideoSurface.isEmpty()){
+			RenderInterface* render=mRenderManager->getRender(wanted,NULL);
+			return render->getSupportFormat(mVideoSurface.get(),wanted,fmtList);
+		}
+	}
+	bool AndroidVideoDevice::getOptimalFormat(const player::VideoFormat* wanted,player::VideoFormat* optinal){
+        if(!mVideoSurface.isEmpty()){
+			RenderInterface* render=mRenderManager->getRender(wanted,NULL);
+			return render->getOptimalFormat(mVideoSurface.get(),wanted,optinal);
+		}
+		return false;
+	}
+	bool AndroidVideoDevice::isSupportFormat(const player::VideoFormat* wanted){
+        if(!mVideoSurface.isEmpty()){
+			RenderInterface* render=mRenderManager->getRender(wanted,NULL);
+			return render->isSupportFormat(mVideoSurface.get(),wanted);
+		}
+		return false;
+	}
 	// 获取绘制窗口
 	//		
 	FFL::sp<player::VideoSurface> AndroidVideoDevice::getSurface() {
@@ -93,7 +141,7 @@ namespace android {
 	//		
 	bool AndroidVideoDevice::showTexture(player::VideoTexture* texture) {
 		RenderInterface* render=mRenderManager->getRender(texture->getVideoFormat(),NULL);
-		render->draw(mVideoSurface,texture);
+		render->draw(mVideoSurface.get(),texture);
 		return false;
 	}
 }

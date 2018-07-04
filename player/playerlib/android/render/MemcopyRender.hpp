@@ -11,7 +11,7 @@
 *
 */
 #include "RenderInterface.hpp"
-
+#include "VideoFormat.hpp"
 namespace android{
     class MemcopyRender : public  RenderInterface{
     public:
@@ -30,5 +30,14 @@ namespace android{
         //  释放这个render，释放后这个render就不可用了
         //
         virtual void destroy();
+
+        //  获取支持的格式
+        //  wanted: 如果为nUll则返回所有支持的格式
+        //           非null 返回跟他匹配的
+        //  fmtList: 返回支持的格式list
+        //
+        virtual void getSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,FFL::List<player::VideoFormat>& fmtList);
+        virtual bool getOptimalFormat(player::VideoSurface* surface,const player::VideoFormat* wanted,player::VideoFormat* optinal);
+        virtual bool isSupportFormat(player::VideoSurface* surface,const player::VideoFormat* wanted);
     };
 }

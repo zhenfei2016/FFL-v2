@@ -45,7 +45,7 @@ namespace player {
 		//  开始缩放图片
 		//
 		bool scaleVideo(
-			const uint8_t** srcPix, int* srcLinesize, int height,
+			uint8_t** srcPix, int* srcLinesize, int height,
 			uint8_t** dstPix, int* dstLinesize);
 
 
@@ -77,6 +77,11 @@ namespace player {
 		VideoFormat mSourceFormat;
 		VideoFormat mDestFormat;
 		SwsContext* mSwsCtx;
+
+		//
+		// 缓存的数据包
+		//
+		FFL::sp<FFL::PipelineMessageCache> mMessageCache;
 	};
 }
 
