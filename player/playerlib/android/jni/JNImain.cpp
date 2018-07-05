@@ -32,7 +32,6 @@ namespace android {
 }
 
 extern "C" {
-#include <FFL.h>
 #include <android/log.h>
 }
 
@@ -50,8 +49,12 @@ extern "C"  void ffmpegPrintLog(void *ptr, int level, const char *fmt, va_list v
     static int is_atty;
 
     av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &print_prefix);
+
     strcpy(prev, line);
-    if (level <= AV_LOG_WARNING){
+    //sanitize((uint8_t *)line);
+
+    if (level <= AV_LOG_WARNING)
+    {
         __android_log_print(ANDROID_LOG_ERROR,"ffmpeg","%s",line);;
     }
     else

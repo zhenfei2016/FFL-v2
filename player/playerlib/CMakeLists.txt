@@ -124,6 +124,7 @@ SET(LOCAL_PLATFORM_SRC_FILES
    android/render/MemcopyRender.cpp;android/render/MemcopyRender.hpp
    android/render/RenderInterface.hpp
    android/render/RenderManager.cpp;android/render/RenderManager.hpp
+   android/render/OpenglesRender.cpp;android/render/OpenglesRender.hpp
 
 
    android/AndroidVideoDevice.hpp;android/AndroidVideoDevice.cpp
@@ -136,8 +137,11 @@ SET(LOCAL_PLATFORM_SRC_FILES
    android/NativeFFLPlayer.cpp;android/NativeFFLPlayer.hpp
    android/JavaFFLPlayer.cpp;android/JavaFFLPlayer.hpp
    android/JavaAudiotrack.cpp;android/JavaAudiotrack.hpp
-
-      )
+   
+   android/opengles2/SDL_shaders_gles2.c;android/opengles2/SDL_shaders_gles2.h
+   android/opengles2/SDL_render_gles2.hpp;android/opengles2/SDL_render_gles2.cpp
+   android/egl/egl.hpp;android/egl/egl.cpp
+   )
  ADD_SUBDIRECTORY(./android/jni)
 ELSE()
 SET(LOCAL_PLATFORM_SRC_FILES   "")
