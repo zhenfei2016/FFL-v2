@@ -137,8 +137,7 @@ void jumpBackword(const char* args, void* userdata) {
 void volumeDown(const char* args, void* userdata) {
 	player::FFLPlayer* player = (player::FFLPlayer*) userdata;
 
-	int32_t vol = 0;
-	player->getVolume(vol);
+	int32_t vol = player->getVolume();
 	vol -= 5;
 	vol = FFL_MAX(0, vol);
 	player->setVolume(vol);
@@ -151,8 +150,7 @@ void volumeDown(const char* args, void* userdata) {
 void volumeUp(const char* args, void* userdata) {
 	player::FFLPlayer* player = (player::FFLPlayer*) userdata;
 
-	int32_t vol = 0;
-	player->getVolume(vol);
+	int32_t vol = player->getVolume();
 	vol += 5;
 	vol = FFL_MIN(255, vol);
 	player->setVolume(vol);

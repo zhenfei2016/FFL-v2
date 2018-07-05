@@ -24,7 +24,7 @@ namespace android{
     //
     //  创建这个render ，arg自定义的参数
     //
-    status_t MemcopyRender::create(void* arg){
+    status_t MemcopyRender::create(const player::VideoFormat*  arg){
 
         return  FFL_OK;
     }

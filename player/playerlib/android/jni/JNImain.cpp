@@ -12,25 +12,32 @@
 */
 #include <jni.h>
 #include <string>
-#include "JavaAudiotrack.hpp"
-#include "JavaFFLPlayer.hpp"
+#include "android/JavaAudiotrack.hpp"
+#include "android/JavaFFLPlayer.hpp"
 #include "FFMpeg.hpp"
 
-static JavaVM* gJvm;
 
-JavaVM* getJavaVM(){
-    return  gJvm;
+namespace android {
+    //
+    //  获取，设置虚拟机
+    //
+    extern JavaVM *getJavaVM();
+
+    extern void setJavaVM(JavaVM *jvm);
+
+    //
+    //  获取当前线程的env
+    //
+    extern void getJNIEnv(JNIEnv **env);
 }
 
-
 extern "C" {
-#include "FFL_log.h"
+#include <FFL.h>
 #include <android/log.h>
 }
 
 extern "C" int fflv2PrintLog(int level,const char* tag,const char *format, va_list vaList){
-
-    //__android_log_print(ANDROID_LOG_ERROR,tag?tag:"FFLv2",format,vaList);
+    __android_log_print(ANDROID_LOG_ERROR,tag?tag:"FFLv2",format,vaList);
     return 1;
 }
 
@@ -43,12 +50,8 @@ extern "C"  void ffmpegPrintLog(void *ptr, int level, const char *fmt, va_list v
     static int is_atty;
 
     av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &print_prefix);
-
     strcpy(prev, line);
-    //sanitize((uint8_t *)line);
-
-    if (level <= AV_LOG_WARNING)
-    {
+    if (level <= AV_LOG_WARNING){
         __android_log_print(ANDROID_LOG_ERROR,"ffmpeg","%s",line);;
     }
     else
@@ -67,7 +70,7 @@ void Loginit(){
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env = NULL;
-    gJvm = vm;
+    android::setJavaVM(vm);
     if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
         return -1;
     }

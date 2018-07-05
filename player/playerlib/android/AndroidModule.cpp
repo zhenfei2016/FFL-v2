@@ -29,8 +29,7 @@ namespace android {
 	//  创建播放音频设备
 	//
 	FFL::sp<player::AudioDevice> AndroidModule::createAudioDevice(void* player) {
-		//return new AndroidAudioDevice();
-		return  NULL;
+		return new AndroidAudioDevice();
 	}
 
 

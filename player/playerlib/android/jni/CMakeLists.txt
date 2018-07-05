@@ -9,13 +9,7 @@ INCLUDE_DIRECTORIES(
 LINK_DIRECTORIES(
            ../../../third/FFmpeg3.3.5/output_android_static/)
 
-SET(LOCAL_SRC_FILES
-   jnihelper/JavaClass.hpp;jnihelper/JavaClass.cpp
-   jnihelper/JavaObject.hpp;jnihelper/JavaObject.cpp
-   
-   NativeFFLPlayer.cpp;NativeFFLPlayer.hpp
-   JavaFFLPlayer.cpp;JavaFFLPlayer.hpp
-   JavaAudiotrack.cpp;JavaAudiotrack.hpp
+SET(LOCAL_SRC_FILES   
    JNImain.cpp)
 
 

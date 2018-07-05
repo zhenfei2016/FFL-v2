@@ -74,6 +74,7 @@ SET(LOCAL_SRC_FILES
    AudioUtils.hpp;AudioUtils.cpp 
    AudioFormat.hpp;AudioFormat.cpp
    AudioDevice.hpp;AudioDevice.cpp
+   AudioDataCache.hpp;AudioDataCache.cpp
    AudioStream.hpp;AudioStream.cpp
    AudioSample.hpp;AudioSample.cpp   
    AudioRender.hpp;AudioRender.cpp
@@ -124,9 +125,17 @@ SET(LOCAL_PLATFORM_SRC_FILES
    android/render/RenderInterface.hpp
    android/render/RenderManager.cpp;android/render/RenderManager.hpp
 
+
    android/AndroidVideoDevice.hpp;android/AndroidVideoDevice.cpp
    android/AndroidAudioDevice.hpp;android/AndroidAudioDevice.cpp
    android/AndroidModule.hpp;android/AndroidModule.cpp
+   android/jnihelper/JavaClass.hpp;android/jnihelper/JavaClass.cpp
+   android/jnihelper/JavaObject.hpp;android/jnihelper/JavaObject.cpp
+   android/jnihelper/JavaThread.hpp;android/jnihelper/JavaThread.cpp
+   
+   android/NativeFFLPlayer.cpp;android/NativeFFLPlayer.hpp
+   android/JavaFFLPlayer.cpp;android/JavaFFLPlayer.hpp
+   android/JavaAudiotrack.cpp;android/JavaAudiotrack.hpp
 
       )
  ADD_SUBDIRECTORY(./android/jni)

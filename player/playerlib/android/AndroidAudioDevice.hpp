@@ -12,14 +12,17 @@
 */#ifndef _ANDROID_AUDIO_DEVICE_HPP_
 #define _ANDROID_AUDIO_DEVICE_HPP_
 #include "AudioDevice.hpp"
+#include "AudioDataCache.hpp"
 #include <FFL.h>
+#include <utils/FFL_ByteBuffer.hpp>
+#include <pipeline/FFL_PipelineEvent.hpp>
+
 namespace android {
-	class JavaAudioTrack;
+	class AudioTrackThread;
 	class AndroidAudioDevice : public player::AudioDevice {
 	public:
 		AndroidAudioDevice();
 		virtual ~AndroidAudioDevice();
-
 	public:
 		//
 		//  获取支持的格式
@@ -64,8 +67,27 @@ namespace android {
 		//
 		virtual int64_t getRenderingPts() ;
 
+    private:
+        void handleOpenAudioTrack(const FFL::sp<FFL::PipelineEvent>& event);
+        void handleCloseAudioTrack(const FFL::sp<FFL::PipelineEvent>& event);
+        void handleWriteAudioTrack(const FFL::sp<FFL::PipelineEvent>& event);
 	protected:
-		JavaAudioTrack* mAudioTrack;
-	};
+        player::AudioFormat mCurrentFormat;
+        friend class AudioTrackThread;
+        FFL::sp<AudioTrackThread> mAudioTrackThread;
+        //
+        //  cache多长时间的数据
+        //
+        int64_t mCacheUs;
+        //
+        //  cache音频数据
+        //
+        player::AudioDataCache mDataCache;
+    private:
+        FFL::sp<FFL::PipelineEvent> mEventOpen;
+        FFL::sp<FFL::PipelineEvent> mEventClose;
+        FFL::sp<FFL::PipelineEvent> mEventWrite;
+
+    };
 }
 #endif

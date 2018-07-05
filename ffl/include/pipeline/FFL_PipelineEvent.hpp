@@ -86,7 +86,9 @@ namespace FFL{
 	//	
 	class PipelineEventLooper : public Looper {
 	public:
+		PipelineEventLooper();
 		PipelineEventLooper(sp<Pipeline> pipeline);
+		
 		//
 		//  post一条事件到这个looper中
 		//
@@ -95,13 +97,16 @@ namespace FFL{
 		//
 		// 收到一个事件
 		//
-		void onEvent(const sp<PipelineEvent> &event);			
+		void onEvent(const sp<PipelineEvent> &event);
+
+    private:
 		//
 		//  事件的处理句柄
 		//
-		class EventHandler;
-		sp<EventHandler> mEventHandler;
+		friend class EventHandler;
+		sp<Handler> mEventHandler;
 		wp<Pipeline> mPipeline;
+		bool mHavePipeline;
 	};
 }
 

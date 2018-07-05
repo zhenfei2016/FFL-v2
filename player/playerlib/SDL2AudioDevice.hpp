@@ -27,6 +27,7 @@
 #include <utils/FFL_List.hpp>
 #include <thread/FFL_Thread.hpp>
 #include "AudioDevice.hpp"
+#include "AudioDataCache.hpp"
 
 
 namespace player {
@@ -93,19 +94,7 @@ namespace player {
 		//
 		static void  SDL2_fillAudio(void *userdata, Uint8 *stream, int len);
 		void SDL2_fill(uint8_t *stream, uint32_t len);
-		//
-		//  从本地缓存读数据到交换缓冲中
-		//
-		uint32_t readData2SwapBuffer(uint32_t wantedSize);
-
-		//
-		//   wantedSize=0,跳过所有你的
-		//
-		uint32_t skip(uint32_t wantedSize);
 	private:
-		FFL::CMutex mLock;
-		FFL::CCondition mCond;
-		FFL::ByteBuffer* mByteBuffer;
 		bool mIsOpened;
 		int64_t mCacheUs;
 		//
@@ -122,19 +111,10 @@ namespace player {
 		// 用于sdl2和mByteBuffer间交换数据的
 		//
 		FFL::ByteBuffer mSwapBuffer;
-
-	private:
-		struct SampleEntry {
-			int64_t pts;
-			int64_t size;
-
-			int64_t consumeCount;
-		};
-		FFL::List<SampleEntry> mSamples;
-		int64_t mCachedBytes;
-		int64_t mCurrentRenderPts;
-
-		
+		//
+		//  cache音频数据
+		//
+		AudioDataCache mDataCache;		
 	};
 }
 #endif

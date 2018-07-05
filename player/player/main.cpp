@@ -80,6 +80,8 @@ int printLog(int level,const char* tag, const char *format, va_list v)
 extern int playerMain();
 
 extern "C" int main(int argc ,const char* argv[]) {
+	int a = 11;
+	printf("%d\n", a);
 
 	FFL::startMemoryWatch();
 #if WIN32

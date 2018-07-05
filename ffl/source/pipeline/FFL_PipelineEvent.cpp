@@ -65,7 +65,7 @@ namespace FFL {
 	//
 	//
 	//
-	class PipelineEventLooper::EventHandler : public Handler {
+	class EventHandler : public Handler {
 	public:
 		EventHandler(PipelineEventLooper* looper) :mLooper(looper) {
 		}
@@ -74,7 +74,9 @@ namespace FFL {
 			if (msg.isEmpty()) {
 				return;
 			}
-
+			//
+			//  如果这个事件有自己的处理回调，则执行
+			//
 			sp<PipelineEvent> event = ((PipelineEvent*)msg.get());
 			if (event->haveCallback()) {
 				event->fireCallback();
@@ -85,32 +87,45 @@ namespace FFL {
 		}
 		PipelineEventLooper* mLooper;
 	};
-
-	PipelineEventLooper::PipelineEventLooper(sp<Pipeline> pipeline)
+	PipelineEventLooper::PipelineEventLooper():mHavePipeline(false){
+        mEventHandler = new EventHandler(this);
+	}
+	PipelineEventLooper::PipelineEventLooper(sp<Pipeline> pipeline): mHavePipeline(true)
 	{
 		mPipeline = pipeline;
-        mEventHandler = new EventHandler(this);     	
+        mEventHandler = new EventHandler(this);
 	}
 	void PipelineEventLooper::postEvent(const sp<PipelineEvent> &event, int64_t delayUs)
 	{
 		sp<Pipeline> pipeline;
-        Looper::handler_id id=mEventHandler->id();        
-        if(id==0){
-		   pipeline = mPipeline.promote();
-           if (!pipeline.isEmpty()) {
-               id=registerHandler(mEventHandler);
-           }
-		}else {
-		   pipeline = mPipeline.promote();
-		}        
-		
-		if (!pipeline.isEmpty()) {
+		Looper::handler_id id = mEventHandler->id();
+		if (mHavePipeline) {
+			if (id == 0) {
+				pipeline = mPipeline.promote();
+				if (!pipeline.isEmpty()) {
+					id = registerHandler(mEventHandler);
+				}
+			}
+			else {
+				pipeline = mPipeline.promote();
+			}
+
+			if (!pipeline.isEmpty()) {
+				event->setTarget(id);
+				post(event, delayUs);
+			}
+		}
+		else {
+			Looper::handler_id id = mEventHandler->id();
+			if (id == 0) {
+				id = registerHandler(mEventHandler);
+			}
+
 			event->setTarget(id);
 			post(event, delayUs);
-		}
+		}		
 	}
-	void PipelineEventLooper::onEvent(const sp<PipelineEvent> &event)
-	{
+	void PipelineEventLooper::onEvent(const sp<PipelineEvent> &event){		
 		sp<Pipeline> pipeline = mPipeline.promote();
 		if (!pipeline.isEmpty()) {
 			pipeline->onEvent(event);

@@ -34,16 +34,12 @@ namespace player {
 		return AV_SAMPLE_FMT_NONE;
 	}
 
-	SDL2AudioDevice::SDL2AudioDevice():mCacheUs(1000*500),
-		mCachedBytes(0),
-		mCurrentRenderPts(0){
-		mByteBuffer = new FFL::ByteBuffer();
+	SDL2AudioDevice::SDL2AudioDevice():mCacheUs(1000*500){			
 		mIsOpened = false;
 		mBytesPerSec = 0;
 	}
 	SDL2AudioDevice::~SDL2AudioDevice() {
-		close();
-		FFL_SafeFree(mByteBuffer);
+		close();		
 	}
 	//
 	//  获取支持的格式
@@ -132,8 +128,8 @@ namespace player {
 
 		uint32_t bufSize =(uint32_t) (mBytesPerSec * ((double)mCacheUs / (1000 * 1000)));
 		bufSize = FFL_MAX(sampleNum * perSampleSize* 4, bufSize);
-		mByteBuffer->alloc(bufSize);		
-		mByteBuffer->getByteStream()->reset();
+		mDataCache.setSize(bufSize);
+		mDataCache.startup();
 		
 		SDL_PauseAudio(0);
 		mIsOpened = true;
@@ -144,7 +140,7 @@ namespace player {
 			SDL_PauseAudio(1);
 			SDL_CloseAudio();
 			mIsOpened = false;
-			mCond.signal();
+			mDataCache.shutdown();
 		}
 	}
 	//
@@ -164,50 +160,7 @@ namespace player {
 			FFL_LOG_WARNING_TAG(TAG_AUDIO, "Failed to SDL2AudioDevice::writeFrame device not open.");
 			return false;
 		}
-
-		FFL::CMutex::Autolock l(mLock);
-		FFL::ByteStream* stream=mByteBuffer->getByteStream();
-		
-		uint32_t offset = 0;
-		uint32_t writeSize = (uint32_t)samples->mLinesize;
-		while (isOpened()){
-			uint32_t bufSize = stream->getCapacity() - stream->getSize();
-			if (writeSize >= stream->getCapacity() && bufSize >=(stream->getCapacity() /2) ) {
-				//
-				//  拆开进行写
-				//
-				FFL_LOG_WARNING_TAG(TAG_AUDIO, "SDL2AudioDevice::writeFrame sample size(%d)> cache size(%d).",
-					 writeSize, bufSize);
-				stream->writeBytes((const int8_t*)samples->mData[0]+ offset, bufSize);
-				offset +=bufSize;
-			}else if (bufSize< writeSize){
-				FFL_LOG_DEBUG_TAG(TAG_AUDIO, "SDL2AudioDevice::writeFrame audio wait..writeSize=%d,bufSize=%d",
-					writeSize, bufSize);
-				mCond.wait(mLock);
-			}else if (bufSize>= writeSize) {
-				break;
-			}
-		}
-
-		if (isOpened()) {
-			if ((uint32_t)samples->mLinesize > offset) {
-				stream->writeBytes((const int8_t*)samples->mData[0] + offset, samples->mLinesize - offset);
-			}
-
-			SampleEntry entry;
-			entry.pts = samples->mPts;
-			entry.size = samples->mLinesize;
-			entry.consumeCount = 0;
-			mCachedBytes += samples->mLinesize;
-			mSamples.push_back(entry);
-
-			if (mCurrentRenderPts == 0) {
-				mCurrentRenderPts = entry.pts;
-			}
-			return true;
-		}
-
-		return false;
+		return mDataCache.writeFrame(samples);
 	}
 	//
 	//  获取播放设备硬件的延迟
@@ -219,17 +172,14 @@ namespace player {
 	//
 	// 获取缓冲的数据量，还没有播放
 	//
-	int64_t SDL2AudioDevice::getCacheBytes() {
-		FFL::CMutex::Autolock l(&mLock);
-		return mByteBuffer->getByteStream()->getSize();
+	int64_t SDL2AudioDevice::getCacheBytes() {		
+		return mDataCache.getCacheBytes();
 	}
 	//
 	//  清空缓冲的数据
 	//
-	int64_t SDL2AudioDevice::clearCache() {				
-		int64_t size=skip(0);		
-		mCurrentRenderPts = 0;
-		return size;
+	int64_t SDL2AudioDevice::clearCache() {						
+		return mDataCache.clearCache();
 	}
 	//
 	// 获取缓冲的延迟时间
@@ -246,8 +196,7 @@ namespace player {
 	// 获取播放中的音频的pts
 	//
 	int64_t SDL2AudioDevice::getRenderingPts() {
-		FFL::CMutex::Autolock l(mLock);
-		return mCurrentRenderPts;
+		return mDataCache.getRenderingPts();
 	}
 	//
 	//  sdl2回调获取音频数据
@@ -260,116 +209,14 @@ namespace player {
 	}	
 	void SDL2AudioDevice::SDL2_fill(uint8_t *stream, uint32_t len) {
 		SDL_memset(stream, 0, len);
-		uint32_t readed=readData2SwapBuffer(len);		
+		uint32_t readed=mDataCache.read(len,&mSwapBuffer);		
 		if (readed != len) {
 			FFL_LOG_DEBUG_TAG(TAG_AUDIO, "SDL2AudioDevice::SDL2_fill readed=%d  want=%d", readed , len);
 		}
 
-		int32_t volume;
-		getVolume(volume);	
+		int32_t volume=getVolume();	
 
 		int sdlVolume = (int)(((float)volume / 255) * SDL_MIX_MAXVOLUME);
 		SDL_MixAudio(stream, (Uint8*)mSwapBuffer.data(), readed, sdlVolume);
-	}	
-	//
-	//  从本地缓存读数据到交换缓冲中
-	//
-	uint32_t SDL2AudioDevice::readData2SwapBuffer(uint32_t wantedSize) {
-		FFL::CMutex::Autolock l(mLock);
-		FFL::ByteStream* byteStream = mByteBuffer->getByteStream();
-		if (byteStream->getSize() == 0) {			
-			mCond.signal();
-			return 0;
-		}
-
-		uint32_t copyLen = 0;
-		if (wantedSize > byteStream->getSize()) {
-			copyLen = byteStream->getSize();
-		}
-		else {
-			copyLen = wantedSize;
-		}
-		
-		if (copyLen > 0) {
-			if (mSwapBuffer.size() < copyLen) {
-				mSwapBuffer.alloc(copyLen);
-			}
-			
-			byteStream->readBytes((int8_t*)mSwapBuffer.data(), copyLen);		
-			if (byteStream->getSize() <= byteStream->getCapacity() / 2) {
-				mCond.signal();
-			}
-		}else {
-			FFL_LOG_WARNING_TAG(TAG_AUDIO, " SDL2AudioDevice::readData2SwapBuffer wantedSize=%d read=0", wantedSize);
-		}
-
-		{
-			int64_t count = copyLen;
-			while (mSamples.size() > 0) {
-				SampleEntry& entry = mSamples.front();				
-				entry.consumeCount += count;
-				if (entry.size <= entry.consumeCount) {					
-					count = entry.consumeCount - entry.size;					
-					mCurrentRenderPts = entry.pts;
-					mSamples.pop_front();
-				}else {
-					mCurrentRenderPts = entry.pts;
-					break;
-				}
-			}
-		}
-		
-		return copyLen;
-	}	
-
-	//
-	//  从本地缓存读数据到交换缓冲中
-	//
-	uint32_t SDL2AudioDevice::skip(uint32_t wantedSize) {
-		FFL::CMutex::Autolock l(mLock);
-		FFL::ByteStream* byteStream = mByteBuffer->getByteStream();
-		if (byteStream->getSize() == 0) {
-			mCond.signal();
-			return 0;
-		}
-
-		uint32_t copyLen = 0;
-		if (wantedSize == 0) {
-			copyLen = byteStream->getSize();
-		}else if (wantedSize > byteStream->getSize()) {
-			copyLen = byteStream->getSize();
-		}
-		else {
-			copyLen = wantedSize;
-		}
-
-		if (copyLen > 0) {			
-			byteStream->readBytes(NULL, copyLen);
-			if (byteStream->getSize() <= byteStream->getCapacity() / 2) {
-				mCond.signal();
-			}
-		}
-		else {
-			FFL_LOG_WARNING_TAG(TAG_AUDIO, " SDL2AudioDevice::skip wantedSize=%d read=0", wantedSize);
-		}
-
-		{
-			int64_t count = copyLen;
-			while (mSamples.size() > 0) {
-				SampleEntry& entry = mSamples.front();
-				entry.consumeCount += count;
-				if (entry.size <= entry.consumeCount) {
-					count = entry.consumeCount - entry.size;
-					mCurrentRenderPts = entry.pts;
-					mSamples.pop_front();
-				}
-				else {
-					mCurrentRenderPts = entry.pts;
-					break;
-				}
-			}			
-		}
-		mCond.signal();
-		return copyLen;
-	}
+	}		
 }

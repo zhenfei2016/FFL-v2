@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                         String filePath = cursor.getString(columnIndex);
                         mUrl=filePath;
-                        getPlayer().native_setUrl(filePath);
+                       // getPlayer().native_setUrl(filePath);
                         cursor.close();
                     } catch (Exception e) {
                         e.printStackTrace();
