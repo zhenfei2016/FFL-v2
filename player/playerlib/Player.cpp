@@ -58,6 +58,7 @@ namespace player {
 		mCore->setDeviceManager(mDevManager);
 	}
 	void FFLPlayer::create(void* surface) {
+		setSurface(surface);
 		mDevManager->openVideoDisplay(mSurfaceHandle);
 	}
 	FFLPlayer::~FFLPlayer() {
