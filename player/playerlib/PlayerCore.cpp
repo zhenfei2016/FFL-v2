@@ -86,11 +86,23 @@ namespace player {
 		return FFL_OK;
 	}
 	status_t PlayerCore::pause() {
-		mFileReader->pause();
+		if (mMasterClock) {
+			mMasterClock->pause();
+		}
+		mFileReader->pause();	
+		
+		FFL::sp<VideoRender> videoRender=getVideoRender();
+		if (!videoRender.isEmpty()) {
+			videoRender->pause();
+		}
+
 		return FFL_OK;
 	}
 	status_t PlayerCore::resume() {
-		mFileReader->resume();
+		if (mMasterClock) {
+			mMasterClock->resume();
+		}
+		mFileReader->resume();		
 		return FFL_OK;
 	}
 	status_t PlayerCore::release() {
@@ -131,7 +143,10 @@ namespace player {
 	//     >0 : 播放num+1次
 	//
 	void PlayerCore::setLoop(int32_t num) {
-		mFileReader->setLoop(num);
+		mFileReader->setLoopNum(num);
+	}
+	int32_t PlayerCore::getLoop() {
+		return mFileReader->getLoopNum();
 	}
 	void PlayerCore::onEvent(const FFL::sp<event::PlayerEvent> event)
 	{

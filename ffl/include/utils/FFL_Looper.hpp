@@ -93,6 +93,10 @@ namespace FFL {
 		//  msgId :消息的唯一id 
         //
         bool cancelMessage(uint32_t msgId);
+		//
+		// 获取这个looper的messagequeue
+		//
+		MessageQueue* getMessageQueue();
 	public:
 		void setDebug(bool debug);
 	protected:

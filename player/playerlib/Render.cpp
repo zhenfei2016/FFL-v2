@@ -20,6 +20,13 @@ namespace player {
 	Render::~Render() {
 	}
 
+	void Render::pause() {
+
+	}
+	void Render::resume() {
+
+	}
+
 	//
 	//  获取，设置渲染速度
 	//

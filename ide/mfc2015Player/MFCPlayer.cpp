@@ -5,11 +5,50 @@
 #include "stdafx.h"
 #include "MFCPlayer.h"
 #include "MFCPlayerDlg.h"
+#include "Player.hpp"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+
+const char* ShowLogTag[] = {
+	//"audio",
+	//"timestamp",
+	//"MsgQueue",
+	NULL
+};
+
+int printLog(int level, const char* tag, const char *format, va_list v)
+{
+	bool showLog = false;
+	if (level <= FFL_LOG_LEVEL_ERROR) {
+		showLog = true;
+	}else if (tag) {
+		for (int i = 0; i < FFL_ARRAY_ELEMS(ShowLogTag); i++) {
+			if (ShowLogTag[i] && strcmp(tag, ShowLogTag[i]) == 0) {
+				showLog = true;
+				break;
+			}
+		}
+	}
+
+	if (showLog) {
+		char str[1024] = {};
+		vsnprintf(str + 2, 1024 - 1, format, v);
+		str[0] = ' ';
+		str[1] = ' ';
+
+		char timeStr[128] = { 0 };
+		FFL_getNowString(timeStr);
+		::OutputDebugStringA(timeStr);
+		::OutputDebugStringA(str);
+		::OutputDebugStringA("\r\n");
+		return 1;
+	}
+	
+	return 1;
+}
 
 // CMFCPlayerApp
 
@@ -38,6 +77,7 @@ BOOL CMFCPlayerApp::InitInstance()
 {
 	CWinApp::InitInstance();
 
+	FFL_LogHook(printLog);
 
 	// 创建 shell 管理器，以防对话框包含
 	// 任何 shell 树视图控件或 shell 列表视图控件。

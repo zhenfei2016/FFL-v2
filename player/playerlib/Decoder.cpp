@@ -35,7 +35,7 @@ namespace player {
 			InputInterface input;
             FFL::String name;
             getName(name);
-			mComposer->connectSource(mFrameOutput,name.c_str(),input,0);
+			mComposer->connectSource(mFrameOutput, mComposer->getName(),input,0);
 		}
 	}
 	

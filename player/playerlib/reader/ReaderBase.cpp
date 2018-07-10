@@ -142,8 +142,11 @@ namespace reader {
 	//     =0 : 播放一次
 	//     >0 : 播放num+1次
 	//
-	void ReaderBase::setLoop(int32_t count) {
+	void ReaderBase::setLoopNum(int32_t count) {
 		mLoopCount = count;
+	}
+	int32_t ReaderBase::getLoopNum() {
+		return mLoopCount;
 	}
 	//
 	// 是否暂停状态

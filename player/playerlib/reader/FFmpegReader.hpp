@@ -42,7 +42,7 @@ namespace reader {
 		//
 		// seek函数，具体实现
 		//	
-		virtual void onSeek(int64_t pos);	
+		virtual bool onSeek(int64_t pos);	
 
          bool seekPos(int64_t pos);
 	private:
@@ -55,8 +55,7 @@ namespace reader {
 		//  文件结束
 		//
 		void handleEof();
-	private:
-		//InputInterface mInput;
+	private:		
 		enum {
 			SUPORT_STREAM_NUM = 4,
 		};
@@ -73,15 +72,17 @@ namespace reader {
 		};
 		StreamEntry mStreamVector[SUPORT_STREAM_NUM];
 		//
-		// 每次seek后会更改序列号
-		// 当前读取的数据包的序列号
+		// 每次seek后会更改序列号		
 		//		
-		volatile int64_t mSeekSerialNumber;
-		volatile int64_t mPacketSerialNumber;
+		volatile int64_t mSeekSerialNumber;		
 		//
 		//  是否eof
 		//
 		uint32_t mEOFFlag;
+		//
+		// 重新开始从头读写
+		//
+		bool mRestart;
 		//
 		//  解复用FFMpeg上下文
 		//

@@ -22,6 +22,7 @@
 #include "Decoder.hpp"
 #include "MessageFFMpegFrame.hpp"
 #include "MessageFFMpegPacket.hpp"
+#include <map>
 
 namespace player {
 	class Stream;
@@ -38,7 +39,7 @@ namespace player {
 		//
 		//  解码一消息
 		//
-		bool decodeMessageFFMpegPacket(message::FFMpegPacket* msg);
+		bool decodeMessageFFMpegPacket(const FFL::sp<FFL::PipelineMessage>& msg,message::FFMpegPacket* packet);
 		//
 		//  解码一帧数据
 		//   discard:是否丢弃解码出来的数据
@@ -54,6 +55,15 @@ namespace player {
 		virtual void handleDecodedFrame(AVFrame* frame)=0;
 
 		virtual void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);     
+	protected:	
+		//
+		//  保存，获取trackback信息
+		//
+		void saveTrackbackInfo(const FFL::sp<FFL::PipelineMessage> msg);
+		void loadTrackbackInfo(FFL::sp<FFL::PipelineMessage> outMsg, AVFrame* frame);
+		void resetTrackbackInfo();
+
+		FFL::Vector<FFL::PipelineMessageTrackbackId> mTrackbakcIdMap;
 	public:
 		//
 		// 解码上下文

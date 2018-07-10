@@ -8,5 +8,9 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/06/10
 *
 */
-#include "FFL_Utility.h"
-
+#include <FFL.h>
+#include "atomic/atomic.h"
+static AtomicInt g_atomicId;
+int FFL_generateId(){
+	return atomicInc(&g_atomicId);
+}

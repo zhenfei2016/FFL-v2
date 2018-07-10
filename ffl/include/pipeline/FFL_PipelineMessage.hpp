@@ -36,6 +36,39 @@ namespace FFL{
 		virtual void onConsume(FFL::PipelineMessage* msg)=0;
 	};
 
+	//
+	//  pipelinemessage的追溯信息，可以进行消息处理的性能分析
+	//
+	class PipelineMessageTrackbackId {
+	public:
+		PipelineMessageTrackbackId();
+		~PipelineMessageTrackbackId();
+	public:
+		void setId(int32_t id);
+		void beginTrack();
+		void endTrack();
+	public:
+		virtual void beginTrack(int32_t tid);
+		virtual void endTrack(int32_t tid);
+		virtual void printf();
+	private:
+		//
+		//  全局唯一的
+		//
+		int32_t mId;
+		//
+		//  开始结束时间，2个的差值为处理事件
+		//
+		int64_t mStartTimeUs;
+		int64_t mEndTimeUs;
+		//
+		// 处理的线程id
+		//
+		int32_t mThreadId;
+	};
+
+
+
 	class PipelineMessage : public Serializable {
 		friend class PipelineAsyncConnector;		
 		friend class PipelineLooper;
@@ -100,22 +133,53 @@ namespace FFL{
 		//
 		uint32_t mMessageUniqueId;
 	public:
-		struct TraceBackInfo {
+		class TraceBackInfo {
+		public:
 			//
 			//  全局唯一的
 			//
-			int64_t mId;
+			int32_t mId;
+			//
+			//  入队，出队时间，2个的差值为处理事件
+			//
+			int64_t mQueueTimeUs;
+			int64_t mDeQueueTimeUs;
+			//
+			// 处理的线程id
+			//
+			int32_t mThreadId;
+		public:
+			//
+			//  开始，结束track记录信息
+			//
+			void begin();
+			void begin(int32_t tid);
+			void end(int32_t tid);
 		};
 		//
-		//  获取，设置这个Message的追溯信息，主要用于调试，分析
+		//  获取，这个Message的追溯信息，主要用于调试，分析
 		//  因为，一条消息可能经过n多的node进行处理
-		//
-		void setTracebackInfo(const TraceBackInfo& info);
-		void getTracebackInfo(TraceBackInfo& info);
-	private:
-		TraceBackInfo mTraceBackInfo;
+		//		
+		PipelineMessageTrackbackId& getTracebackInfo();
+	protected:
+		PipelineMessageTrackbackId mTraceBackInfo;
 	};
    
+	//
+	//  自动打印trackback
+	//
+	class AutoPrintfTrackback {
+	public:
+		inline AutoPrintfTrackback(PipelineMessageTrackbackId& info):mId(info){			
+			mId.beginTrack();
+		}
+		inline ~AutoPrintfTrackback() {
+			mId.endTrack();
+			mId.printf();
+		}
+
+		PipelineMessageTrackbackId& mId;
+	};
 	
     //
     //  是否PipelineMessage消息

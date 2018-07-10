@@ -15,6 +15,11 @@ namespace player {
 		//
 		void reset();
 		//
+		//  暂停,恢复,时钟，
+		//
+		void pause();
+		void resume();
+		//
 		// 更新时钟
 		//
 		void updateClock(int64_t us);
@@ -24,6 +29,12 @@ namespace player {
 		//
 		int64_t getClock();
 	private:
+		//
+		//  是否时钟是暂停状态，暂停的时候的时钟值
+		//
+		volatile bool mPause;
+		int64_t mPauseClock;
+
 		//
 		//  外部updateClock更新的时钟us
 		//

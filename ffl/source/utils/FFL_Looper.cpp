@@ -249,6 +249,12 @@ namespace FFL {
 	bool Looper::cancelMessage(uint32_t msgId){
 		return mMsgQueue->cancel(msgId);
 	}
+	//
+	// 获取这个looper的messagequeue
+	//
+	MessageQueue* Looper::getMessageQueue() {
+		return mMsgQueue;
+	}
 	void Looper::setDebug(bool debug)
 	{ mMsgQueue->mDebug = debug; }
 	//

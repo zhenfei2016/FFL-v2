@@ -37,8 +37,16 @@ namespace player {
 		//  发送消息给render
 		//
 		status_t postMessageDelayToRender(const FFL::sp<FFL::PipelineMessage> &msg, uint64_t delayUs);
-	public:
+		//
+		//  获取最后一条消息的处理时间点
+		//
+		int64_t getLastMessageTime() const {
+			return mLastPostMessageUs;
+		}
+	protected:
 		FFL::sp<Render> mRender;	
 		OutputInterface mOutputToRenderInterface;
+
+		int64_t mLastPostMessageUs;
 	};
 }

@@ -25,6 +25,10 @@ namespace player {
 	}
 	VideoRender::~VideoRender() {		
 	}
+	void VideoRender::pause(){
+	}
+	void VideoRender::resume(){
+	}
 	//
 	//  成功创建了node
 	//
@@ -68,9 +72,12 @@ namespace player {
 			ret = true;
 		}
 			break;
-		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		case MSG_CONTROL_READER_SEEK:
 		{
-			mDevice->clearCache();
+			int64_t flag = msg->getParam2();
+			if ((flag & 0x01) == 1) {
+				mDevice->clearCache();
+			}			
 			msg->consume(this);
 			break;
 		}

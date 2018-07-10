@@ -261,6 +261,17 @@ namespace player {
 	status_t NodeBase::postSelfMessage(FFL::PipelineInputId dstId, const FFL::sp<FFL::PipelineMessage> &msg, uint64_t delayUs) {
 		return mNodeHandler->postSelfMessage(dstId, msg, delayUs);
 	}
+	//
+	//   清空输出节点中没有处理的消息
+	//
+	void NodeBase::clearMessage(FFL::PipelineInputId dstId) {
+		FFL::sp<FFL::PipelineOutput > output = getOutput(dstId);
+		if (!output.isEmpty()) {
+			output->clearMessage();
+		}else {
+			FFL_LOG_WARNING("NodeBase(%s)::clearMessage not find dstid=%d ", dstId);
+		}
+	}
 	void NodeBase::onCreate() {}
 	void NodeBase::onDestroy(){}
 	void NodeBase::onStartMessageLooper()
@@ -303,4 +314,18 @@ namespace player {
 	bool OutputInterface::isValid() const {
 		return mNodeId != FFL::Pipeline_INVALID_Id && mId != FFL::Pipeline_INVALID_Id;
 	}
+
+	//
+	//  保存，获取trackback信息
+	//
+	void NodeBase::getTrackbackInfo(int32_t msgType, const FFL::sp<FFL::PipelineMessage> inMsg) {
+
+	}
+	void NodeBase::putTrackbackInfo(int32_t msgType, FFL::sp<FFL::PipelineMessage> outMsg, void* user) {
+
+	}
+	void NodeBase::resetTrackbackInfo(int32_t msgType) {
+
+	}
+
 }

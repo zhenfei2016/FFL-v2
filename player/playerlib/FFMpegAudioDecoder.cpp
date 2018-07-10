@@ -58,6 +58,7 @@ namespace player {
 			}
 		}
 
+		this->loadTrackbackInfo(msg, frame);
 		if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
 			msg->consume(this);
 		}	

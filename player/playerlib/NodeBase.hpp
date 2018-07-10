@@ -112,6 +112,20 @@ namespace player {
 		status_t postSelfMessage(FFL::PipelineInputId dstId, const FFL::sp<FFL::PipelineMessage> &msg, uint64_t delayUs);
 	protected:
 		//
+		//   清空输出节点中没有处理的消息
+		//
+		void clearMessage(FFL::PipelineInputId dstId);
+
+	protected:
+		//
+		//  保存，获取trackback信息
+		//
+		void getTrackbackInfo(int32_t msgType,const FFL::sp<FFL::PipelineMessage> inMsg);
+		void putTrackbackInfo(int32_t msgType,FFL::sp<FFL::PipelineMessage> outMsg,void* user);
+		void resetTrackbackInfo(int32_t msgType);
+
+	protected:
+		//
 		//  成功创建了node
 		//
 		virtual void onCreate();

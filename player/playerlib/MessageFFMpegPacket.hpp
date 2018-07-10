@@ -53,7 +53,7 @@ namespace message {
 		//
 		int32_t mIFrame;
 		//
-		// 
+		// 一次播放的id,当进行seek时候，这个值会变化
 		//
 		int64_t mSerialNumber;
 	};

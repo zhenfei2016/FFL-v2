@@ -30,9 +30,9 @@ namespace player {
 		AudioRender(FFL::sp<AudioDevice> device);
 		~AudioRender();	
 
+		void pause();
+		void resume();
 		void onCreate();
-
-	
 	public:
 		//
 		//  获取渲染时钟，可以改变时钟速度

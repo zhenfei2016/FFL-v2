@@ -28,6 +28,11 @@ namespace player {
 	public:
 		VideoRender(FFL::sp<VideoDevice> device);
 		~VideoRender();
+		
+		virtual void pause();
+		virtual void resume();
+
+
 		//
 		//  成功创建了node
 		//

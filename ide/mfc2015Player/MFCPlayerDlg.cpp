@@ -52,6 +52,8 @@ BEGIN_MESSAGE_MAP(CMFCPlayerControlDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PLAY4, &CMFCPlayerControlDlg::OnBnClickedButtonPlay4)
 	ON_BN_CLICKED(IDC_BUTTON_STOP2, &CMFCPlayerControlDlg::OnBnClickedButtonStop2)	
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER1, &CMFCPlayerControlDlg::OnNMReleasedcaptureSlider1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFCPlayerControlDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMFCPlayerControlDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -232,9 +234,9 @@ void CMFCPlayerControlDlg::OnTimer(UINT_PTR nIDEvent)
 			if (duration >= 0x0FFFFFFF) {
 				den = 1000000;
 			}
+		
 			int64_t cur = mPlayer.getCurrentPosition();
-
-
+			
 			float fNUm = duration>0 ? (float)cur / duration:1;
 			int nRangeMax = 10000;
 			int32_t pos= fNUm*nRangeMax;
@@ -243,9 +245,20 @@ void CMFCPlayerControlDlg::OnTimer(UINT_PTR nIDEvent)
 			mProgress.SetRange(0, nRangeMax);
 			mProgress.SetPos(pos);
 
-			CString info;
-			info.Format(L"%I64d / %I64d", cur, duration);
-			this->SetDlgItemText(IDC_STATIC_PROGRESS, info);
+			{
+				
+				char currentBuf[256] = {};
+				FFL_usToString(cur, currentBuf);
+				char targetBuf[256] = {};
+				FFL_usToString(duration, targetBuf);
+
+				CStringA infoa;
+				infoa.Format("%s / %s", currentBuf, targetBuf);
+
+				CString info;
+				info= infoa;
+				this->SetDlgItemText(IDC_STATIC_PROGRESS, info);
+			}
 
 
 			mPlayerSlider.SetTicFreq(10);//¿Ì¶ÈÏß¼ä¸ô 
@@ -403,3 +416,23 @@ void CMFCPlayerControlDlg::OnNMReleasedcaptureSlider1(NMHDR *pNMHDR, LRESULT *pR
 }
 
 
+
+
+void CMFCPlayerControlDlg::OnBnClickedButton2()
+{
+	int num=mPlayer.getLoop();
+	mPlayer.setLoop(num + 1);
+	CString info;
+	info.Format(L"loop£ºold=%d new=%d" , num,num+1);
+	mMsgListCtrl.InsertString(0, info);
+}
+
+
+void CMFCPlayerControlDlg::OnBnClickedButton3()
+{
+	int num = mPlayer.getLoop();
+	mPlayer.setLoop(num - 1);
+	CString info;
+	info.Format(L"loop£ºold=%d new=%d", num, num - 1);
+	mMsgListCtrl.InsertString(0, info);
+}

@@ -81,15 +81,22 @@ namespace player {
 			handleSamples(msg, &(frame->mSamples));
 		}
 			break;
-		case MSG_CONTROL_SERIAL_NUM_CHANGED:
-		{			
-			FFL::sp<FFL::PipelineOutput > output = getOutput(mOutputToRenderInterface.mId);
-			if (!output.isEmpty()) {
-				output->clearMessage();
+		case MSG_CONTROL_READER_SEEK:
+		{		
+			int64_t delayUs = 0;
+			int64_t flag = msg->getParam2();
+			if ((flag & 0x01) == 1) {
+				clearMessage(mOutputToRenderInterface.mId);
+				delayUs = -1;
 			}
 
 			mTimestampExtrapolator->reset();
-			if (FFL_OK != postMessage(mOutputToRenderInterface.mId, msg)) {
+
+			int64_t now=FFL_getNowUs();
+			if (now > getLastMessageTime()) {
+				delayUs = now - getLastMessageTime();
+			}
+			if (FFL_OK != postMessageDelayToRender( msg, delayUs)) {
 				msg->consume(this);
 			}
 			break;
@@ -101,8 +108,6 @@ namespace player {
             msg->consume(this);
 			break;
 		}
-	
-		
 		return true;
 	}
 

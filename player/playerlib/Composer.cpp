@@ -18,7 +18,7 @@
 #include <pipeline/FFL_PipelineAsyncConnectorFixedsize.hpp>
 
 namespace player {
-	Composer::Composer(){
+	Composer::Composer():mLastPostMessageUs(0){
 
 	}
 	Composer::~Composer() {
@@ -43,9 +43,7 @@ namespace player {
 			mOutputToRenderInterface = createOutputInterface();
 
 		InputInterface input;
-        FFL::String name;
-        getName(name);
-		mRender->connectSource(mOutputToRenderInterface,name.c_str(), input,NULL);
+        mRender->connectSource(mOutputToRenderInterface, mRender->getName(), input,NULL);
 	}
 	FFL::sp<Render> Composer::getRender() {
 		return mRender;
@@ -55,6 +53,7 @@ namespace player {
 	//  发送消息给render
 	//
 	status_t Composer::postMessageDelayToRender(const FFL::sp<FFL::PipelineMessage> &msg, uint64_t delayUs) {
+		mLastPostMessageUs = FFL_getNowUs() + delayUs;
 		return postMessageDelay(mOutputToRenderInterface.mId, msg, delayUs);
 	}
 }

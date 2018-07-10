@@ -34,24 +34,37 @@ namespace player {
 		switch (msg->getType())
 		{
 		case MSG_FFMPEG_AVPACKET:			
-			ret= decodeMessageFFMpegPacket((message::FFMpegPacket*) (msg->getPayload()));
+			ret= decodeMessageFFMpegPacket(msg,(message::FFMpegPacket*) (msg->getPayload()));
             msg->consume(this);
 			break;
-		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		case MSG_CONTROL_READER_SEEK:
 		{
 			mSerialNumber = msg->getParam1();
+			int64_t flag = msg->getParam2();
+			if ( (flag& 0x01) == 1) {
+				clearMessage(mFrameOutput.mId);
+			}
 			mWaitIFrame = true;
 			if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
 				msg->consume(this);
 			}
 		}
-			break;
+			break;	
 		case MSG_CONTROL_READER_EOF:
-			decode(NULL,false);
+		{
+			mSerialNumber = msg->getParam1();
+			int64_t flag = msg->getParam2();
+			if ((flag & 0x01) == 1) {
+				//
+				//  清空这个解码器的所有数据，这个解码器就没有用了，关闭了
+				//
+				decode(NULL, false);
+			}
 			mWaitIFrame = false;
 			handleEOF(msg);
 			ret = true;
 			break;
+		}
 		default:
             msg->consume(this);
 			break;
@@ -61,21 +74,23 @@ namespace player {
 	//
 	//  解码一消息
 	//
-	bool NodeFFMpegDecoder::decodeMessageFFMpegPacket(message::FFMpegPacket* msg) {
+	bool NodeFFMpegDecoder::decodeMessageFFMpegPacket(const FFL::sp<FFL::PipelineMessage>& msg, message::FFMpegPacket* packet) {
 		if (mSerialNumber == 0) {
 			//
 			// 第一次
 			//
-			mSerialNumber = msg->mSerialNumber;
-		}
+			mSerialNumber = packet->mSerialNumber;
+		}		
+		saveTrackbackInfo(msg);
+
 		//
 		//  解码数据
 		//
 		if (mCodecCtx)
 		{
-			return decode(msg->mPacket,false);
+			return decode(packet->mPacket,false);
 		}else {
-			FFL_LOG_WARNING("Failed to NodeFFMpegDecoder::decode streamIndex=%d" , msg->mPacket->stream_index);
+			FFL_LOG_WARNING("Failed to NodeFFMpegDecoder::decode streamIndex=%d" , packet->mPacket->stream_index);
 		}
 		return false;
 	}	
@@ -133,5 +148,18 @@ namespace player {
 	void NodeFFMpegDecoder::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 
 	}  
+
+	//
+	//  保存，获取trackback信息
+	//
+	void NodeFFMpegDecoder::saveTrackbackInfo(const FFL::sp<FFL::PipelineMessage> msg) {
+
+	}
+	void NodeFFMpegDecoder::loadTrackbackInfo(FFL::sp<FFL::PipelineMessage> outMsg, AVFrame* frame) {
+
+	}
+	void NodeFFMpegDecoder::resetTrackbackInfo() {
+
+	}
 
 }

@@ -168,3 +168,11 @@ target_link_libraries( playerLib  android ${log-lib} libffmpeg.so FFL  EGL GLESv
 ELSE()
 ENDIF()
 
+IF (WIN32)
+INSTALL(TARGETS playerLib RUNTIME DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin
+        LIBRARY DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/libs
+        ARCHIVE DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/libs)
+ENDIF()
+
+
+

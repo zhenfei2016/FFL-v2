@@ -27,6 +27,12 @@ namespace player {
 	}
 	AudioRender::~AudioRender() {		
 	}
+	void AudioRender::pause() {
+
+	}
+	void AudioRender::resume() {
+
+	}
 	//
 	//  成功创建了node
 	//
@@ -54,7 +60,7 @@ namespace player {
 	}
 
 	bool AudioRender::handleReceivedData(const FFL::sp<FFL::PipelineMessage>& msg, void* userdata)
-	{
+ 	{
 		switch (msg->getType())
 		{
             case MSG_FFMPEG_AUDIO_FRAME: 
@@ -65,9 +71,12 @@ namespace player {
                 msg->consume(this);
                 return true;
             }
-			case MSG_CONTROL_SERIAL_NUM_CHANGED:
+			case MSG_CONTROL_READER_SEEK:
 			{
-				mDevice->clearCache();
+				int64_t flag = msg->getParam2();
+				if ((flag & 0x01) == 1) {
+					mDevice->clearCache();
+				}				
 				msg->consume(this);	
 				mResetSyncClock = true;
 				break;

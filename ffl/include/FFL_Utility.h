@@ -115,7 +115,6 @@
 #define FFL_MAKE_INT64(high,low) (((int64_t)(low)& 0xFFFFFFFF) | (((int64_t)(high)& 0xFFFFFFFF)<<32))
 #endif
 
-
 /*
  *  c中定义struct结构体，模拟class定义
  *
@@ -157,5 +156,19 @@
 			if ((p)&&(p)->Destruct){ \
 				(p)->Destruct((p)); \
                 FFL_free((p));}} \
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	/*
+	*  生成一个唯一的id
+	*/
+	int FFL_generateId();
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

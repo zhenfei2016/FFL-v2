@@ -60,7 +60,8 @@ namespace reader {
 		//     =0 : 播放一次
 		//     >0 : 播放num+1次
 		//
-		virtual void setLoop(int32_t count);
+		virtual void setLoopNum(int32_t count);
+		virtual int32_t getLoopNum();
 	public:
 		//
 		//  设置流管理器,当open成功后，读取到所有流基本信息，然后会通知IStreamManager
@@ -136,7 +137,7 @@ namespace reader {
 		volatile bool mEventSeekPending;		
 		FFL::sp<FFL::PipelineMessage> mMsgSeek;
 		void onSeekStub(const FFL::sp<FFL::PipelineMessage>& event);
-		virtual void onSeek(int64_t pos)=0;		
+		virtual bool onSeek(int64_t pos)=0;		
 
 	private:
 		FFL::sp<FFL::PipelineSourceConnector> mSourceConn;

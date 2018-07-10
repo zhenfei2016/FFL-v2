@@ -6,7 +6,8 @@
 #include "DialogPlayer.h"
 #include "afxdialogex.h"
 
-
+#pragma comment(lib, "FFL.lib")
+#pragma comment(lib, "playerlib.lib")
 // CDialogPlayer ¶Ô»°¿ò
 
 IMPLEMENT_DYNAMIC(CDialogPlayer, CDialog)

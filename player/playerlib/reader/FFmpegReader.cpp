@@ -8,9 +8,9 @@
 namespace reader {
 	FFMPegReader::FFMPegReader() :mAVFormatContext(NULL){
 		setName("reader");
-		mSeekSerialNumber = 1;
-		mPacketSerialNumber = 1;
-		mEOFFlag = 0;
+		mRestart = false;
+		mSeekSerialNumber = 1;		
+		mEOFFlag = 0;		
 		mMessageCache = new FFL::PipelineMessageCache(MSG_FFMPEG_AVPACKET);
 	}
 	FFMPegReader::~FFMPegReader() {
@@ -20,8 +20,9 @@ namespace reader {
 	// 获取播放时长us
 	//
 	int64_t FFMPegReader::getDuration() {
-		if(mAVFormatContext)
-		   return mAVFormatContext->duration;
+		if (mAVFormatContext) {
+			return mAVFormatContext->duration;
+		}
 		return 0;
 	}
 	//
@@ -41,8 +42,11 @@ namespace reader {
 			return;
 		}
 		if (mEOFFlag) {
+			//
+			//  重定位到文件头部进行播放
+			//
 			FFL_sleep(100);
-			if (seekPos(0)) {
+			if (onSeek(0)) {
 				mEOFFlag = false;
 			} else {
 				FFL_LOG_WARNING(" FFMPegReader::onReadFrame eof");				
@@ -53,7 +57,13 @@ namespace reader {
 		message::FFMpegPacket* packet = NULL;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(
 			mMessageCache, &packet, MSG_FFMPEG_AVPACKET);
-		FFL_ASSERT_LOG(packet, "FFMpegPacket is NULL.\n")
+		FFL_ASSERT_LOG(packet, "FFMpegPacket is NULL.\n");
+		
+		//
+		//  打印处理时间
+		//
+		msg->getTracebackInfo().setId(FFL_generateId());
+		FFL::AutoPrintfTrackback pp(msg->getTracebackInfo());
 
 		int err = av_read_frame(mAVFormatContext, packet->mPacket);
 		if (0 != err) {
@@ -75,10 +85,7 @@ namespace reader {
 			return;
 		}
 
-		if (mPacketSerialNumber != mSeekSerialNumber) {
-			mPacketSerialNumber = mSeekSerialNumber;
-		}
-		packet->mSerialNumber = mPacketSerialNumber;
+		packet->mSerialNumber = mSeekSerialNumber;
 		packet->mPacketType = stream.mStream->getStreamType();
 		switch (packet->mPacketType)
 		{
@@ -104,11 +111,6 @@ namespace reader {
 			msg->consume(this);
 		}
 		else {
-			//FFL_LOG_DEBUG_TAG(TAG_TIMESTAMP, "read %s pts=%" lld64 " streamIndex=%d timebase=%d:%d",
-			//	(stream.mStream->getStreamType() == STREAM_TYPE_VIDEO ? "video " : "audio"),
-			//	pts,
-			//	stream.mStream->getIndex(),
-			//	mCurrentTb.mNum, mCurrentTb.mDen);
 		}
 	}
 	//
@@ -151,15 +153,14 @@ namespace reader {
 	//
 	// seek函数，具体实现
 	//	
-	void FFMPegReader::onSeek(int64_t pos) {
-		seekPos(pos);
+	bool FFMPegReader::onSeek(int64_t pos) {
+		bool ret = seekPos(pos);
+		//
+		//  通知后面的节点
+		//
+		FFL::sp<FFL::PipelineMessage> msgControl = new FFL::PipelineMessage(MSG_CONTROL_READER_SEEK);
 		mSeekSerialNumber++;
-
-		//
-		//  节点丢弃当前没有处理的msg
-		//
-		FFL::sp<FFL::PipelineMessage> msgDiscardCache = new FFL::PipelineMessage(MSG_CONTROL_SERIAL_NUM_CHANGED);
-		msgDiscardCache->setParams(mSeekSerialNumber, 0);
+		msgControl->setParams(mSeekSerialNumber, mRestart?0:1);
 
 		for (int i = 0; i < SUPORT_STREAM_NUM; i++) {
 			StreamEntry& entry = mStreamVector[i];
@@ -167,19 +168,24 @@ namespace reader {
 				continue;
 			}
 
-			FFL::sp<FFL::PipelineOutput > output = getOutput(entry.getOutputId());
-			if (!output.isEmpty()) {
-				output->clearMessage();
+			if (!mRestart) {
+				clearMessage(entry.getOutputId());
 			}
 
-			if (FFL_OK != postMessageDelay(entry.getOutputId(), msgDiscardCache, -1)) {
+			if (FFL_OK != postMessageDelay(entry.getOutputId(), msgControl, -1)) {
 			}
 		}	
+		mRestart = false;
 
+		//
+		//  通知ui层
+		//
 		event::postPlayerEvent(getOwner(), event::EVENT_SEEK_END,
 			getCurrentPosition(),
 			getDuration());
 		event::postPlayerEvent(this, event::EVENT_BUFFERING_START);		
+
+		return ret;
 	}
 	bool FFMPegReader::seekPos(int64_t pos) {
 		int64_t ts = FFMPegUsToSeekfileTimestamp(pos);
@@ -250,11 +256,18 @@ namespace reader {
         dic->setKey("duration", "0");
 	}
 	void FFMPegReader::handleEof() {
-		//
-		//  关闭当前的输入接口
-		//		
 		mEOFFlag = 1;
+		if (mLoopCount < 0 || --mLoopCount >= 0 ) {
+			//
+			//  从头开始播放
+			//
+			mRestart = true;
+		}else {
+			mRestart = false;
+		}
+
 		FFL::sp<FFL::PipelineMessage> msgEof = new FFL::PipelineMessage(MSG_CONTROL_READER_EOF);
+		msgEof->setParams(0, mRestart?0 : 1);
 		for (int i = 0; i < SUPORT_STREAM_NUM; i++) {
 			StreamEntry& entry = mStreamVector[i];
 			if (!entry.isValid()) {
@@ -264,18 +277,14 @@ namespace reader {
 			}
 		}
 
-		if (mLoopCount < 0) {
-			return;
-		}
-
-		if (mLoopCount == 0) {
+		
+	
+		if (!mRestart) {
 			//
 			//  关闭当前的输入
 			//
+			mRestart = false;
 			pauseLooper();
-		}
-		else {
-			mLoopCount--;
 		}
 	}
 }

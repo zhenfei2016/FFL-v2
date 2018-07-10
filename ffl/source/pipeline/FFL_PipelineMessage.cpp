@@ -14,7 +14,42 @@
 #include <pipeline/FFL_PipelineMessage.hpp>
 #include <utils/FFL_Message.hpp>
 
+#define ENABLE_TRACKBACK 
+
 namespace FFL {
+	PipelineMessageTrackbackId::PipelineMessageTrackbackId() {
+		mId = 0;
+		mStartTimeUs=0;
+		mEndTimeUs=0;
+		//
+		// 处理的线程id
+		//
+		mThreadId=0;
+	}
+	PipelineMessageTrackbackId::~PipelineMessageTrackbackId() {
+
+	}
+	void PipelineMessageTrackbackId::setId(int32_t id) {
+		mId = id;
+	}
+
+	void PipelineMessageTrackbackId::beginTrack() {
+		beginTrack(FFL_CurrentThreadID());
+	}
+	void PipelineMessageTrackbackId::endTrack() {
+		endTrack(FFL_CurrentThreadID());
+	}
+	void PipelineMessageTrackbackId::beginTrack(int32_t tid) {
+		mStartTimeUs = FFL_getNowUs();
+		mThreadId = tid;
+	}
+	void PipelineMessageTrackbackId::endTrack(int32_t tid) {
+		mEndTimeUs = FFL_getNowUs();
+	}	
+	void PipelineMessageTrackbackId::printf() {
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	PipelineMessage::PipelineMessage() :
 		mType(0),
 		mPayload(NULL),
@@ -70,9 +105,8 @@ namespace FFL {
 	//
 	void PipelineMessage::consume(void*)
 	{
-		mMessageUniqueId = 0;
-		//FFL_LOG_INFO("PipelineMessage::consume %p",this);
-		if (mPayload) {
+		mMessageUniqueId = 0;		
+		if (mPayload) {			
 			mPayload->consume();
 		}
 
@@ -115,16 +149,14 @@ namespace FFL {
 		return mParam2;
 	}
 	//
-	//  获取，设置这个Message的追溯信息，主要用于调试，分析
+	//  获取，这个Message的追溯信息，主要用于调试，分析
 	//  因为，一条消息可能经过n多的node进行处理
 	//
-	void PipelineMessage::setTracebackInfo(const PipelineMessage::TraceBackInfo& info) {
-		mTraceBackInfo = info;
-	}
-	void PipelineMessage::getTracebackInfo(PipelineMessage::TraceBackInfo& info) {
-		info=mTraceBackInfo ;
+	PipelineMessageTrackbackId&  PipelineMessage::getTracebackInfo() {
+		return mTraceBackInfo ;
 	}
    
+
     //
     //  是否系统消息
     //

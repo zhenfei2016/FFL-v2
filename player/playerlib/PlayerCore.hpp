@@ -85,6 +85,7 @@ namespace player {
 		//     >0 : 播放num+1次
 		//
 		void setLoop(int32_t num);
+		int32_t getLoop();
 	protected:		
 		void onEvent(const FFL::sp<event::PlayerEvent> event);		
 	public:

@@ -341,9 +341,8 @@ namespace player {
 	void FFLPlayer::setLoop(int32_t num){
 		mCore->setLoop(num);		
 	}
-	int32_t FFLPlayer::getLoop(){
-		FFL_ASSERT_LOG(0, "getLoop not impl.");
-		return 0;
+	int32_t FFLPlayer::getLoop(){		
+		return mCore->getLoop();
 	}
 	//
 	// 获取，设置一些特定的选项

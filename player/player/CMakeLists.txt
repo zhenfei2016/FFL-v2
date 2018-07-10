@@ -76,3 +76,22 @@ ELSEIF (ANDROID)
 TARGET_LINK_LIBRARIES(player playerLib FFL libffmpeg.so)
 ENDIF ()
 
+
+
+IF (WIN32)
+INSTALL(TARGETS player RUNTIME DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin
+        LIBRARY DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/libs
+        ARCHIVE DESTINATION  ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/libs)
+
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/avcodec-57.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/avdevice-57.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/avfilter-6.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/avformat-57.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/avutil-55.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/postproc-54.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/swresample-2.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/FFmpeg3.3.5/output_win_dll/bin/swscale-4.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+INSTALL(FILES  ../../third/SDL2/lib/window/SDL2.dll DESTINATION ${PROJECT_SOURCE_DIR}/../../ide/mfc2015Player/bin/ )
+
+ENDIF()
+

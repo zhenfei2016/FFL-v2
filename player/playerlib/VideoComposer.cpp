@@ -71,6 +71,7 @@ namespace player {
 		{
 		case MSG_FFMPEG_VIDEO_FRAME:
 		{
+			
 			message::FFMpegVideoFrame* frame = (message::FFMpegVideoFrame*)msg->getPayload();
 			handleTexture(msg, &(frame->mTexture));
 		}
@@ -81,12 +82,13 @@ namespace player {
 			handleTexture(msg, &(frame->mTexture));
 		}
 		break;
-		case MSG_CONTROL_SERIAL_NUM_CHANGED:
+		case MSG_CONTROL_READER_SEEK:
 		{
-			FFL::sp<FFL::PipelineOutput > output = getOutput(mOutputToRenderInterface.mId);
-			if (!output.isEmpty()) {
-				output->clearMessage();
+			int64_t flag = msg->getParam2();
+			if ((flag & 0x01) == 1) {
+				clearMessage(mOutputToRenderInterface.mId);
 			}
+
 			if (FFL_OK != postMessage(mOutputToRenderInterface.mId, msg)) {
 				msg->consume(this);
 			}
@@ -210,7 +212,6 @@ namespace player {
         if (mScaleOutput.isValid()) {
             return true;
         }
-
         //
         //  当前节点输出到缩放中
         //
@@ -235,5 +236,4 @@ namespace player {
         getPipeline()->ansyStartupNode(sacleOutput.mNodeId);
         return true;
     }
-
 }

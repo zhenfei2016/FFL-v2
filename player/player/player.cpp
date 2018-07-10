@@ -178,6 +178,17 @@ void fastReverse(const char* args, void* userdata) {
 	printf("fastReverse:%d  \n", speed);
 }
 
+//
+// 设置loop的次数
+//
+void loopNum(const char* args, void* userdata) {
+	player::FFLPlayer* player = (player::FFLPlayer*) userdata;
+	int32_t num = player->getLoop();
+	int32_t newNum=atoi(args);
+	player->setLoop(newNum);
+	printf("set loop num old=%d new=%d  \n", num, newNum);
+}
+
 class TestListener : public player::IPlayerListener {
 public:
 	TestListener(player::FFLPlayer* player) :mPlayer(player) {
@@ -300,13 +311,14 @@ static CmdOption  gCmdOption[] = {
 	{ "W",0,volumeUp,"turn up the volume" },
 
 	{ "fastforward",0,fastForward,"Increase the playback speed" },
-	{ "+",0,fastForward,"Increase the playback speed" },
-	{ "=",0,fastForward,"Increase the playback speed" },
+	{ "]",0,fastForward,"Increase the playback speed" },
+	{ "}",0,fastForward,"Increase the playback speed" },
 
 	{ "fastreverse",0,fastReverse,"Slow down the playback speed" },
-	{ "-",0,fastReverse,"Slow down the playback speed" },
-	{ "_",0,fastReverse,"Slow down the playback speed" },
+	{ "{",0,fastReverse,"Slow down the playback speed" },
+	{ "[",0,fastReverse,"Slow down the playback speed" },
 
+	{ "loop",0,loopNum,"Set loop num. " },
 	{ "help",0,help,"prinf help" },
 
 	{ 0,0,0,0 }

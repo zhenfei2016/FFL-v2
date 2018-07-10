@@ -18,6 +18,9 @@ namespace player {
 		Render();
 		~Render();	
 
+		virtual void pause();
+		virtual void resume();
+
 		//
 		//  获取这个节点处理的延迟
 		//

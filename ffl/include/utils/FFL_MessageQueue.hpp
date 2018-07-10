@@ -68,6 +68,10 @@ namespace FFL {
 		//
 		void getAll(List< sp<Message> >* list, Looper::handler_id handleId);
 		//
+		//  获取当前handleId使用的messagelist，弹出队列
+		//
+		//void getAllEx(List< sp<Message> >* list, Looper::handler_id handleId);
+		//
 		//  取消一条消息
 		//  msgId:消息的唯一ID
 		//
@@ -89,9 +93,6 @@ namespace FFL {
             //
             int64_t mWorldCreatetimeUs;
             int64_t mWorldDelayTimeUs;
-            
-			//int64_t mWhenUs;
-            
             //
             //  当前mClock时钟下的创建时间
             //

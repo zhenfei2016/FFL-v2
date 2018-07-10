@@ -29,7 +29,7 @@ namespace player {
 	}
 
 	void PlayerStatistic::renderVideoDelayUs(int64_t delay) {
-		FFL_LOG_CRIT("vid: delay=%" lld64 ,delay);
+		FFL_LOG_CRIT("video: delay=%" lld64 ,delay);
 
 		if (mVideoRenderDelayUs != 0) {
 			mVideoRenderDelayUs = (mVideoRenderDelayUs + delay) / 2;
