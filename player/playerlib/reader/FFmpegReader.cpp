@@ -62,8 +62,8 @@ namespace reader {
 		//
 		//  打印处理时间
 		//
-		msg->getTracebackInfo().setId(FFL_generateId());
-		FFL::AutoPrintfTrackback pp(msg->getTracebackInfo());
+		//msg->getTracebackInfo().setId(FFL_generateId());
+	   //FFL::AutoPrintfTrackback pp(msg->getTracebackInfo());
 
 		int err = av_read_frame(mAVFormatContext, packet->mPacket);
 		if (0 != err) {

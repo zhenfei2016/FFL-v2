@@ -57,7 +57,8 @@ namespace android {
 			return  false;
 		}
 	};
-	AndroidVideoDevice::AndroidVideoDevice(){
+	AndroidVideoDevice::AndroidVideoDevice():mIsOpened(false){
+		mRenderer=NULL;
 		mSurfaceHandle=NULL;
 		mVideoSurface=new ANativeSurface();
 		mRenderManager=new RenderManager();
@@ -121,14 +122,19 @@ namespace android {
 	//
 	bool AndroidVideoDevice::onOpen(SurfaceHandle surface, int32_t widht, int32_t height) {
 		setSurface(surface);
+		mIsOpened= true;
 		return true;
 	}
 	void AndroidVideoDevice::onClose() {
+		mIsOpened=false;
+
 		mVideoSurface->setHandle(NULL);
 		if(mSurfaceHandle){
 			ANativeWindow_release(mSurfaceHandle);
 			mSurfaceHandle=NULL;
 		}
+
+
 	}
 	//
 	//  清空cache的数据
@@ -140,8 +146,24 @@ namespace android {
 	//  写一帧数据
 	//		
 	bool AndroidVideoDevice::showTexture(player::VideoTexture* texture) {
-		RenderInterface* render=mRenderManager->getRender(texture->getVideoFormat(),NULL);
-		render->draw(mVideoSurface.get(),texture);
-		return false;
+		if(!mIsOpened){
+            if(mRenderer){
+                mRenderer->destroy();
+                mRenderer=NULL;
+                return false;
+            }
+
+			FFL_LOG_WARNING("Failed to AndroidVideoDevice::showTexture. not open");
+			return  false;
+		}
+		if(mRenderer==NULL) {
+			mRenderer = mRenderManager->getRender(texture->getVideoFormat(), NULL);
+			mRenderer->create(mVideoSurface.get(),texture->getVideoFormat());
+		}
+
+		if(mRenderer) {
+			mRenderer->draw(mVideoSurface.get(), texture);
+		}
+		return true;
 	}
 }

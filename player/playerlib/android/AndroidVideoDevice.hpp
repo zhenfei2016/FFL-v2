@@ -16,6 +16,8 @@
 #include <FFL.h>
 namespace android {
 	class RenderManager;
+	class RenderInterface;
+
 	class AndroidVideoDevice : public player::VideoDevice{
 	public:
 		AndroidVideoDevice();
@@ -54,8 +56,11 @@ namespace android {
 		virtual bool showTexture(player::VideoTexture* texture) ;
 
 	private:
+		bool  mIsOpened;
 		RenderManager* mRenderManager;
 
+		player::VideoFormat mVideoFormat;
+		RenderInterface* mRenderer;
 		SurfaceHandle mSurfaceHandle;
 		FFL::sp<player::VideoSurface> mVideoSurface;
 	};

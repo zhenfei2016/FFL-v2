@@ -61,6 +61,7 @@ namespace render {
         //  他和mWindow是一样的东西
         //
         EGLSurface mSurface;
+    public:
         //
         //  窗口大小
         //

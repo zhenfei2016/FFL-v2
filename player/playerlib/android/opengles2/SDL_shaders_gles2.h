@@ -28,7 +28,7 @@
 *  SDL_shaders_gles2.h   
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/06 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  着色器接口，修改的sdl库
+*  鍩轰簬sdl 淇敼鐨刼pengles
 *
 */
 
@@ -59,6 +59,7 @@ typedef struct GLES2_Shader
 
 typedef enum
 {
+    GLES2_SHADER_NONE,
     GLES2_SHADER_VERTEX_DEFAULT,
     GLES2_SHADER_FRAGMENT_SOLID_SRC,
     GLES2_SHADER_FRAGMENT_TEXTURE_ABGR_SRC,

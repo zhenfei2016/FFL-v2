@@ -17,6 +17,7 @@ extern "C" {
 }
 
 #include "VideoTexture.hpp"
+#include "SDL_renderTexture.cpp"
 
 void GLES2_checkError(const char* op) {
 	for (GLint error = glGetError(); error; error = glGetError()) {
@@ -30,287 +31,166 @@ void GLES2_printString(const char *name, GLenum s) {
 }
 
 GLES2Renderer::GLES2Renderer(){
+	mProgram=0;
+	mVertexShader=0;
+	mFragmentShader=0;
 
+	mTexture[0]=0;
+	mTexture[1]=0;
+	mTexture[2]=0;
+
+    for( int32_t i=0;i<GLES2_ATTRIBUTE_COUNT;i++) {
+        mVertexAttribLocations[i]=-1;
+    }
+    for( int32_t i=0;i<GLES_UNIFORM_COUNT;i++) {
+        mUniformLocations[i]=-1;
+    }
 }
 GLES2Renderer::~GLES2Renderer(){
 
 }
-bool GLES2Renderer::install(){
-	const GLES2_Shader* shader = GLES2_GetShader(GLES2_SHADER_FRAGMENT_SOLID_SRC);
-	const GLES2_ShaderInstance* instance = shader->instances[0];
 
-	GLint compileSuccessful;
-	GLuint shaderId = glCreateShader(instance->type);
-	if (instance->format == (GLenum)-1) {
-		glShaderSource(shaderId, 1, (const char **)(char *)&instance->data, NULL);
-		glCompileShader(shaderId);
-		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileSuccessful);
+static GLES2_ShaderType VideoFormat2GLES2_ShaderType(const player::VideoFormat* fmt){
+	switch (fmt->mFormat){
+		case player::VideoFormat::PIXEL_FORMAT_YUV420P:
+			return  GLES2_SHADER_FRAGMENT_TEXTURE_YUV_SRC;
+		case player::VideoFormat::PIXEL_FORMAT_RGBA_8888:
+			return  GLES2_SHADER_FRAGMENT_TEXTURE_ARGB_SRC;
+		case player::VideoFormat::PIXEL_FORMAT_NV12:
+			return  GLES2_SHADER_FRAGMENT_TEXTURE_NV12_SRC;
+		case player::VideoFormat::PIXEL_FORMAT_NV21:
+			return  GLES2_SHADER_FRAGMENT_TEXTURE_NV21_SRC;
 	}
-	else {
-		glShaderBinary(1, &shaderId, instance->format, instance->data, instance->length);
-		compileSuccessful = GL_TRUE;
-	}
-
-	mProgram = glCreateProgram();  
-    GLES2_checkError("glCreateProgram");
-	if (!mProgram) {
+    return  GLES2_SHADER_NONE;
+}
+bool GLES2Renderer::install(const player::VideoFormat* fmt,int32_t viewWidht,int32_t viewHeight){
+	if(!fmt){
 		return false;
 	}
 
-
-	glAttachShader(mProgram, mVertexShader);
-    GLES2_checkError("glAttachShader(vertex)");
-	glAttachShader(mProgram, mFragmentShader);
-    GLES2_checkError("glAttachShader(fragment)");
-
-	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_POSITION, "a_position");
-	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_TEXCOORD, "a_texCoord");
-	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_ANGLE, "a_angle");
-	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_CENTER, "a_center");
-
-	glLinkProgram(mProgram);
-    GLES2_checkError("glLinkProgram");
-
-	GLint link_status = GL_FALSE;
-	glGetProgramiv(mProgram, GL_LINK_STATUS, &link_status);
-	if (!link_status) {
-		return false;
+	GLES2_ShaderType type= VideoFormat2GLES2_ShaderType(fmt);
+	if(!createFragmentShader(type) ||
+			!createVertexShader()){
+		uninstall();
+		return  false;
 	}
 
-	/* Predetermine locations of uniform variables */
-	mUniformLocations[GLES2_UNIFORM_PROJECTION] =
-		glGetUniformLocation(mProgram, "u_projection");
-	mUniformLocations[GLES2_UNIFORM_TEXTURE_V] =
-		glGetUniformLocation(mProgram, "u_texture_v");
-	mUniformLocations[GLES2_UNIFORM_TEXTURE_U] =
-		glGetUniformLocation(mProgram, "u_texture_u");
-	mUniformLocations[GLES2_UNIFORM_TEXTURE] =
-		glGetUniformLocation(mProgram, "u_texture");
-	mUniformLocations[GLES2_UNIFORM_MODULATION] =
-		glGetUniformLocation(mProgram, "u_modulation");
-	mUniformLocations[GLES2_UNIFORM_COLOR] =
-		glGetUniformLocation(mProgram, "u_color");
+	if(!createProgram()){
+		uninstall();
+		return  false;
+	}
 
+	//
+	//设置默认的值
+	//
 	glUseProgram(mProgram);
-	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE_V], 2);  /* always texture unit 2. */
-	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE_U], 1);  /* always texture unit 1. */
-	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE], 0);  /* always texture unit 0. */
-	//glUniformMatrix4fv(mUniformLocations[GLES2_UNIFORM_PROJECTION], 1, GL_FALSE, (GLfloat *)projection);
+
+	glGenTextures(3,mTexture);
+	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE_V], 2);
+	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE_U], 1);
+	glUniform1i(mUniformLocations[GLES2_UNIFORM_TEXTURE], 0);
+
+	updateProjectionMat(viewWidht,viewHeight);
+	glUniformMatrix4fv(mUniformLocations[GLES2_UNIFORM_PROJECTION], 1, GL_FALSE, (GLfloat *)mProjection);
+
 	glUniform4f(mUniformLocations[GLES2_UNIFORM_MODULATION], 1.0f, 1.0f, 1.0f, 1.0f);
 	glUniform4f(mUniformLocations[GLES2_UNIFORM_COLOR], 1.0f, 1.0f, 1.0f, 1.0f);
+
 	return true;
-}
-bool GLES2Renderer::useProgram(){
-	FFL_LOG_INFO("use render yuv420p\n");
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glUseProgram(mProgram);
-
-	//            if (0 == renderer->plane_textures[0])
-	//                glGenTextures(3, renderer->plane_textures);
-	//
-	//            for (int i = 0; i < 3; ++i) {
-	//                glActiveTexture(GL_TEXTURE0 + i);
-	//                glBindTexture(GL_TEXTURE_2D, renderer->plane_textures[i]);
-	//
-	//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//
-	//                glUniform1i(renderer->us2_sampler[i], i);
-	//            }
-	//
-	//            glUniformMatrix3fv(renderer->um3_color_conversion, 1, GL_FALSE, IJK_GLES2_getColorMatrix_bt709());
-	return false;
 }
 void GLES2Renderer::uninstall() {
+	if(mProgram) {
+		glDeleteProgram(mProgram);
+		mProgram=0;
+	}
 
+	if(mVertexShader) {
+		glDeleteShader(mVertexShader);
+		mVertexShader=0;
+	}
+
+	if(mFragmentShader) {
+		glDeleteShader(mFragmentShader);
+		mFragmentShader=0;
+	}
+
+	if(mTexture[0]) {
+		glDeleteTextures(3, mTexture);
+		mTexture[0]=0;
+	}
 }
 //
-//  创建，更新，删除纹理
+// 使用当前render
 //
-int  GLES2Renderer::createTexture(player::VideoTexture* tex) {
-	GLenum format;
-	GLenum type;
-	GLenum scaleMode;
+bool GLES2Renderer::useProgram(){
+	FFL_LOG_INFO("useProgram\n");
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glUseProgram(mProgram);
 
-//	/* Determine the corresponding GLES texture format params */
-//	switch (texture->format)
-//	{
-//		case SDL_PIXELFORMAT_ARGB8888:
-//		case SDL_PIXELFORMAT_ABGR8888:
-//		case SDL_PIXELFORMAT_RGB888:
-//		case SDL_PIXELFORMAT_BGR888:
-//			format = GL_RGBA;
-//			type = GL_UNSIGNED_BYTE;
-//			break;
-//		case SDL_PIXELFORMAT_IYUV:
-//		case SDL_PIXELFORMAT_YV12:
-//		case SDL_PIXELFORMAT_NV12:
-//		case SDL_PIXELFORMAT_NV21:
-//			format = GL_LUMINANCE;
-//			type = GL_UNSIGNED_BYTE;
-//			break;
-//		default:
-//			return SDL_SetError("Texture format not supported");
-//	}
-//
-//	texture = 0;
-//	texture_type = GL_TEXTURE_2D;
-//	pixel_format = format;
-//	pixel_type = type;
-//	yuv = ((texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12));
-//	nv12 = ((texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21));
-//	texture_u = 0;
-//	texture_v = 0;
-//	scaleMode = GetScaleQuality();
-//
-//	/* Allocate a blob for image renderdata */
-//	if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
-//		size_t size;
-//		pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
-//		size = texture->h * pitch;
-//		if (yuv) {
-//			/* Need to add size for the U and V planes */
-//			size += (2 * (texture->h * pitch) / 4);
-//		}
-//		if (nv12) {
-//			/* Need to add size for the U/V plane */
-//			size += ((texture->h * pitch) / 2);
-//		}
-//		pixel_data = SDL_calloc(1, size);
-//		if (!pixel_data) {
-//			SDL_free(data);
-//			return SDL_OutOfMemory();
-//		}
-//	}
-//
-//	/* Allocate the texture */
-//	GL_CheckError("", renderer);
-//
-//	if (yuv) {
-//		glGenTextures(1, &texture_v);
-//		if (GL_CheckError("glGenTexures()", renderer) < 0) {
-//			return -1;
-//		}
-//		glActiveTexture(GL_TEXTURE2);
-//		glBindTexture(texture_type, texture_v);
-//		glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//		glTexImage2D(texture_type, 0, format, texture->w / 2, texture->h / 2, 0, format, type, NULL);
-//
-//		glGenTextures(1, &texture_u);
-//		if (GL_CheckError("glGenTexures()", renderer) < 0) {
-//			return -1;
-//		}
-//		glActiveTexture(GL_TEXTURE1);
-//		glBindTexture(texture_type, texture_u);
-//		glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//		glTexImage2D(texture_type, 0, format, texture->w / 2, texture->h / 2, 0, format, type, NULL);
-//		if (GL_CheckError("glTexImage2D()", renderer) < 0) {
-//			return -1;
-//		}
-//	}
-//
-//	if (nv12) {
-//		glGenTextures(1, &texture_u);
-//		if (GL_CheckError("glGenTexures()", renderer) < 0) {
-//			return -1;
-//		}
-//		glActiveTexture(GL_TEXTURE1);
-//		glBindTexture(texture_type, texture_u);
-//		glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, scaleMode);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//		glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//		glTexImage2D(texture_type, 0, GL_LUMINANCE_ALPHA, texture->w / 2, texture->h / 2, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, NULL);
-//		if (GL_CheckError("glTexImage2D()", renderer) < 0) {
-//			return -1;
-//		}
-//	}
-//
-//	glGenTextures(1, &mTexture);
-//	if (GL_CheckError("glGenTexures()", renderer) < 0) {
-//		return -1;
-//	}
-//	texture->driverdata = data;
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(texture_type, texture);
-//	glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, scaleMode);
-//	glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, scaleMode);
-//	glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//	glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//	glTexImage2D(texture_type, 0, format, texture->w, texture->h, 0, format, type, NULL);
-//	if (GL_CheckError("glTexImage2D()", renderer) < 0) {
-//		return -1;
-//	}
-//
-//	if (texture->access == SDL_TEXTUREACCESS_TARGET) {
-//		fbo = GLES2_GetFBO(renderer->driverdata, texture->w, texture->h);
-//	}
-//	else {
-//		fbo = NULL;
-//	}
-//
-//	return GL_CheckError("", renderer);
-    return 0;
-}
+	for(int32_t i=0;i<3;i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, mTexture[i]);
 
-bool GLES2Renderer::uploadTexture(player::VideoTexture* tex,
-				   const SDL_Rect *rect){
-
-//	GLuint ttexture_type = GL_TEXTURE_2D;
-//	glBindTexture(GL_TEXTURE_2D, mTextureV);
-//	GLES2_TexSubImage2D(GL_TEXTURE_2D,
-//						rect->x / 2,
-//						rect->y / 2,
-//						rect->w / 2,
-//						rect->h / 2,
-//						tpixel_format,
-//						tpixel_type,
-//						Vplane, Vpitch, 1);
-//
-//	glBindTexture(GL_TEXTURE_2D, ttexture_u);
-//	GLES2_TexSubImage2D(ttexture_type,
-//						rect->x / 2,
-//						rect->y / 2,
-//						rect->w / 2,
-//						rect->h / 2,
-//						tpixel_format,
-//						tpixel_type,
-//						Uplane, Upitch, 1);
-//
-//	glBindTexture(GL_TEXTURE_2D, ttexture);
-//	GLES2_TexSubImage2D(ttexture_type,
-//						rect->x,
-//						rect->y,
-//						rect->w,
-//						rect->h,
-//						tpixel_format,
-//						tpixel_type,
-//						Yplane, Ypitch, 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 	return true;
 }
-void GLES2Renderer::destroyTexture(){
+//
+//  清空缓冲区
+//
+void GLES2Renderer::clearColor(GLfloat r,GLfloat g,GLfloat b,GLfloat a){
+	glClearColor(r,g,b,a);
+	glDisable(GL_SCISSOR_TEST);
+	glClear(GL_COLOR_BUFFER_BIT);
+	//glEnable(GL_SCISSOR_TEST);
+}
+//
+//  更新viewport
+//
+void GLES2Renderer::updateViewport(int widht,int height) {
+	if(mViewport.w!=widht ||mViewport.h!=height) {
+		mViewport.w=widht;
+		mViewport.h=height;
+		glViewport(0, 0, widht, height);
+	}
 
+	if(updateProjectionMat(widht,height)){
+		uploadOrthographicProjection();
+	}
 }
 
+bool GLES2Renderer::uploadTexture(player::VideoTexture* tex, const SDL_Rect *rect){
+    if(!isValid()){
+        FFL_LOG_WARNING("Faild to GLES2Renderer::uploadTexture programe not create");
+        return false;
+    }
+
+	switch (tex->getVideoFormat()->mFormat){
+		case player::VideoFormat::PIXEL_FORMAT_YUV420P:
+			return  uploadTexture_yuv(tex,rect,mTexture);
+            //return  yuv420p_uploadTexture(tex,mTexture);
+		case player::VideoFormat::PIXEL_FORMAT_RGBA_8888:
+			return  uploadTexture_rgba(tex,rect,mTexture);
+		case player::VideoFormat::PIXEL_FORMAT_NV12:
+
+		case player::VideoFormat::PIXEL_FORMAT_NV21:
+			break;
+	}
+	return false;
+}
 //
 //  更新顶点相关信息
 //
-void GLES2Renderer::updateVertexBuffer(GLES2_Attribute attr,
+static void updateVertexBuffer(GLES2_Attribute attr,
+                               GLuint index,
 						const void *vertexData,
 						size_t dataSizeInBytes){
-	glVertexAttribPointer(attr, attr == GLES2_ATTRIBUTE_ANGLE ? 1 : 2, GL_FLOAT, GL_FALSE, 0, vertexData);
+	glVertexAttribPointer(index, attr == GLES2_ATTRIBUTE_ANGLE ? 1 : 2, GL_FLOAT, GL_FALSE, 0, vertexData);
 }
-
 //
 //  开始绘制
 //
@@ -326,8 +206,12 @@ int GLES2Renderer::render(player::VideoTexture* tex,
 	GLfloat fAngle[4];
 	GLfloat tmp;
 
-	glEnableVertexAttribArray(GLES2_ATTRIBUTE_CENTER);
-	glEnableVertexAttribArray(GLES2_ATTRIBUTE_ANGLE);
+    if(!isValid()){
+        FFL_LOG_WARNING("Faild to GLES2Renderer::render programe not create");
+        return -1;
+    }
+	glEnableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_CENTER]);
+	glEnableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_ANGLE]);
 	fAngle[0] = fAngle[1] = fAngle[2] = fAngle[3] = (GLfloat)(360.0f - angle);
 	/* Calculate the center of rotation */
 	translate[0] = translate[2] = translate[4] = translate[6] = (center->x + dstrect->x);
@@ -353,13 +237,14 @@ int GLES2Renderer::render(player::VideoTexture* tex,
 		vertices[5] = vertices[7] = tmp;
 	}
 
-	/*glVertexAttribPointer(GLES2_ATTRIBUTE_ANGLE, 1, GL_FLOAT, GL_FALSE, 0, &fAngle);
-    glVertexAttribPointer(GLES2_ATTRIBUTE_CENTER, 2, GL_FLOAT, GL_FALSE, 0, translate);
-    glVertexAttribPointer(GLES2_ATTRIBUTE_POSITION, 2, GL_FLOAT, GL_FALSE, 0, vertices);*/
+	updateVertexBuffer(GLES2_ATTRIBUTE_ANGLE,
+                       mVertexAttribLocations[GLES2_ATTRIBUTE_ANGLE], fAngle, 4 * sizeof(GLfloat));
+	updateVertexBuffer(GLES2_ATTRIBUTE_CENTER,
+                       mVertexAttribLocations[GLES2_ATTRIBUTE_CENTER], translate, 8 * sizeof(GLfloat));
 
-	updateVertexBuffer(GLES2_ATTRIBUTE_ANGLE, fAngle, 4 * sizeof(GLfloat));
-	updateVertexBuffer(GLES2_ATTRIBUTE_CENTER, translate, 8 * sizeof(GLfloat));
-	updateVertexBuffer(GLES2_ATTRIBUTE_POSITION, vertices, 8 * sizeof(GLfloat));
+    glEnableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_POSITION]);
+	updateVertexBuffer(GLES2_ATTRIBUTE_POSITION,
+                       mVertexAttribLocations[GLES2_ATTRIBUTE_POSITION],vertices, 8 * sizeof(GLfloat));
 
 	texCoords[0] = srcrect->x / (GLfloat)tex->mWidth;
 	texCoords[1] = srcrect->y / (GLfloat)tex->mHeight;
@@ -370,46 +255,169 @@ int GLES2Renderer::render(player::VideoTexture* tex,
 	texCoords[6] = (srcrect->x + srcrect->w) / (GLfloat)tex->mWidth;
 	texCoords[7] = (srcrect->y + srcrect->h) / (GLfloat)tex->mHeight;
 	/*glVertexAttribPointer(GLES2_ATTRIBUTE_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, texCoords);*/
-	updateVertexBuffer(GLES2_ATTRIBUTE_TEXCOORD, texCoords, 8 * sizeof(GLfloat));
+    glEnableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_TEXCOORD]);
+	updateVertexBuffer(GLES2_ATTRIBUTE_TEXCOORD,
+                       mVertexAttribLocations[GLES2_ATTRIBUTE_TEXCOORD], texCoords, 8 * sizeof(GLfloat));
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glDisableVertexAttribArray(GLES2_ATTRIBUTE_CENTER);
-	glDisableVertexAttribArray(GLES2_ATTRIBUTE_ANGLE);
+	glDisableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_CENTER]);
+	glDisableVertexAttribArray(mVertexAttribLocations[GLES2_ATTRIBUTE_ANGLE]);
 	return 1;
 }
+bool GLES2Renderer::isValid() const{
+    return mProgram!=0;
 
-
-int GLES2Renderer::texSubImage2D(GLenum target,
-				  GLint xoffset, GLint yoffset,
-				  GLsizei width, GLsizei height,
-				  GLenum format, GLenum type,
-				  const GLvoid *pixels, GLint pitch, GLint bpp) {
-	Uint8 *blob = NULL;
-	Uint8 *src;
-	int src_pitch;
-	int y;
-
-	/* Reformat the texture data into a tightly packed array */
-	src_pitch = width * bpp;
-	src = (Uint8 *)pixels;
-	if (pitch != src_pitch) {
-		blob = (Uint8 *)FFL_malloc(src_pitch * height);
-		if (!blob) {
-			return 0;
-		}
-		src = blob;
-		for (y = 0; y < height; ++y)
-		{
-			memcpy(src, pixels, src_pitch);
-			src += src_pitch;
-			pixels = (Uint8 *)pixels + pitch;
-		}
-		src = blob;
+}
+void GLES2Renderer::uploadOrthographicProjection(){
+	const GLuint locProjection = mUniformLocations[GLES2_UNIFORM_PROJECTION];
+	glUniformMatrix4fv(locProjection, 1, GL_FALSE, (GLfloat *)mProjection);
+}
+//
+// 创建顶点着色器
+//
+bool GLES2Renderer::createVertexShader(){
+	const GLES2_Shader *shader = GLES2_GetShader(GLES2_SHADER_VERTEX_DEFAULT);
+	const GLES2_ShaderInstance *instance = shader->instances[0];
+	GLuint shaderId = glCreateShader(instance->type);
+	if(shaderId<=0){
+		FFL_LOG_WARNING("Failed to GLES2Renderer::createVertexShader");
+		return false;
 	}
 
-
-	glTexSubImage2D(target, 0, xoffset, yoffset, width, height, format, type, src);
-	if (blob) {
-		FFL_free(blob);
+	GLES2_checkError("glCreateShader");
+	GLint compileSuccessful=GL_FALSE;
+	if (instance->format == (GLenum) -1) {
+		glShaderSource(shaderId, 1, (const char **) (char *) &instance->data, NULL);
+		glCompileShader(shaderId);
+		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileSuccessful);
+	} else {
+		glShaderBinary(1, &shaderId, instance->format, instance->data, instance->length);
+		compileSuccessful = GL_TRUE;
 	}
-	return 0;
+
+	mVertexShader=shaderId;
+
+	if(!compileSuccessful ){
+		GLES2_checkError("glCreateShader");
+		return  false;
+	}
+	return true;
+}
+bool GLES2Renderer::createFragmentShader(GLES2_ShaderType type){
+	if(type==GLES2_SHADER_NONE){
+		FFL_LOG_ERROR("Failed to createFragmentShader type=%d",type);
+		return false;
+	}
+
+	const GLES2_Shader *shader = GLES2_GetShader(type);
+	GLint compileSuccessful=GL_FALSE;
+	const GLES2_ShaderInstance *instance = shader->instances[0];
+	GLuint shaderId = glCreateShader(instance->type);
+	if(shaderId<=0){
+		FFL_LOG_ERROR("Failed to glCreateShader shaderId=%d",shaderId);
+		return false;
+	}
+	GLES2_checkError("glCreateShader");
+	if (instance->format == (GLenum) -1) {
+		glShaderSource(shaderId, 1, (const char **) (char *) &instance->data, NULL);
+		glCompileShader(shaderId);
+		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileSuccessful);
+	} else {
+		glShaderBinary(1, &shaderId, instance->format, instance->data, instance->length);
+		compileSuccessful = GL_TRUE;
+	}
+	mFragmentShader=shaderId;
+	if(!compileSuccessful ){
+		return  false;
+	}
+	return true;
+}
+//
+// 创建gpuprogram
+//
+bool GLES2Renderer::createProgram(){
+	if(mVertexShader<=0 || mFragmentShader<=0){
+		return false;
+	}
+
+	mProgram = glCreateProgram();
+	GLES2_checkError("glCreateProgram");
+	if (mProgram<=0) {
+		return false;
+	}
+
+	glAttachShader(mProgram, mVertexShader);
+	GLES2_checkError("glAttachShader(vertex)");
+	glAttachShader(mProgram, mFragmentShader);
+	GLES2_checkError("glAttachShader(fragment)");
+
+//	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_POSITION, "a_position");
+//	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_TEXCOORD, "a_texCoord");
+//	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_ANGLE, "a_angle");
+//	glBindAttribLocation(mProgram, GLES2_ATTRIBUTE_CENTER, "a_center");
+
+	glLinkProgram(mProgram);
+	GLES2_checkError("glLinkProgram");
+	GLint link_status = GL_FALSE;
+	glGetProgramiv(mProgram, GL_LINK_STATUS, &link_status);
+	if (!link_status) {
+		return false;
+	}
+
+	//
+	//  获取顶点属性在gpu中的索引
+	//
+	mVertexAttribLocations[GLES2_ATTRIBUTE_POSITION]=glGetAttribLocation(mProgram,"a_position");
+	mVertexAttribLocations[GLES2_ATTRIBUTE_TEXCOORD]=glGetAttribLocation(mProgram,"a_texCoord");
+	mVertexAttribLocations[GLES2_ATTRIBUTE_ANGLE]=glGetAttribLocation(mProgram,"a_angle");
+	mVertexAttribLocations[GLES2_ATTRIBUTE_CENTER]=glGetAttribLocation(mProgram,"a_center");
+
+	//
+	//  获取uniform的索引
+	//
+	mUniformLocations[GLES2_UNIFORM_PROJECTION]=glGetUniformLocation(mProgram, "u_projection");
+	mUniformLocations[GLES2_UNIFORM_TEXTURE_V]=glGetUniformLocation(mProgram, "u_texture_v");
+	mUniformLocations[GLES2_UNIFORM_TEXTURE_U] =glGetUniformLocation(mProgram, "u_texture_u");
+	mUniformLocations[GLES2_UNIFORM_TEXTURE]=glGetUniformLocation(mProgram, "u_texture");
+	mUniformLocations[GLES2_UNIFORM_MODULATION]=glGetUniformLocation(mProgram, "u_modulation");
+	mUniformLocations[GLES2_UNIFORM_COLOR]=glGetUniformLocation(mProgram, "u_color");
+
+	return true;
+}
+//
+// 更新一下投影矩阵,返回是否更新了
+//
+bool GLES2Renderer::updateProjectionMat(int32_t width,int32_t height){
+	GLfloat projection[4][4];
+
+	projection[0][0] = 2.0f / width;
+	projection[0][1] = 0.0f;
+	projection[0][2] = 0.0f;
+	projection[0][3] = 0.0f;
+	projection[1][0] = 0.0f;
+	//if (renderer->target) {
+	//	projection[1][1] = 2.0f / renderer->viewport.h;
+	//} else {
+	projection[1][1] = -2.0f / height;
+	//}
+	projection[1][2] = 0.0f;
+	projection[1][3] = 0.0f;
+	projection[2][0] = 0.0f;
+	projection[2][1] = 0.0f;
+	projection[2][2] = 0.0f;
+	projection[2][3] = 0.0f;
+	projection[3][0] = -1.0f;
+	//if (renderer->target) {
+	//	projection[3][1] = -1.0f;
+	//} else {
+	projection[3][1] = 1.0f;
+	//}
+	projection[3][2] = 0.0f;
+	projection[3][3] = 1.0f;
+
+	if(memcmp(mProjection, projection, sizeof (projection)) != 0) {
+	   memcpy(mProjection, projection, sizeof (projection));
+	   return true;
+	}
+
+	return  false;
 }

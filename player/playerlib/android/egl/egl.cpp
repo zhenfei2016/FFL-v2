@@ -19,6 +19,11 @@ namespace render {
     Egl::Egl() {
         mWidth = -1;
         mHeight = -1;
+
+        mDisplay=EGL_NO_DISPLAY;
+        mContext=EGL_NO_CONTEXT;
+        mWindow=NULL;
+        mSurface=EGL_NO_SURFACE;
     }
 
     Egl::~Egl() {
@@ -146,6 +151,8 @@ namespace render {
         mContext = context;
         mSurface = surface;
         mDisplay = display;
+        mWindow  =  window;
+        return true;
     }
 
     void Egl::terminate() {
@@ -164,6 +171,7 @@ namespace render {
         }
         eglTerminate(mDisplay);
         mDisplay = EGL_NO_DISPLAY;
+        mWindow=NULL;
         eglReleaseThread();
     }
 
@@ -174,7 +182,6 @@ namespace render {
         if (window && window == mWindow && isValid()) {
             return eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
         }
-
         return initialize(window);
     }
 

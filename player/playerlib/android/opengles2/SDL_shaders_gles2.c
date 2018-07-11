@@ -29,12 +29,13 @@
 *  SDL_shaders_gles2.c
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/06
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ×ÅÉ«Æ÷½Ó¿Ú£¬ÐÞ¸ÄµÄsdl¿â
+*  ï¿½ï¿½É«ï¿½ï¿½ï¿½Ó¿Ú£ï¿½ï¿½Þ¸Äµï¿½sdlï¿½ï¿½
 *
 */
 
 
 #include "SDL_shaders_gles2.h"
+#include <FFL.h>
 
 typedef unsigned char Uint8;
 
@@ -59,9 +60,44 @@ static const Uint8 GLES2_VertexSrc_Default_[] = " \
         vec2 position = rotationMatrix * (a_position - a_center) + a_center; \
         v_texCoord = a_texCoord; \
         gl_Position = u_projection * vec4(position, 0.0, 1.0);\
+        gl_Position=  vec4(position, 0.0, 1.0);\
         gl_PointSize = 1.0; \
     } \
 ";
+
+static const char g_Framshader[] = FFL_TOSTRING(
+        precision highp float;
+                  varying   highp vec2 v_texCoord;
+                  uniform         mat3 um3_ColorConversion;
+                  uniform   lowp  sampler2D us2_SamplerX;
+                  uniform   lowp  sampler2D us2_SamplerY;
+                  uniform   lowp  sampler2D us2_SamplerZ;
+
+                  void main()
+{
+    mediump vec3 yuv;
+    lowp    vec3 rgb;
+
+    yuv.x = (texture2D(us2_SamplerX, v_texCoord).r - (16.0 / 255.0));
+    yuv.y = (texture2D(us2_SamplerY, v_texCoord).r - 0.5);
+    yuv.z = (texture2D(us2_SamplerZ, v_texCoord).r - 0.5);
+    rgb = um3_ColorConversion * yuv;
+    gl_FragColor = vec4(rgb, 1);
+}
+);
+//
+//static const Uint8 GLES2_VertexSrc_Default_[]  = FFL_TOSTRING(
+//        precision highp float;
+//                  varying   highp vec2 v_texCoord;
+//                  attribute highp vec2 a_position;
+//                  attribute highp vec2 a_texCoord;
+//                  uniform         mat4 um4_ModelViewProjection;
+//
+//                  void main()
+//{
+//    gl_Position  = vec4(a_position, 0.0, 1.0);;
+//    v_texCoord = a_texCoord.xy;
+//});
 
 static const Uint8 GLES2_FragmentSrc_SolidSrc_[] = " \
     precision mediump float; \

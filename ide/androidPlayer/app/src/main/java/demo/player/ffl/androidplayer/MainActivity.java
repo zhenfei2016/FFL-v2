@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String url=mUrl;
+                getPlayer().native_setSurface(new Surface(mTextureView.getSurfaceTexture()));
                 getPlayer().native_play(url);
             }
         });
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private FFLPlayer getPlayer(){
         if(mFFLPlayer==null) {
             mFFLPlayer = new FFLPlayer();
-            mFFLPlayer.native_setSurface(new Surface(mTextureView.getSurfaceTexture()));
+
         }
         return mFFLPlayer;
     }

@@ -16,6 +16,10 @@
 
 #include <GLES2/gl2.h>
 
+extern "C" {
+#include "SDL_shaders_gles2.h"
+};
+
 typedef struct SDL_Point
 {
 	int x;
@@ -61,6 +65,7 @@ typedef enum
 	GLES2_ATTRIBUTE_TEXCOORD = 1,
 	GLES2_ATTRIBUTE_ANGLE = 2,
 	GLES2_ATTRIBUTE_CENTER = 3,
+    GLES2_ATTRIBUTE_COUNT
 } GLES2_Attribute;
 
 //
@@ -69,9 +74,9 @@ typedef enum
 typedef enum
 {
 	GLES2_UNIFORM_PROJECTION,
-	GLES2_UNIFORM_TEXTURE,
 	GLES2_UNIFORM_MODULATION,
 	GLES2_UNIFORM_COLOR,
+	GLES2_UNIFORM_TEXTURE,
 	GLES2_UNIFORM_TEXTURE_U,
 	GLES2_UNIFORM_TEXTURE_V,
 	GLES_UNIFORM_COUNT,
@@ -79,25 +84,35 @@ typedef enum
 
 namespace player{
 	class VideoTexture;
+	class VideoFormat;
 }
 class GLES2Renderer {
 public:
 	GLES2Renderer();
 	~GLES2Renderer();
-
-	bool install();
-	bool useProgram();
+	//
+	//  安装，使用，卸载 opengl program
+	//
+	bool install(const  player::VideoFormat* fmt,int32_t viewWidht,int32_t viewHeight);
 	void uninstall();
-
 	//
-	//  创建，更新，删除纹理
+	// 使用当前render
 	//
-	int  createTexture(player::VideoTexture* tex);
-	bool uploadTexture(player::VideoTexture* tex,
-					   const SDL_Rect *rect);
-	void destroyTexture();
-
-
+	bool useProgram();
+	//
+	//  清空缓冲区
+	//
+	void clearColor(GLfloat r,GLfloat g,GLfloat b,GLfloat a);
+	//
+	//  更新viewport
+	//
+	void updateViewport(int widht,int height);
+	//
+	//  把原图片的子区域更新到目标纹理上
+    //  tex ：原图片
+    // rect:原图片的子区域
+	//
+	bool uploadTexture(player::VideoTexture* tex,const SDL_Rect *rect);
 	//
 	//  开始绘制
 	//
@@ -108,21 +123,28 @@ public:
 					 const SDL_FPoint *center,
 					 const SDL_RendererFlip flip);
 
-protected:
+private:
+    bool isValid() const;
 	//
-	//  更新顶点相关信息
+	// 上传投影矩阵
 	//
-	void updateVertexBuffer(GLES2_Attribute attr,
-							const void *vertexData,
-							size_t dataSizeInBytes);
-
-
-	int texSubImage2D(GLenum target,
-					  GLint xoffset, GLint yoffset,
-					  GLsizei width, GLsizei height,
-					  GLenum format, GLenum type,
-					  const GLvoid *pixels, GLint pitch, GLint bpp);
-
+	void uploadOrthographicProjection();
+	//
+	// 创建顶点着色器
+	//
+	bool createVertexShader();
+	//
+	// 创建片段着色器
+	//
+	bool createFragmentShader(GLES2_ShaderType type);
+    //
+	// 创建gpuprogram
+	//
+	bool createProgram();
+	//
+	// 更新一下投影矩阵,返回是否更新了
+	//
+	bool updateProjectionMat(int32_t width,int32_t height);
 private:
 	//
 	//  顶点，片段着色
@@ -130,20 +152,17 @@ private:
 	GLuint mVertexShader;
 	GLuint mFragmentShader;
 	GLuint mProgram;
+    GLuint mVertexAttribLocations[GLES2_ATTRIBUTE_COUNT];
 	GLuint mUniformLocations[GLES_UNIFORM_COUNT];
-
 	//
-	//  纹理
+	//  yuv纹理或者 0:指向rgb
 	//
-	GLuint mTextureU;
-	GLuint mTextureV;
-	GLuint mTexture;
-
+	GLuint mTexture[3];
 	//
+	//  视口，投影矩阵
 	//
-	//
-	bool mIsyuv;
-	bool mIsnv12;
+	SDL_Rect mViewport;
+	GLfloat mProjection[4][4];
 };
 
 #endif

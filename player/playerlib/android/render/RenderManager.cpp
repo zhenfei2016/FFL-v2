@@ -13,9 +13,11 @@
 */
 #include "RenderManager.hpp"
 #include "MemcopyRender.hpp"
+#include "OpenglesRender.hpp"
 
 namespace android {
     MemcopyRender* gMemcopyRender=new MemcopyRender();
+    render::OpenglEsRender* gOpenglEsRender=new render::OpenglEsRender();
 
     RenderManager::RenderManager(){
     }
@@ -36,6 +38,7 @@ namespace android {
     //    arg  :参数，通过这个参数，找到一个最配置的render
     //
     RenderInterface* RenderManager::getRender(const player::VideoFormat* format, void *arg){
-        return gMemcopyRender;
+       // return gMemcopyRender;
+        return gOpenglEsRender;
     }
 }

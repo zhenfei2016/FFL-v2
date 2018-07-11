@@ -34,7 +34,7 @@ namespace  android{
         //
         //  创建这个render ，arg自定义的参数
         //
-        virtual status_t create(const player::VideoFormat*  arg)=0;
+        virtual status_t create(player::VideoSurface* surface,const player::VideoFormat*  arg)=0;
         //
         //  绘制图片tex到 surface上面
         //

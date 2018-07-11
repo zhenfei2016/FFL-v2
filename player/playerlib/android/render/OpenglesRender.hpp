@@ -18,6 +18,7 @@
 
 class GLES2Renderer;
 namespace render{
+    class Egl;
     class OpenglEsRender  : public android::RenderInterface{
     public:
         OpenglEsRender();
@@ -34,7 +35,7 @@ namespace render{
         //
         //  创建这个render ，arg自定义的参数
         //
-        virtual status_t create(const player::VideoFormat*  arg);
+        virtual status_t create(player::VideoSurface* surface,const player::VideoFormat*  arg);
         //
         //  绘制图片tex到 surface上面
         //
@@ -45,6 +46,7 @@ namespace render{
         virtual void destroy();
 
     private:
+        Egl* mEgl;
         GLES2Renderer* mRenderer;
     };
 }
