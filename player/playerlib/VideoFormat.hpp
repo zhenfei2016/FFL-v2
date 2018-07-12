@@ -19,8 +19,8 @@ namespace player {
             //  YYYYYYYYYYYYYYYY
             //  uvuv
             //
-            PIXEL_FORMAT_NV12 = 3,
-			PIXEL_FORMAT_NV21 = 4,
+            PIXEL_FORMAT_NV12 = 2,
+			PIXEL_FORMAT_NV21 ,
 			PIXEL_FORMAT_RGBA_8888,
 		};
 

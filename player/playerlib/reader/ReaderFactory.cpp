@@ -20,6 +20,6 @@ namespace reader {
 	// 释放这个reader
 	//
 	void ReaderFactory::destroyReader(FFL::sp<ReaderBase> reader) {
-
+		mReader = NULL;
 	}
 }

@@ -211,8 +211,8 @@ namespace FFL {
 			return mLooping!=0;
 		}
 		else if (waitMs < 0) {
-            if(mLooping==0){
-			   mLoopingCond.waitRelative(mLoopingMutex, waitMs);
+            while(mLooping==0){
+			   mLoopingCond.waitRelative(mLoopingMutex, 100);
             }
 		}
 		else

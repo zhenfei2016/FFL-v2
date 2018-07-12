@@ -22,8 +22,7 @@ namespace message {
 	}
 	FFMpegVideoFrame::~FFMpegVideoFrame()
 	{
-		if (mFrame) {
-			FFL_LOG_WARNING("FFMpegVideoFrame av_frame_unref");
+		if (mFrame) {			
 			av_frame_unref(mFrame);
 			av_frame_free(&mFrame);
 		}
@@ -35,6 +34,7 @@ namespace message {
 	{		
 		av_frame_unref(mFrame);
 		av_frame_free(&mFrame);
+		mFrame = NULL;
 	}
 
 	int64_t gLastPts = 0;
@@ -42,11 +42,14 @@ namespace message {
 	//  填充数据
 	//
 	void FFMpegVideoFrame::fillAvframe(AVFrame* frame){
-		if (mFrame!=frame) {
-			FFL_LOG_WARNING("FFMpegVideoFrame av_frame_unref");
-			mFrame = frame;
+		if (mFrame!=NULL && mFrame!=frame) {
+			FFL_LOG_WARNING("fillAvframe FFMpegVideoFrame av_frame_unref");			
+			av_frame_unref(mFrame);
+			av_frame_free(&mFrame);
+			mFrame = NULL;
 		}
 
+		mFrame = frame;
 		mTexture.mWidth = frame->width;
 		mTexture.mHeight = frame->height;		
 		
@@ -111,7 +114,7 @@ namespace message {
 	//
 	void FFMpegAudioFrame::fillAvframe(AVFrame* frame){
 		if (mFrame) {
-			FFL_LOG_WARNING("FFMpegVideoFrame av_frame_unref");
+			FFL_LOG_WARNING("fillAvframe FFMpegAudioFrame av_frame_unref");
 		}
 		mFrame = frame;
 

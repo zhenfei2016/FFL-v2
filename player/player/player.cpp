@@ -84,11 +84,12 @@ void stop(const char* args, void* userdata) {
 //
 // 退出exe
 //
+static bool gQuit = false;
 void quit(const char* args, void* userdata) {
 	printf("quit: %s \n", args ? args : "null");
 	player::FFLPlayer* player = (player::FFLPlayer*) userdata;
 	player->stop();
-	exit(0);
+	gQuit = true;
 }
 //
 //  向前跳2分钟
@@ -262,7 +263,7 @@ public:
 	}
 	virtual bool threadLoop() {
 		mPlayer->create(NULL);
-		player::SDL2Loop(NULL, mPlayer);
+		player::SDL2Loop(NULL, mPlayer,&gQuit);
 		return false;
 	}
 
@@ -337,12 +338,12 @@ static void help(const char* args, void* userdata) {
 
 int playerMain() {
 	help(0,0);
-
+	
 	player::FFLPlayer player;
 	TestListener listener(&player);
 	player.setListener(&listener);
-	PlayerUiThread uiThread(&player);
-	uiThread.run("ui");
+	FFL::sp<PlayerUiThread>  uiThread= new PlayerUiThread(&player);
+	uiThread->run("ui");
 
 	char cmd[256] = {};
 	cmd[0] = '-';
@@ -353,7 +354,7 @@ int playerMain() {
 	};
 	int argc = 2;
 
-	while (fgets(cmd + 2, 256 - 3, stdin)) {
+	while (fgets(cmd + 2, 256 - 3, stdin)) {		
 		//
 		//  把输入命令格式化为  cmd=xxx  ,就是把命令转化成第一个参数
 		//		
@@ -371,9 +372,13 @@ int playerMain() {
 			&player) < 0) {
 			printf("unknown command: %s \n", cmd + 2);
 		}
+
+		if (gQuit) {
+			break;
+		}
 	}
 
-	uiThread.requestExitAndWait();
+	uiThread->requestExitAndWait();
 
 	return 0;
 }

@@ -1,12 +1,11 @@
 1.使用cmake生成FFL相应的工程。
-2.编译生成
+2.全编译， 会进行拷贝
    FFL.lib        基础库
-   playerLib.lib  播放器逻辑库 
-   
-3. 拷贝上面2个文件到当前下libs目录中
+   playerLib.lib  播放器逻辑库    
+   到当前下libs目录中
 
-4. 编译生成exe, 把
-   ..\..\third\FFmpeg3.3.5\output_win_dll\bin 所有文件拷贝到exe目录下
-   ..\..\third\SDL2\SDL2.dll
-5. 可以运行了
+3. 编译mfc工程生成exe, 把
+   本目录下的 bin 所有文件拷贝到exe目录下   
+   
+4. 可以运行了
    

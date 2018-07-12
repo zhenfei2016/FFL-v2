@@ -107,23 +107,34 @@ namespace FFL {
 			mFlags.modifyFlags(STARTING, 0);
 	    }
 
+		bool started = true;;
 		if (FFL_OK != mConnector->startup()) {
-			FFL_LOG_WARNING("PipelineInput::startup fail");
+			FFL_LOG_ERROR("PipelineInput::startup fail");
+			started = false;
 		}
 
 
 		{
 			CMutex::Autolock l(mLock);
-			mFlags.modifyFlags(LOOPING, STARTING);
+			mFlags.modifyFlags(LOOPING, started? STARTING : 0);
 		}
 		
-        //
+		if (started) {
+			//发送启动成功消息
+			postStartSuccessMessage();
+			return FFL_OK;
+		}
+
+		return FFL_FAILED;
+	}
+
+
+	void PipelineInput::postStartSuccessMessage() {
+		//
 		//  发送这个input接口的第一次启动消息
 		//
-        sp<PipelineMessage> startLooperMsg=createSysPipelineMessage((uint32_t)MSGT_SYS_START_LOOPER);
-        mConnector->tranport(startLooperMsg,0);
-
-		return FFL_OK;
+		sp<PipelineMessage> startLooperMsg = createSysPipelineMessage((uint32_t)MSGT_SYS_START_LOOPER);
+		mConnector->tranport(startLooperMsg, 0);
 	}
 	status_t PipelineInput::shutdown()
 	{

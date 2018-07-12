@@ -135,7 +135,7 @@ namespace player {
 			return false;
 		}
 		dst->mSampleNum = ret;
-		FFL_LOG_WARNING_TAG(TAG_AUDIO,"resample src=%d dst=%d ret=%d ,delay=%d",
+		FFL_LOG_INFO_TAG(TAG_AUDIO,"resample src=%d dst=%d ret=%d ,delay=%d",
 			src->mSampleNum,
 			dstSampleNum,
 			ret,

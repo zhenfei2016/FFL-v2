@@ -133,29 +133,6 @@ namespace FFL{
 		//
 		uint32_t mMessageUniqueId;
 	public:
-		class TraceBackInfo {
-		public:
-			//
-			//  全局唯一的
-			//
-			int32_t mId;
-			//
-			//  入队，出队时间，2个的差值为处理事件
-			//
-			int64_t mQueueTimeUs;
-			int64_t mDeQueueTimeUs;
-			//
-			// 处理的线程id
-			//
-			int32_t mThreadId;
-		public:
-			//
-			//  开始，结束track记录信息
-			//
-			void begin();
-			void begin(int32_t tid);
-			void end(int32_t tid);
-		};
 		//
 		//  获取，这个Message的追溯信息，主要用于调试，分析
 		//  因为，一条消息可能经过n多的node进行处理

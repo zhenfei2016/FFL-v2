@@ -54,6 +54,7 @@ BEGIN_MESSAGE_MAP(CMFCPlayerControlDlg, CDialogEx)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER1, &CMFCPlayerControlDlg::OnNMReleasedcaptureSlider1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMFCPlayerControlDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMFCPlayerControlDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMFCPlayerControlDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -435,4 +436,10 @@ void CMFCPlayerControlDlg::OnBnClickedButton3()
 	CString info;
 	info.Format(L"loop£ºold=%d new=%d", num, num - 1);
 	mMsgListCtrl.InsertString(0, info);
+}
+
+
+void CMFCPlayerControlDlg::OnBnClickedButton5()
+{//ÍË³öÏµÍ³
+	exit(0);	
 }

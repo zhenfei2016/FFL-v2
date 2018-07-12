@@ -46,6 +46,7 @@ static inline void init_internal_memlock()
     }
 }
 
+static int gInt3Table[] = { 78 };
 void internal_alloc_memblock(void* ptr,int size)
 {
     MemBlock* block;
@@ -60,12 +61,10 @@ void internal_alloc_memblock(void* ptr,int size)
 
     block->next=g_memblock_header;
     g_memblock_header=block;
-    FFL_UnlockMutex(lock);
+    FFL_UnlockMutex(lock);	
 
-	int id[] = { 65,66,249 };
-
-	for (int i = 0; i < sizeof(id) / sizeof(id[0]); i++) {
-		if (block->id == id[i]) {
+	for (int i = 0; i < sizeof(gInt3Table) / sizeof(gInt3Table[0]); i++) {
+		if (block->id == gInt3Table[i]) {
 			int j = 0;
 			j++;
 		}
@@ -142,7 +141,7 @@ void *FFL_malloc(size_t size)
 	return mem;
 }
 
-void FFL_free(const void *mem)
+void FFL_free( void *mem)
 {
     char* prefix=0;
     char * subfix=0;

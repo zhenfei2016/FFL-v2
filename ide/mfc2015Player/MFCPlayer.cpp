@@ -16,6 +16,7 @@ const char* ShowLogTag[] = {
 	//"audio",
 	//"timestamp",
 	//"MsgQueue",
+	"debug",
 	NULL
 };
 

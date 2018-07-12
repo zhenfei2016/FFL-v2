@@ -72,7 +72,7 @@ namespace FFL
 		//
 		//  获取出还没有启动的input
 		//
-		Vector< sp<PipelineInput> > inputs;
+		Vector< sp<PipelineInput> > inputs;		
 		getStopedInputVector(inputs);
 		
 		//
@@ -82,15 +82,15 @@ namespace FFL
 			FFL_LOG_WARNING("PipelineNode(%d) input is empty.", getId());
 		}
 		else {
-			for (std::vector< sp<PipelineInput> >::iterator it = inputs.begin(); it != inputs.end(); it++) {
+			for (Vector< sp<PipelineInput> >::iterator it = inputs.begin(); it != inputs.end(); it++) {
 				sp<PipelineInput> input = *it;
 				if (input.is_empty()) continue;
 				if (FFL_OK != input->startup()){
 					FFL_LOG_WARNING("PipelineNode.input(%d.%d) startup fail.", getId(), input->getId());
-				}
+				}			
 			}
-		}
-		
+		}		
+
 		if (bNotifyHandler && !handler.is_empty()) {
 			handler->onStartupAfter();
 		}

@@ -34,11 +34,16 @@ namespace player {
 	}
 
 
-	void SDL2Loop(FUNKeyPress fun,void* userdata) {
+	void SDL2Loop(FUNKeyPress fun,void* userdata,bool* quit) {
 		bool bQuit=false;
 		SDL_Event event;
-		//while (SDL_WaitEventTimeout(&event,40) && !bQuit) {
-		while (!bQuit && SDL_WaitEvent(&event) ) {
+		while (!bQuit  ) {
+
+			SDL_WaitEventTimeout(&event, 40);
+			if (quit && *quit) {
+				break;
+			}
+
 			switch (event.type) {
 			case SDL_KEYUP:
 				if (fun && !fun(userdata, event.key.keysym.sym))
@@ -49,5 +54,5 @@ namespace player {
 				break;
 			}
 		}
-	}	
+	}		
 }

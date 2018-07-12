@@ -31,6 +31,7 @@ namespace FFL{
 	
 	class PipelineInput : public RefBase{
 		friend class PipelineInputList;
+		friend class PipelineNode;
 	protected:
 		//
 		// pipelineNode : input所属的Node
@@ -71,6 +72,11 @@ namespace FFL{
 		status_t waitShutdown();
 
 		bool isStarted() ;
+	private:
+		//
+		//  发送成功启动的消息
+		//
+		void postStartSuccessMessage();
 	public:
 		//
 		//  发送消息给自己

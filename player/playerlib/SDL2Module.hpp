@@ -40,7 +40,7 @@ namespace player {
 
 	//返回false就会退出循环
 	typedef bool (*FUNKeyPress)(void* userdata,int key);
-	void SDL2Loop(FUNKeyPress fun, void* userdata);
+	void SDL2Loop(FUNKeyPress fun, void* userdata, bool* quit);	
 }
 
 #endif

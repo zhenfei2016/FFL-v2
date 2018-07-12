@@ -48,9 +48,12 @@ namespace player {
 		setSpeed(100);
 		init();
 	}
-	PlayerCore::~PlayerCore()
-	{
-		
+	PlayerCore::~PlayerCore(){	
+		if (mFileReader != NULL) {
+			mFileReader->setStreamManager(NULL);
+			reader::ReaderFactory::getInstance().destroyReader(mFileReader);
+		}
+		mPipeline = NULL;
 	}
 	status_t PlayerCore::init() {		
 		//
