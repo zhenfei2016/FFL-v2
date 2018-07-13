@@ -28,6 +28,11 @@
 #include "FFL_Memory.h"
 #include "FFL_Time.h"
 
+/*
+ *  socket句柄
+ */
+typedef int NetFD;
+
 #ifdef __cplusplus
 #include "utils/FFL_Utils.hpp"
 #endif // __cplusplus

@@ -212,13 +212,21 @@ ADD_SRC_FILE(FFL_PipelineAsyncConnectorFixedSize.cpp)
 ADD_SRC_FILE(FFL_PipelineSourceConnector.cpp)
 ADD_SRC_FILE(FFL_PipelineHandler.cpp)
 
+SET(LOCAL_SRC_DIR ./include/net/)
+ADD_SRC_FILE(FFL_socket.h)
+ADD_SRC_FILE(FFL_socket.hpp)
+ADD_SRC_FILE(FFL_socketConstant.h)
 
 SET(LOCAL_SRC_DIR ./source/net/)
 #ADD_SRC_FILE(FFL_socket.c)
-#ADD_SRC_FILE(FFL_socket_inaddr_any_server.c)
-#ADD_SRC_FILE(FFL_socket_loopback_client.c)
-#ADD_SRC_FILE(FFL_socket_loopback_server.c)
-#ADD_SRC_FILE(FFL_socket_network_client.c)
+#ADD_SRC_FILE(FFL_socket.cpp)
+#ADD_SRC_FILE(FFL_socketAnyAddrServer.c)
+#ADD_SRC_FILE(FFL_socketLoopbackClient.c)
+#ADD_SRC_FILE(FFL_socketLoopbackServer.c)
+#ADD_SRC_FILE(FFL_socketNetworkClient.c)
+
+AUX_SOURCE_DIRECTORY(./source/net/ DIR_SRCS)
+SET(LOCAL_SRC_FILES ${DIR_SRCS} ${LOCAL_SRC_FILES})
 
 if (MSVC)
     set(CompilerFlags
