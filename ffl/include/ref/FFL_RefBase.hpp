@@ -6,7 +6,8 @@
 *
 *  FFL_RefBase   
 *  Created by zhufeifei(34008081@qq.com) on 2017/08/12
-*   基于android中的引用计数类修改的 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*   基于android中的引用计数类修改的
 *
 */
 #ifndef _FFL_REF_BASE_H_

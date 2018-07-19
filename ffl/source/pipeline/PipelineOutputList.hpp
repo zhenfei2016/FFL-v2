@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineOutputList.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/16
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  node的输出接口管理
 *

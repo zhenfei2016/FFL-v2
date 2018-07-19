@@ -1,12 +1,15 @@
 /*
- *  FFL_socket_error.h
- *  FFL
- *
- *  Created by zhufeifei on 2018/2/25.
- *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
- *  网络socket错误码
- */
-
+*  This file is part of FFL project.
+*
+*  The MIT License (MIT)
+*  Copyright (C) 2017-2018 zhufeifei All rights reserved.
+*
+*  FFL_NetConst.h   
+*  Created by zhufeifei(34008081@qq.com) on 2018/2/25. 
+*  https://github.com/zhenfei2016/FFL-v2.git
+*  网络socket错误码
+*
+*/
 #ifndef _FFL_SOCKET_ERROR_H_
 #define _FFL_SOCKET_ERROR_H_
 

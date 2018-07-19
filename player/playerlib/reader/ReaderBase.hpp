@@ -97,7 +97,7 @@ namespace reader {
 		//
 		//  读取一帧数据
 		//
-		virtual void onReadFrame()=0;
+		virtual void onReadFrame(int64_t trackId)=0;
 	protected:
 		friend class FFL::ClassMethodCallback<ReaderBase>;
 		FFL::CMutex mRequestLock;

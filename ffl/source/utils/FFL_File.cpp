@@ -91,15 +91,30 @@ int readFile(FileHandle* fd, uint8_t* buf, int32_t size) {
 }
 #else
 FileHandle* createFile(const char* path, OpenFileMode mode) {
-      return NULL;
+	FileHandle* handle = new FileHandle();
+    handle->fd= open(path, O_RDWR)
+    return handle;
 }
 void closeFile(FileHandle* fd) {
+    close(fd->fd);
 }
 
 int writeFile(FileHandle* fd,void* data,int32_t size) {
+    if (fd) {
+       int ret = write(fd->fd, data, size);
+       if (ret < 0){}
+
+       return ret;
+    }
     return 0;
 }
 int readFile(FileHandle* fd, uint8_t* buf, int32_t size) {
+    if (fd) {
+       int ret = read(fd->fd, buf, size);
+       if (ret < 0){}
+
+       return ret;
+    }
     return 0;
 }
 #endif
@@ -221,7 +236,7 @@ namespace FFL {
 
 		int nReaded;
 		if ((nReaded = readFile((FileHandle*)mFd, buf, count)) < 0) {
-			ret = FFL_FILE_WRITE_FAILED;
+			ret = FFL_FILE_READ_FAILED;
 			return ret;
 		}
 

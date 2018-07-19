@@ -211,22 +211,27 @@ ADD_SRC_FILE(FFL_PipelineAsyncConnector.cpp)
 ADD_SRC_FILE(FFL_PipelineAsyncConnectorFixedSize.cpp)
 ADD_SRC_FILE(FFL_PipelineSourceConnector.cpp)
 ADD_SRC_FILE(FFL_PipelineHandler.cpp)
+ADD_SRC_FILE(PipelineMessageTrackFile.hpp)
+ADD_SRC_FILE(PipelineMessageTrackFile.cpp)
 
-SET(LOCAL_SRC_DIR ./include/net/)
-ADD_SRC_FILE(FFL_socket.h)
-ADD_SRC_FILE(FFL_socket.hpp)
-ADD_SRC_FILE(FFL_socketConstant.h)
 
-SET(LOCAL_SRC_DIR ./source/net/)
-#ADD_SRC_FILE(FFL_socket.c)
-#ADD_SRC_FILE(FFL_socket.cpp)
-#ADD_SRC_FILE(FFL_socketAnyAddrServer.c)
-#ADD_SRC_FILE(FFL_socketLoopbackClient.c)
-#ADD_SRC_FILE(FFL_socketLoopbackServer.c)
-#ADD_SRC_FILE(FFL_socketNetworkClient.c)
+#SET(LOCAL_SRC_DIR ./include/net/base/)
+#ADD_SRC_FILE(FFL_Net.h)
+#ADD_SRC_FILE(FFL_NetConst.h)
 
 AUX_SOURCE_DIRECTORY(./source/net/ DIR_SRCS)
 SET(LOCAL_SRC_FILES ${DIR_SRCS} ${LOCAL_SRC_FILES})
+
+AUX_SOURCE_DIRECTORY(./source/net/base/ DIR_SRCS)
+SET(LOCAL_SRC_FILES ${DIR_SRCS} ${LOCAL_SRC_FILES})
+
+AUX_SOURCE_DIRECTORY(./source/net/http/ DIR_SRCS)
+SET(LOCAL_SRC_FILES ${DIR_SRCS} ${LOCAL_SRC_FILES})
+
+AUX_SOURCE_DIRECTORY(./source/net/http/http-parser-2.1/ DIR_SRCS)
+SET(LOCAL_SRC_FILES ${DIR_SRCS} ${LOCAL_SRC_FILES})
+
+
 
 if (MSVC)
     set(CompilerFlags
@@ -251,5 +256,5 @@ INSTALL(TARGETS FFL RUNTIME DESTINATION  ${PROJECT_SOURCE_DIR}/../ide/mfc2015Pla
 ENDIF()
 
 
-
+ADD_SUBDIRECTORY(example)
 

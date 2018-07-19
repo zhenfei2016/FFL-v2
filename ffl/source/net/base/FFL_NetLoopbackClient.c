@@ -11,7 +11,7 @@
  *
  */
 #include "internalSocket.h"
-#include <net/FFL_socket.h>
+#include <net/base/FFL_Net.h>
 
 SOCKET_STATUS FFL_socketLoopbackClient(int port, int type, NetFD*fd)
 {

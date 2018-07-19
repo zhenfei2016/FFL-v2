@@ -6,6 +6,7 @@
 *
 *  FFL_Thread.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/11/25
+*  https://github.com/zhenfei2016/FFL-v2.git
 *  基予Android Open Source Project，修改的线程封装
 *
 */
@@ -68,8 +69,8 @@ namespace FFL {
 		wp<Thread> weak(strong);
 		self->mHoldSelf.clear();
 
-		self->mTid = FFL_CurrentThreadID();
-
+		FFL_ThreadID tid= self->mTid = FFL_CurrentThreadID();
+		FFL_LOG_DEBUG("Thread(%d) run", tid);
 		bool first = true;
 		bool exec_thread_exit = false;
 		self->threadLoopStart();
@@ -129,6 +130,8 @@ namespace FFL {
 		if(!exec_thread_exit)
 		   self->threadLoopExit(0);
 		
+		FFL_LOG_DEBUG("Thread(%d) quit", tid);
+
 		return 0;
 	}
 

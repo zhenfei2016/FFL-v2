@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineNodeManager.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/02/11
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  Pipelin系统中的Node节点管理器，添加删除等
 *

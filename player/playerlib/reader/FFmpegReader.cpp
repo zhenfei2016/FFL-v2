@@ -35,7 +35,7 @@ namespace reader {
 	//
 	//  读取一帧数据
 	//
-	void FFMPegReader::onReadFrame() {
+	void FFMPegReader::onReadFrame(int64_t trackId) {
 		if (mAVFormatContext == NULL) {			
 			FFL_LOG_WARNING(" FFMPegReader::onReadFrame context is null.");
 			FFL_sleep(10);
@@ -57,13 +57,13 @@ namespace reader {
 		message::FFMpegPacket* packet = NULL;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(
 			mMessageCache, &packet, MSG_FFMPEG_AVPACKET);
+		msg->trackIdReset(trackId);
 		FFL_ASSERT_LOG(packet, "FFMpegPacket is NULL.\n");
 		
 		//
 		//  打印处理时间
-		//
-		//msg->getTracebackInfo().setId(FFL_generateId());
-	   //FFL::AutoPrintfTrackback pp(msg->getTracebackInfo());
+		//		
+		msg->trackStat("ffmpegReader:%" lld64, FFL_getNowUs());
 
 		int err = av_read_frame(mAVFormatContext, packet->mPacket);
 		if (0 != err) {

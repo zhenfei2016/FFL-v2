@@ -6,7 +6,9 @@
 *
 *  FFL_Flags   
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/06 
-*  标志位存取
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+标志位存取
 *
 */
 #ifndef _FFL_PIPELINE_FALGS_HPP_

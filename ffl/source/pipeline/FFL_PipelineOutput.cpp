@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineOutput.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/16
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  node的输出接口
 *
@@ -96,6 +97,10 @@ namespace FFL
 			}
 		}
 		
+
+		if (msg->trackId() != -1) {
+			msg->trackStat("id:%" lld64 ",postTime:%" lld64, msg->trackId(),FFL_getNowUs());
+		}
 		return conn->tranport(msg,delayUs);
 	}
 

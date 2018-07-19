@@ -6,7 +6,8 @@
  *
  *  FFL_Pipeline.cpp 
  *  Created by zhufeifei(34008081@qq.com) on 2017/12/02 
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *
  *  流水线实例，可以包含n多的节点 ，然后启动，结束流水线
  *
 */

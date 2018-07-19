@@ -70,7 +70,7 @@ private:
 
 
 #include <utils/FFL_List.hpp>
-#include <utils/FFL_Vector.hpp>
 #include <utils/FFL_String.hpp>
+#include <utils/FFL_Vector.hpp>
 
 #endif

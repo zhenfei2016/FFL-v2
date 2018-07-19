@@ -4,14 +4,14 @@
  *  The MIT License (MIT)
  *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
  *
- *  FFL_socketNetworkClient.c
+ *  FFL_NetClient.c
  *  Created by zhufeifei(34008081@qq.com) on 2017/8/12.
  *  https://github.com/zhenfei2016/FFL-v2.git
   *  连接指定服务器，参考android adb代码
  *
  */
 #include "internalSocket.h"
-#include <net/FFL_socket.h>
+#include <net/base/FFL_Net.h>
 
 SOCKET_STATUS FFL_socketNetworkClient(const char *host, int port, int type, NetFD*fd )
 {

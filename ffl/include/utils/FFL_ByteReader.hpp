@@ -6,7 +6,7 @@
 *
 *  FFL_ByteReader   
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/01 
-*
+*  https://github.com/zhenfei2016/FFL-v2.git
 *  字节流读接口
 */
 #ifndef _FFL_BYTE_READER_HPP_

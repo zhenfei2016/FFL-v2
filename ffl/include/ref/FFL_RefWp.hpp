@@ -6,6 +6,7 @@
 *
 *  FFL_ref_weakimpl
 *  Created by zhufeifei(34008081@qq.com) on 2017/08/12
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  弱引用
 */

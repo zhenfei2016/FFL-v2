@@ -4,7 +4,7 @@
 *  The MIT License (MIT)
 *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
 *
-*  FFL_socket.h
+*  FFL_Net.h
 *  Created by zhufeifei(34008081@qq.com) on 2017/8/12.
 *  https://github.com/zhenfei2016/FFL-v2.git
 *  网络socket公用函数
@@ -15,7 +15,7 @@
 #define _FFL_SOCKET_H_
 
 #include <FFL.h>
-#include <net/FFL_socketConstant.h>
+#include <net/base/FFL_NetConst.h>
 
 #ifdef WIN32
 #include <winsock2.h>

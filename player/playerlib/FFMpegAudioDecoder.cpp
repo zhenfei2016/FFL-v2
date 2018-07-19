@@ -41,9 +41,11 @@ namespace player {
 		conn->setName("audioDecoder");
 		return conn;
 	}
-	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame){		
+	void NodeFFMpegAudioDecoder::handleDecodedFrame(AVFrame* frame,int64_t trackId){
 		message::FFMpegAudioFrame* sample = 0;
 		FFL::sp<FFL::PipelineMessage> msg = message::createMessageFromCache(mMessageCache, &sample, MSG_FFMPEG_AUDIO_FRAME);
+		msg->trackIdReset(trackId);
+
 		correctTimestamp(sample, frame);
 
 		sample->fillAvframe(frame);
@@ -57,8 +59,7 @@ namespace player {
 				FFL_sleep(10);
 			}
 		}
-
-		this->loadTrackbackInfo(msg, frame);
+		
 		if (FFL_OK != postMessage(mFrameOutput.mId, msg)) {
 			msg->consume(this);
 		}	

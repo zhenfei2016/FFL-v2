@@ -37,7 +37,7 @@ namespace player {
 		//  av_frame_unref(frame);
 		//  av_frame_free(&frame);
 		//
-		void handleDecodedFrame(AVFrame* frame);
+		void handleDecodedFrame(AVFrame* frame, int64_t trackId);
 		//
 		//  接收到eof消息
 		//

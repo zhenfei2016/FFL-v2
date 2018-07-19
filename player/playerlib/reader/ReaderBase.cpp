@@ -200,7 +200,8 @@ namespace reader {
 			mPauseCond.waitRelative(mPauseLock, 100);
 			return;
 		}		
-		onReadFrame();
+		onReadFrame(msg->trackId());
+		msg->consume(this);
 	}
 	void ReaderBase::onOpenStub(const FFL::sp<FFL::PipelineEvent>& event) {
 		onOpen(mUrl.c_str());

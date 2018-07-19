@@ -17,6 +17,7 @@ const char* ShowLogTag[] = {
 	//"audio",
 	//"timestamp",
 	//"MsgQueue",
+	"track",
 	0
 };
 
@@ -26,7 +27,7 @@ int printLog(int level,const char* tag, const char *format, va_list v)
 {	
 	bool showLog = false;
 	if (level <= FFL_LOG_LEVEL_WARNING) {
-		showLog = true;
+		//showLog = true;
 	}else if ( tag) {		
 		for (int i = 0; i < FFL_ARRAY_ELEMS(ShowLogTag); i++) {
 			if (ShowLogTag[i] && strcmp(tag, ShowLogTag[i]) == 0) {
@@ -88,7 +89,7 @@ extern "C" int main(int argc ,const char* argv[]) {
 
 	FFL::startMemoryWatch();
 #if WIN32
-	FFL_LogHook(printLogAll);
+	FFL_LogHook(printLog);
 #endif
     FFL_LogSetLevel(FFL_LOG_LEVEL_ALL);
 	//FFL_LogSetLevel(FFL_LOG_LEVEL_WARNING);

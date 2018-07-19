@@ -6,7 +6,8 @@
 *
 *  FFL_PipelineMessage.hpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/23
-*
+*  https://github.com/zhenfei2016/FFL-v2.git
+
 *  pipelineMessage消息
 *
 */
@@ -17,6 +18,7 @@
 #include <utils/FFL_Message.hpp>
 
 namespace FFL{
+	class TrackInfo;
 	class PipelineAsyncConnector;
 
 	//
@@ -35,39 +37,6 @@ namespace FFL{
 	public:
 		virtual void onConsume(FFL::PipelineMessage* msg)=0;
 	};
-
-	//
-	//  pipelinemessage的追溯信息，可以进行消息处理的性能分析
-	//
-	class PipelineMessageTrackbackId {
-	public:
-		PipelineMessageTrackbackId();
-		~PipelineMessageTrackbackId();
-	public:
-		void setId(int32_t id);
-		void beginTrack();
-		void endTrack();
-	public:
-		virtual void beginTrack(int32_t tid);
-		virtual void endTrack(int32_t tid);
-		virtual void printf();
-	private:
-		//
-		//  全局唯一的
-		//
-		int32_t mId;
-		//
-		//  开始结束时间，2个的差值为处理事件
-		//
-		int64_t mStartTimeUs;
-		int64_t mEndTimeUs;
-		//
-		// 处理的线程id
-		//
-		int32_t mThreadId;
-	};
-
-
 
 	class PipelineMessage : public Serializable {
 		friend class PipelineAsyncConnector;		
@@ -112,7 +81,6 @@ namespace FFL{
 		//  消息类型，可以根据这个类型解析出Playload的值
 		//
 		uint32_t mType;
-
 		//
 		//  消息的负载信息
 		//
@@ -132,31 +100,29 @@ namespace FFL{
 		//保存Message的唯一id
 		//
 		uint32_t mMessageUniqueId;
-	public:
+	public:				
 		//
-		//  获取，这个Message的追溯信息，主要用于调试，分析
-		//  因为，一条消息可能经过n多的node进行处理
-		//		
-		PipelineMessageTrackbackId& getTracebackInfo();
-	protected:
-		PipelineMessageTrackbackId mTraceBackInfo;
+		//  重置追踪id,以前保存的信息会清空
+		//
+		void trackIdReset(int64_t id);		
+		//
+		// 进行一次统计
+		//
+		void trackStat(const char* format,...);
+		//
+		//  获取所有的统计信息
+		//
+		void trackInfo(String& info);
+		//
+		//  通过这个id追踪这个消息的处理过程
+		//
+		int64_t trackId();
+	private:
+		int64_t mTrackId;	
+		TrackInfo* mTrackInfo;
 	};
-   
-	//
-	//  自动打印trackback
-	//
-	class AutoPrintfTrackback {
-	public:
-		inline AutoPrintfTrackback(PipelineMessageTrackbackId& info):mId(info){			
-			mId.beginTrack();
-		}
-		inline ~AutoPrintfTrackback() {
-			mId.endTrack();
-			mId.printf();
-		}
 
-		PipelineMessageTrackbackId& mId;
-	};
+
 	
     //
     //  是否PipelineMessage消息

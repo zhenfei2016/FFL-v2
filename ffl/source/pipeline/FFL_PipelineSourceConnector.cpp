@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineSourceConnector.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/12/11
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  源连接器，用户其实node的处理，现在支持
 *  timer类型 ，PipelineTimerSourceConnector  通过定时器触发的
@@ -25,10 +26,16 @@ namespace FFL {
 	}
 	PipelineSourceConnector::PipelineSourceConnector(sp<PipelineLooper>  looper):
 		PipelineAsyncConnector(looper) {
+		mGenerateTrackId = false;
 	}
 	PipelineSourceConnector::~PipelineSourceConnector(){
 	}
-
+	//
+	//  设置是否自动生成track id 
+	//
+	void PipelineSourceConnector::generateTrackId(bool gen) {
+		mGenerateTrackId = gen;
+	}
 	//
 	//  是否是连接状态， 有输入输出端
 	//
@@ -48,6 +55,9 @@ namespace FFL {
 		}
 		void onIdle()
 		{			
+			if (mInput->mGenerateTrackId) {
+				mIdleMsg->trackIdReset(FFL_generateId());
+			}
 		    mInput->dispathMessage(mIdleMsg);
 		}
 	private:
@@ -139,6 +149,9 @@ namespace FFL {
 	//  继续timer的执行
 	//
 	void PipelineTimerSourceConnector::activateTimer() {
+		if (mGenerateTrackId) {
+			mTimerMessage->trackIdReset(FFL_generateId());
+		}
 		tranport(mTimerMessage,mTimerMs * 1000);
 	}
 }

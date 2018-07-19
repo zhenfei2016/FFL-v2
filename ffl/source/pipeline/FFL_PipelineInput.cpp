@@ -6,7 +6,8 @@
  *
  *  FFL_PipelineInput.cpp
  *  Created by zhufeifei(34008081@qq.com) on 2017/12/10 
- *  
+ *  https://github.com/zhenfei2016/FFL-v2.git
+ *
  *  node的输入接口
  *
 */
@@ -18,6 +19,7 @@
 #include <pipeline/FFL_PipelineConnector.hpp>
 #include <pipeline/FFL_PipelineInputHandler.hpp>
 #include "PipelineLooper.hpp"
+#include "PipelineMessageTrackFile.hpp"
 
 namespace FFL {
 	PipelineInput::PipelineInput(PipelineNode* pipelineNode, sp<PipelineInputHandler> handler, PipelineInputId id)
@@ -243,6 +245,11 @@ namespace FFL {
 	//
 	void PipelineInput::dispathMessage(const sp<PipelineMessage>& msg)
 	{	
+		int64_t trackId = msg->trackId();
+		if (trackId != -1) {
+			msg->trackStat("id:%" lld64  ",node:%s,tid:%d,procBeginTime:%" lld64,
+				trackId, mName.c_str(), FFL_CurrentThreadID(), FFL_getNowUs());
+		}
 		//
 		//  其他消息的处理
 		//
@@ -251,6 +258,17 @@ namespace FFL {
 			mInputHandler->handleMessage(msg);
 		}else {
 			
+		}
+
+		if (trackId != -1) {
+			msg->trackStat("procEndTime:%" lld64, FFL_getNowUs());			
+			//
+			//  打印track信息
+			//
+			String info;
+			msg->trackInfo(info);
+			postTraceinfo(info);
+			msg->trackIdReset(trackId);
 		}
 
 		sp<PipelineConnector> conn = mConnector;

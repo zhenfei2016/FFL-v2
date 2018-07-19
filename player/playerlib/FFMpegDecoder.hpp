@@ -44,7 +44,7 @@ namespace player {
 		//  解码一帧数据
 		//   discard:是否丢弃解码出来的数据
 		//
-		bool decode(AVPacket *pkt,bool discard);
+		bool decode(const FFL::sp<FFL::PipelineMessage>& msg, AVPacket *pkt,bool discard);
 	private:
 		//
 		//  解码出来的图片 ,frame通过av_frame_alloc申请出来的
@@ -52,18 +52,9 @@ namespace player {
 		//  av_frame_unref(frame);
 		//  av_frame_free(&frame);
 		//
-		virtual void handleDecodedFrame(AVFrame* frame)=0;
+		virtual void handleDecodedFrame(AVFrame* frame,int64_t trackId)=0;
 
 		virtual void handleEOF(const FFL::sp<FFL::PipelineMessage>& eof);     
-	protected:	
-		//
-		//  保存，获取trackback信息
-		//
-		void saveTrackbackInfo(const FFL::sp<FFL::PipelineMessage> msg);
-		void loadTrackbackInfo(FFL::sp<FFL::PipelineMessage> outMsg, AVFrame* frame);
-		void resetTrackbackInfo();
-
-		FFL::Vector<FFL::PipelineMessageTrackbackId> mTrackbakcIdMap;
 	public:
 		//
 		// 解码上下文

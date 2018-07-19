@@ -6,7 +6,9 @@
 *
 *  FFL_Loadmodule   
 *  Created by zhufeifei(34008081@qq.com) on 2017/07/10
-*  模块加载函数，
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+模块加载函数，
 *
 */
 #ifndef _FFL_LOADMODULE_H_

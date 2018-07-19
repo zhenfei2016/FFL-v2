@@ -4,7 +4,7 @@
  *  The MIT License (MIT)
  *  Copyright (C) 2017-2018 zhufeifei All rights reserved.
  *
- *  FFL_socket.c
+ *  FFL_Net.c
  *  Created by zhufeifei(34008081@qq.com) on 2017/8/12.
  *  https://github.com/zhenfei2016/FFL-v2.git
  *  网络socket公用函数
@@ -12,14 +12,21 @@
  */
 
 #include "internalSocket.h"
-#include <net/FFL_socket.h>
+#include <net/base/FFL_Net.h>
 
+static int gSocketInited=0;
 
 void FFL_socketInit(){
-	SOCKET_SETUP();
+	if (!gSocketInited) {
+		SOCKET_SETUP();
+		gSocketInited++;
+	}
 }
 void FFL_socketUninit(){
-	SOCKET_CLEANUP();
+	if (gSocketInited) {
+		SOCKET_CLEANUP();
+		gSocketInited=0;
+	}
 }
 
 static void fdCloseExec(NetFD fd)

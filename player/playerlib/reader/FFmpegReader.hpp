@@ -22,7 +22,7 @@ namespace reader {
 		//
 		//  读取一帧数据
 		//
-		virtual void onReadFrame();
+		virtual void onReadFrame(int64_t trackId);
 		//
 		// open函数，具体实现
 		//

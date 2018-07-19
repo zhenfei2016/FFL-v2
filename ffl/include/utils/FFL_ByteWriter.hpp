@@ -6,7 +6,9 @@
 *
 *  FFL_ByteWriter
 *  Created by zhufeifei(34008081@qq.com) on 2018/05/01
-*  字节流写接口
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+字节流写接口
 *
 */
 #ifndef _FFL_BYTE_WRITER_HPP_

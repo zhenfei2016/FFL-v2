@@ -6,6 +6,7 @@
 *
 *  FFL_PipelineMessage.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2017/12/23
+*  https://github.com/zhenfei2016/FFL-v2.git
 *
 *  pipelineMessage消息
 *
@@ -17,37 +18,31 @@
 #define ENABLE_TRACKBACK 
 
 namespace FFL {
-	PipelineMessageTrackbackId::PipelineMessageTrackbackId() {
-		mId = 0;
-		mStartTimeUs=0;
-		mEndTimeUs=0;
-		//
-		// 处理的线程id
-		//
-		mThreadId=0;
-	}
-	PipelineMessageTrackbackId::~PipelineMessageTrackbackId() {
 
-	}
-	void PipelineMessageTrackbackId::setId(int32_t id) {
-		mId = id;
-	}
+	class TrackInfo {
+	public:
+		TrackInfo() {
 
-	void PipelineMessageTrackbackId::beginTrack() {
-		beginTrack(FFL_CurrentThreadID());
-	}
-	void PipelineMessageTrackbackId::endTrack() {
-		endTrack(FFL_CurrentThreadID());
-	}
-	void PipelineMessageTrackbackId::beginTrack(int32_t tid) {
-		mStartTimeUs = FFL_getNowUs();
-		mThreadId = tid;
-	}
-	void PipelineMessageTrackbackId::endTrack(int32_t tid) {
-		mEndTimeUs = FFL_getNowUs();
-	}	
-	void PipelineMessageTrackbackId::printf() {
-	}
+		}
+		void clear() {
+			mInfos = "";
+		}
+
+		void add(const char* format, va_list args) {
+			char str[1024] = "";			
+			vsnprintf(str, 1024 - 1, format, args);
+			if (mInfos.size() > 0) {
+				mInfos.append(",");
+			}
+			mInfos.append(str);
+		}
+
+		void toString(String& info) {			
+			info = mInfos;
+		}
+
+		String mInfos;
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	PipelineMessage::PipelineMessage() :
@@ -59,6 +54,9 @@ namespace FFL {
         mPayloadAutoDel=false;	
 		mParam1 = 0;
 		mParam2 = 0;
+
+		mTrackInfo = new TrackInfo();
+		trackIdReset(-1);
 	}
 	//
 	//  消息类型
@@ -70,6 +68,9 @@ namespace FFL {
 	{
         mPayloadAutoDel=false;
         FFL_LOG_DEBUG("PipelineMessage::PipelineMessage(%d) %p",mType,this);
+
+		mTrackInfo = new TrackInfo();
+		trackIdReset(-1);
 	}
     
     PipelineMessage::~PipelineMessage(){
@@ -78,6 +79,8 @@ namespace FFL {
             delete mPayload;
             mPayload=NULL;
         }
+
+		FFL_SafeFree(mTrackInfo);
     }
 	//
 	//  消息类型
@@ -103,11 +106,17 @@ namespace FFL {
 	//  消息正常的被handler处理后触发consume的调用
 	//  消息cancel也会触发consume
 	//
-	void PipelineMessage::consume(void*)
-	{
+	void PipelineMessage::consume(void*){
 		mMessageUniqueId = 0;		
 		if (mPayload) {			
 			mPayload->consume();
+		}
+
+		//
+		//  打印track信息
+		//
+		if (trackId() != -1) {			
+			trackStat("consume:%" lld64,FFL_getNowUs());
 		}
 
 		//
@@ -121,8 +130,7 @@ namespace FFL {
 	//
 	//   设置负载信息
 	//
-	void PipelineMessage::setPayload(PipelineMessagePayload* payload,bool autoDel) {
-        
+	void PipelineMessage::setPayload(PipelineMessagePayload* payload,bool autoDel) {        
         if(mPayloadAutoDel && mPayload && mPayload !=payload){
             delete mPayload;
             mPayload=NULL;
@@ -148,14 +156,43 @@ namespace FFL {
 	int64_t PipelineMessage::getParam2() const {
 		return mParam2;
 	}
+
+
 	//
-	//  获取，这个Message的追溯信息，主要用于调试，分析
-	//  因为，一条消息可能经过n多的node进行处理
+	//  重置追踪id,以前保存的信息会清空
 	//
-	PipelineMessageTrackbackId&  PipelineMessage::getTracebackInfo() {
-		return mTraceBackInfo ;
+	void PipelineMessage::trackIdReset(int64_t id) {
+		mTrackId = id;
+		if (mTrackInfo) {
+			mTrackInfo->clear();
+		}
 	}
-   
+	//
+	// 进行一次统计
+	//
+	void PipelineMessage::trackStat(const char* format, ...) {
+		if (mTrackInfo == NULL) {
+			return;
+		}
+		va_list args;
+		va_start(args, format);		
+		mTrackInfo->add(format,args);
+		va_end(args);
+	}
+	//
+	//  获取所有的统计信息
+	//
+	void PipelineMessage::trackInfo(String& info) {
+		if (mTrackInfo) {
+			mTrackInfo->toString(info);
+		}
+	}
+	//
+	//  通过这个id追踪这个消息的处理过程
+	//
+	int64_t PipelineMessage::trackId() {
+		return mTrackId;
+	}   
 
     //
     //  是否系统消息

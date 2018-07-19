@@ -58,7 +58,7 @@ namespace player {
 				//
 				//  清空这个解码器的所有数据，这个解码器就没有用了，关闭了
 				//
-				decode(NULL, false);
+				decode(msg,NULL, false);
 			}
 			mWaitIFrame = false;
 			handleEOF(msg);
@@ -80,21 +80,20 @@ namespace player {
 			// 第一次
 			//
 			mSerialNumber = packet->mSerialNumber;
-		}		
-		saveTrackbackInfo(msg);
+		}				
 
 		//
 		//  解码数据
 		//
 		if (mCodecCtx)
 		{
-			return decode(packet->mPacket,false);
+			return decode(msg,packet->mPacket,false);
 		}else {
 			FFL_LOG_WARNING("Failed to NodeFFMpegDecoder::decode streamIndex=%d" , packet->mPacket->stream_index);
 		}
 		return false;
 	}	
-	bool NodeFFMpegDecoder::decode(AVPacket *pkt, bool discard){
+	bool NodeFFMpegDecoder::decode(const FFL::sp<FFL::PipelineMessage>& msg, AVPacket *pkt, bool discard){
 		if (mCodecCtx == NULL) {
 			return false;
 		}
@@ -135,7 +134,7 @@ namespace player {
 				mCodecCtx->frame_number, frame->pts,
 				frame->width, frame->height, frame->key_frame,discard);
 			if (!discard) {
-				handleDecodedFrame(frame);
+				handleDecodedFrame(frame, msg->trackId());
 			}else {
 				av_frame_unref(frame);
 				av_frame_free(&frame);
@@ -148,18 +147,5 @@ namespace player {
 	void NodeFFMpegDecoder::handleEOF(const FFL::sp<FFL::PipelineMessage>& eof) {
 
 	}  
-
-	//
-	//  保存，获取trackback信息
-	//
-	void NodeFFMpegDecoder::saveTrackbackInfo(const FFL::sp<FFL::PipelineMessage> msg) {
-
-	}
-	void NodeFFMpegDecoder::loadTrackbackInfo(FFL::sp<FFL::PipelineMessage> outMsg, AVFrame* frame) {
-
-	}
-	void NodeFFMpegDecoder::resetTrackbackInfo() {
-
-	}
 
 }

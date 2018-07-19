@@ -6,7 +6,9 @@
 *
 *  FFL_HandlerManager   
 *  Created by zhufeifei(34008081@qq.com) on 2018/03/11 
-*  handler管理器，每一个looper中存在一个这个示例，用于handler的管理
+*  https://github.com/zhenfei2016/FFL-v2.git
+*
+handler管理器，每一个looper中存在一个这个示例，用于handler的管理
 *
 */
 #ifndef _FFL_HANDLER_MANAGER_HPP_
