@@ -7,7 +7,7 @@
 *  FFL_NetServer.cpp
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/14
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÍøÂ··şÎñÆ÷»ùÀà
+*  ç½‘è·¯æœåŠ¡å™¨åŸºç±»
 *
 */
 #include <net/FFL_NetServer.hpp>
@@ -22,7 +22,7 @@ namespace FFL {
 	NetServer::~NetServer() {		
 	}
 	//
-	//  Á¬½Ó¹ÜÀí
+	//  è¿æ¥ç®¡ç†
 	//
 	void NetServer::setConnectManager(NetConnectManager* mgr) {
 		mConnectMgr = mgr;
@@ -38,7 +38,7 @@ namespace FFL {
 		return onStart();
 	}
 	//
-	//  Í£Ö¹tcp·şÎñÆ÷
+	//  åœæ­¢tcpæœåŠ¡å™¨
 	//
 	void NetServer::stop() {
 		onStop();
@@ -79,7 +79,7 @@ namespace FFL {
 		mIp = NULL;
 	}
 	//
-	//  Æô¶¯·şÎñ
+	//  å¯åŠ¨æœåŠ¡
 	//		
 	status_t TcpServer::onStart() {
 		if (mServerFd >= 0) {
@@ -93,7 +93,7 @@ namespace FFL {
 		return FFL_OK;
 	}
 	//
-	//  Í£Ö¹·şÎñÆ÷
+	//  åœæ­¢æœåŠ¡å™¨
 	//
 	void TcpServer::onStop() {
 		if (mServerFd >= 0) {
@@ -104,14 +104,14 @@ namespace FFL {
 		}
 	}
 	//
-	//  ¼àÌıÑ­»·£¬·µ»ØÊÇ·ñ¼ÌĞø¼àÌı
+	//  ç›‘å¬å¾ªç¯ï¼Œè¿”å›æ˜¯å¦ç»§ç»­ç›‘å¬
 	//
 	bool TcpServer::listenLoop() {
 		if (mServerFd < 0) {
 			return false;
 		}
 		
-		int clientFd=0;
+		NetFD clientFd=0;
 		if (FFL_socketAccept(mServerFd, &clientFd) != FFL_SOCKET_OK){
 			return false;
 		}

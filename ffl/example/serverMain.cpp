@@ -8,7 +8,12 @@
 class TrackFileReader {
 public:
 	TrackFileReader() {
-		mFile.open("e:\\pipeline_track.txt");
+#ifdef WIN32
+        const char* path="e:\\track-pipelinemsg.log";
+#else
+        const char* path="/Users/zhufeifei/work/movic/track-pipelinemsg.log";
+#endif
+		mFile.open(path);
 	}
 
 	~TrackFileReader() {

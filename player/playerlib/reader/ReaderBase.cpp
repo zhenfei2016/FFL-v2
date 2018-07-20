@@ -171,7 +171,7 @@ namespace reader {
 		else {
 			conn = new FFL::PipelineTimerSourceConnector(3000);
 		}		
-		
+        conn->generateTrackId(true);
 		mSourceConn = conn;
 		getOwner()->getPipeline()->connectSource(input.mNodeId, input.mId, conn);
 		return true;

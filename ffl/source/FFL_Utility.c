@@ -12,6 +12,12 @@
 #include <FFL.h>
 #include "atomic/atomic.h"
 static AtomicInt g_atomicId;
+static int gFirst=1;
+
 int FFL_generateId(){
+    if(gFirst){
+       FFL_atomicInit(&g_atomicId,1);
+        gFirst=0;
+    }
 	return atomicInc(&g_atomicId);
 }

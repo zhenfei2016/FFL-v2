@@ -7,7 +7,7 @@
 *  FFL_NetServer.hpp   
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/14 
 *  https://github.com/zhenfei2016/FFL-v2.git
-*  ÍøÂ··şÎñÆ÷»ùÀà
+*  ç½‘è·¯æœåŠ¡å™¨åŸºç±»
 *
 */
 #ifndef _FFL_NET_SERVER_HPP_
@@ -24,24 +24,24 @@ namespace FFL {
 		NetServer();
 		virtual ~NetServer();
 		//
-		//  Á¬½Ó¹ÜÀí
+		//  è¿æ¥ç®¡ç†
 		//
 		void setConnectManager(NetConnectManager* mgr);
 		NetConnectManager* getConnectManager() const;
 		//
-		//  Æô¶¯,Í£Ö¹·şÎñ,Æô¶¯·şÎñÇ°ĞèÒªsetConnectManager
+		//  å¯åŠ¨,åœæ­¢æœåŠ¡,å¯åŠ¨æœåŠ¡å‰éœ€è¦setConnectManager
 		//		
 		status_t start();
 		void stop();
 	protected:		
 		//
-		//  Æô¶¯,Í£Ö¹·şÎñÊµÏÖ
+		//  å¯åŠ¨,åœæ­¢æœåŠ¡å®ç°
 		//		
 		virtual status_t onStart()=0;
 		virtual void onStop()=0;
 	protected:
 	    //
-		//  ´´½¨£¬É¾³ıÒ»¸öÍøÂçÁ¬½Ó
+		//  åˆ›å»ºï¼Œåˆ é™¤ä¸€ä¸ªç½‘ç»œè¿æ¥
 		//
 		NetConnect* createConnect(NetFD fd);
 		void destroyConnect(NetFD fd);
@@ -50,18 +50,19 @@ namespace FFL {
 	};
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    class ListenThread;
 	class TcpServer : public NetServer {
 	public:
 		TcpServer(const char* ip,int32_t port);		
 		~TcpServer();
 		//
-		//  Æô¶¯,Í£Ö¹·şÎñÊµÏÖ
+		//  å¯åŠ¨,åœæ­¢æœåŠ¡å®ç°
 		//		
 		virtual status_t onStart();
 		virtual void onStop();
 	protected:
 		//
-		//  ¼àÌıÑ­»·£¬·µ»ØÊÇ·ñ¼ÌĞø¼àÌı
+		//  ç›‘å¬å¾ªç¯ï¼Œè¿”å›æ˜¯å¦ç»§ç»­ç›‘å¬
 		//
 		bool listenLoop() ;
 	private:	

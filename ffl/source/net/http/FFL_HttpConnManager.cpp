@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/15
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  http连接管理器，创建http连接，管理（添加，删除）所有的http连接
+*  http杩炴帴绠＄悊鍣紝鍒涘缓http杩炴帴锛岀鐞嗭紙娣诲姞锛屽垹闄わ級鎵�鏈夌殑http杩炴帴
 *
 */
 #include <net/http/FFL_HttpConnect.hpp>

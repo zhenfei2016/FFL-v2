@@ -19,13 +19,20 @@
 //  获取下一个视频url
 //
 static const char* getNextMovicUrl(bool next = true) {
+#ifdef WIN32
 	static const char* gMovicUrl[] = {
 		"d://movic//sintel.ts",
 		"d://movic//test.avi",
 		"d://movic//zhuoyaoji.mp4",
 	};
-
-	static int gMovicCount = 3;
+#else
+    static const char* gMovicUrl[] = {
+        "/Users/zhufeifei/work/movic/sintel.ts",
+        "/Users/zhufeifei/work/movic/test.avi",
+        "/Users/zhufeifei/work/movic/zhuoyaoji.mp4",
+    };
+#endif
+    	static int gMovicCount = 3;
 	static int gMovicIndex = -1;
 
 	if (next) {
@@ -338,12 +345,20 @@ static void help(const char* args, void* userdata) {
 
 int playerMain() {
 	help(0,0);
-	
+#ifdef WIN32
+    FFL::FFL_setTrackFilePath("e:/track-pipelinemsg.log");
+#else
+    FFL::FFL_setTrackFilePath("/Users/zhufeifei/work/movic/track-pipelinemsg.log");
+#endif
 	player::FFLPlayer player;
 	TestListener listener(&player);
 	player.setListener(&listener);
+#ifdef WIN32
 	FFL::sp<PlayerUiThread>  uiThread= new PlayerUiThread(&player);
 	uiThread->run("ui");
+#else
+    player.create(NULL);
+#endif
 
 	char cmd[256] = {};
 	cmd[0] = '-';
@@ -378,7 +393,9 @@ int playerMain() {
 		}
 	}
 
+#ifdef WIN32
 	uiThread->requestExitAndWait();
+#endif
 
 	return 0;
 }

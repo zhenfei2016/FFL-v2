@@ -78,6 +78,7 @@ namespace player {
 		sdl2Surface->setHandle(surface);
 		sdl2Surface->mWindow = mWindow;
 		mSurface=sdl2Surface;
+       // SDL_ShowWindow(mWindow);
 		return mWindow!=NULL;
 	}
 	void SDL2VideoDevice::onClose() {

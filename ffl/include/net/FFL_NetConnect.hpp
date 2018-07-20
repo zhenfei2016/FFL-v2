@@ -8,7 +8,7 @@
 *  Created by zhufeifei(34008081@qq.com) on 2018/07/14
 *  https://github.com/zhenfei2016/FFL-v2.git
 *
-*  ÍøÂçÁ¬½Ó»ùÀà
+*  ç½‘ç»œè¿æ¥åŸºç±»
 */
 #ifndef _FFL_NETCONNECT_HPP_
 #define _FFL_NETCONNECT_HPP_
@@ -30,13 +30,13 @@ namespace FFL {
 			return mFd;
 		}
 		//
-		//  Æô¶¯£¬Í£Ö¹connect
+		//  å¯åŠ¨ï¼Œåœæ­¢connect
 		//
 		status_t start();
 		void stop();
 	public:
 		//
-		//  ´¦ÀífdÉÏÊı¾İµÄÑ­»·£¬·µ»ØÊÇ·ñ¼ÌĞø´¦Àí
+		//  å¤„ç†fdä¸Šæ•°æ®çš„å¾ªç¯ï¼Œè¿”å›æ˜¯å¦ç»§ç»­å¤„ç†
 		//
 		virtual bool process();
 	protected:

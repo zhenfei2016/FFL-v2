@@ -90,9 +90,22 @@ int readFile(FileHandle* fd, uint8_t* buf, int32_t size) {
 	return 0;
 }
 #else
+//
+//定义flags:只写，文件不存在那么就创建，文件长度戳为0
+//
+#define FILE_FLAGS O_WRONLY | O_CREAT | O_TRUNC
+//
+//创建文件的权限，用户读、写、执行、组读、执行、其他用户读、执行
+//
+#define FILE_MODE S_IRWXU | S_IXGRP | S_IROTH | S_IXOTH
+
 FileHandle* createFile(const char* path, OpenFileMode mode) {
 	FileHandle* handle = new FileHandle();
-    handle->fd= open(path, O_RDWR)
+    if(mode==MODE_OPEN){
+       handle->fd= ::open(path, O_WRONLY);
+    }else{
+       handle->fd= ::open(path, FILE_FLAGS,FILE_MODE);
+    }
     return handle;
 }
 void closeFile(FileHandle* fd) {
@@ -131,7 +144,7 @@ namespace FFL {
 			return FFL_FILE_ALREADY_OPENED;			
 		}
 
-		open(path.c_str(), MODE_OPEN);
+		this->open(path.c_str(), MODE_OPEN);
 		mPath = path;
 		return FFL_OK;
 	}
@@ -144,7 +157,7 @@ namespace FFL {
 			return FFL_FILE_ALREADY_OPENED;
 		}
 
-		open(path.c_str(), MODE_APPEND);
+		this->open(path.c_str(), MODE_APPEND);
 		mPath = path;
 		return FFL_OK;
 	}
@@ -156,7 +169,7 @@ namespace FFL {
 			return FFL_FILE_ALREADY_OPENED;
 		}
 
-		open(path.c_str(), MODE_ALWAYS_CREATE);
+		this->open(path.c_str(), MODE_ALWAYS_CREATE);
 		mPath = path;
 		return FFL_OK;
 	}

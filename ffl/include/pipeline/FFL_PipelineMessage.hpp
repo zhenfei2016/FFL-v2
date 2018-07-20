@@ -122,7 +122,10 @@ namespace FFL{
 		TrackInfo* mTrackInfo;
 	};
 
-
+    //
+    //  设置track消息的保存路径
+    //
+    void FFL_setTrackFilePath(const char* path);
 	
     //
     //  是否PipelineMessage消息
